@@ -3,7 +3,7 @@
     "name": "Aski — Ask your ERP in natural language",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
-    "version": "1.0.0",
+    "version": "14.0.1.0.0",
     "category": "Productivity",
     "summary": "Connect your Odoo to Aski in one step: scan a QR and ask your "
                "ERP in plain language — even by voice.",
