@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "Aski - Ask your ERP in natural language",
+    "name": "Aski - AI assistant: ask your Odoo in natural language (chat & voice)",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
     "version": "14.0.1.0.0",
     "category": "Productivity",
-    "summary": "Connect your Odoo to Aski in one step: scan a QR and ask your "
-               "ERP in plain language - even by voice.",
+    "summary": "AI assistant to ask your Odoo in natural language: sales, "
+               "receivables, reports - by chat or voice. Connect by scanning a QR. Free.",
     "description": """
 Aski - Ask your ERP in natural language
 =======================================
@@ -25,6 +25,14 @@ URLs, databases or API keys by hand.
   Settings > Users > API Keys).
 * No data leaves your Odoo through this module: it only shows you the connection
   code. The Aski app connects directly to your Odoo via the standard external API.
+
+Aski is an AI assistant and chatbot for Odoo: ask your ERP in natural language
+and get instant answers and mobile reports - sales, receivables, top products,
+inactive customers, cash flow - by chat or voice. A simpler alternative to
+building dashboards or BI reports for everyday questions.
+
+Keywords: AI, assistant, chatbot, natural language, ask Odoo, mobile reports,
+business intelligence, BI, dashboards, voice, analytics, conversational, ERP.
 
 Get the app and learn more at https://aski.dev
 """,
