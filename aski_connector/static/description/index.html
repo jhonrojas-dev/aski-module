@@ -1,98 +1,114 @@
-<section class="oe_container">
-  <div class="oe_row oe_spaced">
-    <div class="oe_span12">
-      <h2 class="oe_slogan">Ask your ERP in natural language</h2>
-      <h3 class="oe_slogan" style="color:#875A7B;">Connect your Odoo to Aski in one step &mdash; scan a QR, no typing.</h3>
-    </div>
-  </div>
-</section>
+<style>
+/* Descripcion responsive propia: NO usamos las clases legacy oe_container/oe_span12
+   de la tienda porque traen ancho fijo (~928px) y rompen el layout en movil. */
+.aski-desc { width: 100%; color: #2b2b33; }
+.aski-desc * { box-sizing: border-box; max-width: 100%; }
+.aski-sec { width: 100%; padding: 8px 0; }
+.aski-sec.dark { background: #f6f6f8; }
+.aski-in { max-width: 960px; margin: 0 auto; padding: 28px 18px; }
+.aski-h1 { text-align: center; font-size: clamp(22px, 5vw, 34px); line-height: 1.2; margin: 0 0 8px; }
+.aski-h2 { text-align: center; color: #875A7B; font-weight: 600; font-size: clamp(15px, 3.4vw, 21px); line-height: 1.35; margin: 0; }
+.aski-h3 { text-align: center; font-size: clamp(18px, 4vw, 26px); margin: 0 0 14px; }
+.aski-p { font-size: 16px; line-height: 1.7; margin: 12px 0; }
+.aski-ol { font-size: 16px; line-height: 1.8; padding-left: 22px; margin: 8px 0; }
+.aski-sub { text-align: center; color: #666; margin: 0 0 16px; }
+.aski-gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.aski-gallery img { width: 170px; max-width: 44%; height: auto; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.14); }
+.aski-kw { color: #8a8a8a; font-size: 13px; }
+.aski-cta { text-align: center; }
+@media (max-width: 520px) {
+  .aski-in { padding: 22px 14px; }
+  .aski-gallery img { width: 140px; max-width: 46%; }
+}
+</style>
 
-<section class="oe_container oe_dark">
-  <div class="oe_row oe_spaced">
-    <div class="oe_span12">
-      <p class="oe_mt32">
+<div class="aski-desc">
+
+  <section class="aski-sec">
+    <div class="aski-in">
+      <h1 class="aski-h1">Ask your ERP in natural language</h1>
+      <h2 class="aski-h2">Connect your Odoo to Aski in one step &mdash; scan a QR, no typing.</h2>
+    </div>
+  </section>
+
+  <section class="aski-sec dark">
+    <div class="aski-in">
+      <p class="aski-p">
         <b>Aski</b> lets you ask your Odoo questions in plain language and get
         real figures in seconds &mdash; sales, receivables, top products, inactive
         customers and more &mdash; straight from your phone, even by voice.
       </p>
-      <p>
+      <p class="aski-p">
         This lightweight connector removes the manual setup. Install it, click
         <b>Connect with Aski</b>, and a one-time QR code is generated. Open the
         Aski app, scan it, and your phone is securely linked to this Odoo &mdash; no
         need to type URLs, databases or API keys by hand.
       </p>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="oe_container">
-  <div class="oe_row oe_spaced">
-    <div class="oe_span12">
-      <h3 class="oe_slogan">See it in action</h3>
-      <p style="text-align:center;color:#666;">Aski running on your phone &mdash; chat &amp; voice, real figures from your Odoo.</p>
-      <div style="text-align:center;">
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-1.png"/>
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-2.png"/>
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-3.png"/>
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-4.png"/>
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-5.png"/>
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-6.png"/>
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-7.png"/>
-        <img class="img img-responsive img-thumbnail" style="width:240px;max-width:46%;height:auto;margin:8px;" src="shot-8.png"/>
+  <section class="aski-sec">
+    <div class="aski-in">
+      <h3 class="aski-h3">See it in action</h3>
+      <p class="aski-sub">Aski running on your phone &mdash; chat &amp; voice, real figures from your Odoo.</p>
+      <div class="aski-gallery">
+        <img src="shot-1.png" alt="Aski screenshot 1"/>
+        <img src="shot-2.png" alt="Aski screenshot 2"/>
+        <img src="shot-3.png" alt="Aski screenshot 3"/>
+        <img src="shot-4.png" alt="Aski screenshot 4"/>
+        <img src="shot-5.png" alt="Aski screenshot 5"/>
+        <img src="shot-6.png" alt="Aski screenshot 6"/>
+        <img src="shot-7.png" alt="Aski screenshot 7"/>
+        <img src="shot-8.png" alt="Aski screenshot 8"/>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="oe_container">
-  <div class="oe_row oe_spaced">
-    <div class="oe_span12">
-      <h3 class="oe_slogan">How it works</h3>
-      <ol style="font-size:16px;line-height:1.7;">
+  <section class="aski-sec dark">
+    <div class="aski-in">
+      <h3 class="aski-h3">How it works</h3>
+      <ol class="aski-ol">
         <li>Install this module and open the new <b>Aski</b> menu.</li>
         <li>Click <b>Generate connection code</b> &mdash; a QR appears.</li>
         <li>Open the Aski mobile app, choose <b>Scan code</b>, point at the QR.</li>
         <li>Done. Start asking your ERP in plain language.</li>
       </ol>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="oe_container">
-  <div class="oe_row oe_spaced">
-    <div class="oe_span12">
-      <h3 class="oe_slogan">What you can ask</h3>
-      <p>
+  <section class="aski-sec">
+    <div class="aski-in">
+      <h3 class="aski-h3">What you can ask</h3>
+      <p class="aski-p">
         Aski is an <b>AI assistant</b> and chatbot for Odoo: ask your ERP in
         <b>natural language</b> and get instant answers and <b>mobile reports</b>
         &mdash; sales, receivables, top products, inactive customers, cash flow
         &mdash; by chat or by <b>voice</b>. A simpler alternative to building
         dashboards or BI reports for everyday questions.
       </p>
-      <p style="color:#888;font-size:13px;">
+      <p class="aski-kw">
         Keywords: AI, assistant, chatbot, natural language, ask Odoo, mobile
         reports, business intelligence, BI, dashboards, voice, analytics,
         conversational.
       </p>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="oe_container oe_dark">
-  <div class="oe_row oe_spaced">
-    <div class="oe_span12">
-      <h3 class="oe_slogan">Safe by design</h3>
-      <p>
+  <section class="aski-sec dark">
+    <div class="aski-in">
+      <h3 class="aski-h3">Safe by design</h3>
+      <p class="aski-p">
         The module only shows you a connection code. The Aski app connects
         directly to your Odoo through the <b>standard external API</b>. The code
         uses a standard Odoo <b>API key</b> generated for your user, which you can
         revoke anytime in Settings &gt; Users &gt; Account Security &gt; API Keys.
       </p>
-      <p>Works with Odoo Community and Enterprise, versions 14 to 19.</p>
-      <p class="oe_mt32">
+      <p class="aski-p">Works with Odoo Community and Enterprise, versions 14 to 19.</p>
+      <p class="aski-p aski-cta">
         Get the app and learn more at
         <a href="https://aski.dev" target="_blank">aski.dev</a>.
       </p>
     </div>
-  </div>
-</section>
+  </section>
+
+</div>
