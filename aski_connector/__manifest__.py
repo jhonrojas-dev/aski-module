@@ -45,7 +45,13 @@ Get the app and learn more at https://aski.dev
         "security/ir.model.access.csv",
         "views/aski_connect_views.xml",
     ],
-    "images": ["static/description/banner.png"],
+    "images": [
+        "static/description/banner.png",
+        "static/description/shot-1.png",
+        "static/description/shot-2.png",
+        "static/description/shot-3.png",
+        "static/description/shot-4.png",
+    ],
     "installable": True,
     "application": True,
 }
