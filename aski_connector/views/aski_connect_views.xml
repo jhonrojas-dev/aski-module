@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Paso 1: introduccion + boton para generar el codigo -->
+    <record id="view_aski_connect_intro" model="ir.ui.view">
+        <field name="name">aski.connect.wizard.intro</field>
+        <field name="model">aski.connect.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Connect with Aski">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Connect this Odoo with Aski</h1>
+                    </div>
+                    <p>
+                        Aski lets you ask your ERP in plain language and get real
+                        figures in seconds — sales, receivables, top products and
+                        more — from your phone, even by voice.
+                    </p>
+                    <p><b>How to connect:</b></p>
+                    <ol>
+                        <li>Click <b>Generate connection code</b> below.</li>
+                        <li>Open the <b>Aski</b> app on your phone and choose
+                            <b>Scan code</b>.</li>
+                        <li>Point the camera at the QR. Done — no typing.</li>
+                    </ol>
+                    <p>
+                        Don't have the app yet? Get it on
+                        <a href="https://play.google.com/store/apps/details?id=pe.aski.app"
+                           target="_blank">Google Play</a>
+                        or learn more at
+                        <a href="https://aski.dev" target="_blank">aski.dev</a>.
+                    </p>
+                </sheet>
+                <footer>
+                    <button name="action_generate" type="object"
+                            string="Generate connection code" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Paso 2: muestra el QR + token -->
+    <record id="view_aski_connect_code" model="ir.ui.view">
+        <field name="name">aski.connect.wizard.code</field>
+        <field name="model">aski.connect.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Your Aski connection code">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Scan this code in the Aski app</h1>
+                    </div>
+                    <group>
+                        <field name="qr_image" widget="image" nolabel="1"
+                               options="{'size': [240, 240]}"/>
+                    </group>
+                    <p>Or paste this code manually in the app:</p>
+                    <group>
+                        <field name="token" nolabel="1"
+                               widget="CopyClipboardChar"/>
+                    </group>
+                    <div class="alert alert-warning" role="alert">
+                        This code grants API access to this Odoo as your user.
+                        Don't share it. You can revoke it anytime in
+                        Settings &gt; Users &amp; Companies &gt; your user &gt;
+                        Account Security &gt; API Keys.
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Done" class="btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Accion + menu (app) -->
+    <record id="action_aski_connect" model="ir.actions.act_window">
+        <field name="name">Connect with Aski</field>
+        <field name="res_model">aski.connect.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_aski_connect_intro"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_aski_root" name="Aski" sequence="90"
+              web_icon="aski_connector,static/description/icon.png"/>
+    <menuitem id="menu_aski_connect" name="Connect" parent="menu_aski_root"
+              action="action_aski_connect" sequence="10"/>
+
+</odoo>
