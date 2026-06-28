@@ -1,0 +1,127 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* aski_connector
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "<b>How to connect:</b>"
+msgstr "<b>So verbinden Sie:</b>"
+
+#. module: aski_connector
+#: model:ir.model,name:aski_connector.model_aski_connect_wizard
+msgid "Aski connection assistant"
+msgstr "Aski-Verbindungsassistent"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid ""
+"Aski lets you ask your ERP in plain language and get real\n"
+"                        figures in seconds — sales, receivables, top products and\n"
+"                        more — from your phone, even by voice."
+msgstr "Mit Aski stellen Sie Ihrem ERP Fragen in normaler Sprache und erhalten in Sekunden echte Zahlen — Umsatz, Forderungen, Topprodukte und mehr — direkt vom Handy, sogar per Sprache."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Click <b>Generate connection code</b> below."
+msgstr "Klicken Sie unten auf <b>Verbindungscode generieren</b>."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Close"
+msgstr "Schließen"
+
+#. module: aski_connector
+#: model:ir.ui.menu,name:aski_connector.menu_aski_connect
+msgid "Connect"
+msgstr "Verbinden"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Connect this Odoo with Aski"
+msgstr "Verbinden Sie dieses Odoo mit Aski"
+
+#. module: aski_connector
+#: model:ir.actions.act_window,name:aski_connector.action_aski_connect
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Connect with Aski"
+msgstr "Mit Aski verbinden"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__token
+msgid "Connection code"
+msgstr "Verbindungscode"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Don't have the app yet? Get it on"
+msgstr "Sie haben die App noch nicht? Erhältlich bei"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Done"
+msgstr "Fertig"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Generate connection code"
+msgstr "Verbindungscode generieren"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid ""
+"Open the <b>Aski</b> app on your phone and choose\n"
+"                            <b>Scan code</b>."
+msgstr "Öffnen Sie die <b>Aski</b>-App auf Ihrem Handy und wählen Sie <b>Code scannen</b>."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Or paste this code manually in the app:"
+msgstr "Oder fügen Sie diesen Code manuell in der App ein:"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Point the camera at the QR. Done — no typing."
+msgstr "Richten Sie die Kamera auf den QR-Code. Fertig — ohne Tippen."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__qr_image
+msgid "QR code"
+msgstr "QR-Code"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Scan this code in the Aski app"
+msgstr "Scannen Sie diesen Code in der Aski-App"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid ""
+"This code grants API access to this Odoo as your user.\n"
+"                        Don't share it. You can revoke it anytime in\n"
+"                        Settings &gt; Users &amp; Companies &gt; your user &gt;\n"
+"                        Account Security &gt; API Keys."
+msgstr "Dieser Code gewährt API-Zugriff auf dieses Odoo als Ihr Benutzer. Teilen Sie ihn nicht. Sie können ihn jederzeit widerrufen unter Einstellungen &gt; Benutzer und Unternehmen &gt; Ihr Benutzer &gt; Kontosicherheit &gt; API-Schlüssel."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_connect_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Your Aski connection code"
+msgstr "Ihr Aski-Verbindungscode"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "or learn more at"
+msgstr "oder mehr erfahren auf"

@@ -49,6 +49,21 @@ class AskiConnectWizard(models.TransientModel):
             except TypeError:
                 return api_keys._generate("rpc", name, False)
 
+    def _aski_revoke_previous(self, name):
+        """Revoca codigos previos con el mismo nombre del usuario actual para no
+        acumular. Las API keys solo exponen su texto AL CREARSE (Odoo guarda un
+        hash), por eso no se pueden 'reusar': cada 'Generar' ROTA el codigo y el
+        anterior queda invalidado. Best-effort (si falla, igual se crea el nuevo)."""
+        try:
+            keys = self.env["res.users.apikeys"].sudo().search([
+                ("user_id", "=", self.env.user.id),
+                ("name", "=", name),
+            ])
+            if keys:
+                keys.unlink()
+        except Exception:  # noqa: BLE001
+            _logger.info("Aski: no se pudieron revocar codigos previos", exc_info=True)
+
     def _aski_make_qr(self, content):
         """Devuelve un PNG (base64) con el QR, o False si `qrcode` no esta."""
         try:
@@ -76,6 +91,9 @@ class AskiConnectWizard(models.TransientModel):
             self.env["ir.config_parameter"].sudo().get_param("web.base.url") or ""
         )
         dbname = self.env.cr.dbname
+        # Rota: revoca el codigo "Aski Mobile" anterior de este usuario antes de
+        # crear el nuevo (evita acumular claves; el QR anterior queda invalidado).
+        self._aski_revoke_previous("Aski Mobile")
         key = self._aski_generate_api_key("Aski Mobile")
         payload = {
             "v": 1,
