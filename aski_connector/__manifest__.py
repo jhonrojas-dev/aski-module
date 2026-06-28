@@ -36,7 +36,7 @@ business intelligence, BI, dashboards, voice, analytics, conversational, ERP.
 
 Get the app and learn more at https://aski.dev
 """,
-    "author": "Aski",
+    "author": "Jhon Jairo Rojas Ortiz",
     "website": "https://aski.dev",
     "license": "LGPL-3",
     "support": "jhon@aski.dev",
