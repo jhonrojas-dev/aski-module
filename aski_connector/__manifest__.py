@@ -6,7 +6,8 @@
     "version": "1.0.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
-               "receivables, reports - by chat or voice. Connect by scanning a QR. Free.",
+               "receivables, reports - by chat or voice, from your phone. "
+               "Read-only & safe. Connect by scanning a QR. Free.",
     "description": """
 Aski - Ask your ERP in natural language
 =======================================
@@ -20,11 +21,15 @@ This lightweight connector removes the manual setup: install it, click
 scan the code, and your phone is securely linked to this Odoo - no need to type
 URLs, databases or API keys by hand.
 
+* Read-only by design: Aski only reads and reports - it never creates, edits or
+  deletes records in your Odoo.
 * Works with Odoo Community and Enterprise (14 to 19).
 * Generates a standard Odoo API key for your user (you can revoke it anytime in
   Settings > Users > API Keys).
 * No data leaves your Odoo through this module: it only shows you the connection
   code. The Aski app connects directly to your Odoo via the standard external API.
+* Also run SAP? Aski works with SAP too - handy if you or your business partners
+  use both Odoo and SAP.
 
 Aski is an AI assistant and chatbot for Odoo: ask your ERP in natural language
 and get instant answers and mobile reports - sales, receivables, top products,
