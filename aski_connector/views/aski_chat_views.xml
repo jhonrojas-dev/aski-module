@@ -12,17 +12,28 @@
                         <h1>Connect the Aski chat</h1>
                     </div>
                     <p>
-                        Generate a <b>Personal access token</b> once in the Aski web app
-                        (Settings &gt; Personal access tokens) and paste it below. This
-                        Odoo will be registered as a connection under your Aski account,
-                        so anyone here can chat with your ERP without leaving Odoo.
+                        <b>Aski</b> is an AI assistant that answers questions about your
+                        Odoo in plain language - sales, receivables, top products and more.
+                    </p>
+                    <div class="alert alert-warning" role="alert">
+                        No Aski account yet? Create one at
+                        <a href="https://aski.dev?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_signup"
+                           target="_blank">aski.dev</a> - it takes about 2 minutes and
+                        starts with a 7-day free trial.
+                    </div>
+                    <p>
+                        Already have an account? Generate a <b>Personal access token</b>
+                        in the Aski web app (Settings &gt; Personal access tokens) and
+                        paste it below. This Odoo will be registered as a connection under
+                        your Aski account, so anyone here can chat with your ERP without
+                        leaving Odoo.
                     </p>
                     <group>
                         <field name="pat" placeholder="ask_pat_..." nolabel="1"
                                widget="CopyClipboardChar"/>
                     </group>
                     <div class="alert alert-info" role="alert">
-                        Chat usage spends credits from that Aski account's wallet — the
+                        Chat usage spends credits from that Aski account's wallet - the
                         same plan used by the Aski mobile app.
                     </div>
                 </sheet>

@@ -30,7 +30,10 @@
         // de este demo. Vivir en la esquina opuesta (izquierda) evita el choque
         // de z-index/superposicion sin tener que adivinar que mas hay instalado.
         left: 16px;
-        width: 380px;
+        // El ancho es mayor que el de Discuss (380px) a proposito: las
+        // respuestas de Aski traen tablas de datos, no solo texto corrido,
+        // y necesitan mas sitio para no quedar apretadas con scroll horizontal.
+        width: 440px;
         // Altura medida contra la propia ventana nativa de Discuss de Odoo
         // (o-mail-ChatWindow, ~633px en un viewport de 1000px) para que Aski
         // se sienta igual de alto, no un widget chico al lado.
