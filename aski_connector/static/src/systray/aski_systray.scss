@@ -36,25 +36,17 @@
         z-index: 1000;
         display: flex;
         flex-direction: column;
+        transition: height .15s ease;
 
         .aski-chat { flex: 1; min-height: 0; }
-    }
 
-    .ac-floating-close {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        z-index: 1001;
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        border: 0;
-        background: rgba(255, 255, 255, .85);
-        color: #334155;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        &:hover { background: #fff; }
+        // Estado minimizado: solo la barra de titulo queda visible, estilo
+        // "chat head" de WhatsApp/Messenger — clic en la barra restaura.
+        &.minimized {
+            height: auto;
+            width: 300px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .2);
+            .aski-chat { flex: none; }
+        }
     }
 }

@@ -59,7 +59,9 @@
             i { color: var(--ac-rose); }
         }
         .ac-title { font-size: 17px; font-weight: 700; }
-        .ac-header-r { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+        &.ac-header-clickable { cursor: pointer; }
+        .ac-header-r { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+        .ac-icon-btn-close:hover { background: rgba(225, 29, 72, .55); }
         .ac-credits {
             display: flex; align-items: center; gap: 5px;
             background: rgba(255, 255, 255, .12); padding: 3px 10px; border-radius: 999px;

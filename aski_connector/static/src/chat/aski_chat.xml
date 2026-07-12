@@ -3,25 +3,38 @@
     <t t-name="aski_connector.ChatWidget" owl="1">
         <div class="aski-chat">
 
-            <div class="ac-header">
+            <div class="ac-header" t-att-class="props.minimized ? 'ac-header-clickable' : ''"
+                 t-on-click="() => props.minimized ? props.onMinimize() : null">
                 <div class="ac-header-l">
-                    <button t-if="state.connected" class="ac-icon-btn" title="Conversations"
-                            t-on-click="toggleDrawer">
+                    <button t-if="state.connected and !props.minimized" class="ac-icon-btn" title="Conversations"
+                            t-on-click.stop="toggleDrawer">
                         <i class="fa fa-bars"/>
                     </button>
                     <span class="ac-avatar"><i class="fa fa-comments"/></span>
                     <span class="ac-title">Aski</span>
                 </div>
-                <div class="ac-header-r" t-if="state.connected">
-                    <span class="ac-credits" t-if="state.walletCredits === 0" title="Out of credits">
-                        <i class="fa fa-exclamation-circle"/> 0
-                    </span>
-                    <span class="ac-credits" t-else="">
-                        <i class="fa fa-bolt"/> <t t-esc="state.walletCredits"/>
-                    </span>
-                    <span class="ac-plan" t-if="state.planName" t-esc="state.planName"/>
+                <div class="ac-header-r">
+                    <t t-if="state.connected">
+                        <span class="ac-credits" t-if="state.walletCredits === 0" title="Out of credits">
+                            <i class="fa fa-exclamation-circle"/> 0
+                        </span>
+                        <span class="ac-credits" t-else="">
+                            <i class="fa fa-bolt"/> <t t-esc="state.walletCredits"/>
+                        </span>
+                        <span class="ac-plan" t-if="state.planName" t-esc="state.planName"/>
+                    </t>
+                    <button t-if="props.onMinimize" class="ac-icon-btn" title="Minimize"
+                            t-on-click.stop="props.onMinimize">
+                        <i class="fa fa-minus"/>
+                    </button>
+                    <button t-if="props.onClose" class="ac-icon-btn ac-icon-btn-close" title="Close"
+                            t-on-click.stop="props.onClose">
+                        <i class="fa fa-times"/>
+                    </button>
                 </div>
             </div>
+
+            <t t-if="!props.minimized">
 
             <!-- Drawer de conversaciones, estilo Discuss -->
             <t t-if="state.drawerOpen">
@@ -36,7 +49,7 @@
                     <div t-foreach="state.conversations" t-as="c" t-key="c.id"
                          t-attf-class="ac-drawer-item {{ c.id === state.conversationId ? 'active' : '' }}"
                          t-on-click="() => this.openConversation(c.id)">
-                        <t t-esc="c.title || 'Untitled'"/>
+                        <t t-esc="this.conversationTitle(c)"/>
                     </div>
                 </div>
             </t>
@@ -142,6 +155,8 @@
                         <i class="fa fa-paper-plane"/>
                     </button>
                 </div>
+            </t>
+
             </t>
         </div>
     </t>

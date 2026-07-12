@@ -182,6 +182,10 @@ export class AskiChatWidget extends Component {
         return markup(mdToHtml(text));
     }
 
+    conversationTitle(c) {
+        return c.title || _t("Untitled");
+    }
+
     async exportPdf() {
         if (this.state.exporting || !this.state.conversationId) return;
         this.state.exporting = true;
