@@ -3,11 +3,11 @@
     "name": "Aski - AI assistant: ask your Odoo in natural language (chat & voice)",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.1.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
-               "receivables, reports - by chat or voice, from your phone. "
-               "Read-only & safe. Connect by scanning a QR. Free.",
+               "receivables, reports - by chat or voice, from your phone or "
+               "right inside Odoo. Read-only & safe. Free.",
     "description": """
 Aski - Ask your ERP in natural language
 =======================================
@@ -21,13 +21,19 @@ This lightweight connector removes the manual setup: install it, click
 scan the code, and your phone is securely linked to this Odoo - no need to type
 URLs, databases or API keys by hand.
 
+New: chat with Aski right inside Odoo (16+) - paste a personal access token
+generated once in the Aski web app, and a chat panel appears under Aski > Chat.
+Same account, same wallet as the mobile app - just another way to ask.
+
 * Read-only by design: Aski only reads and reports - it never creates, edits or
   deletes records in your Odoo.
-* Works with Odoo Community and Enterprise (14 to 19).
+* Works with Odoo Community and Enterprise (14 to 19). The in-Odoo chat panel
+  needs 16+; the QR connector for the mobile app works on every version.
 * Generates a standard Odoo API key for your user (you can revoke it anytime in
   Settings > Users > API Keys).
-* No data leaves your Odoo through this module: it only shows you the connection
-  code. The Aski app connects directly to your Odoo via the standard external API.
+* No data leaves your Odoo through this module beyond what you ask Aski: the
+  chat panel talks directly to the Aski backend using your own personal access
+  token, the same way the mobile app does.
 * Also run SAP? Aski works with SAP too - handy if you or your business partners
   use both Odoo and SAP.
 
@@ -37,7 +43,8 @@ inactive customers, cash flow - by chat or voice. A simpler alternative to
 building dashboards or BI reports for everyday questions.
 
 Keywords: AI, assistant, chatbot, natural language, ask Odoo, mobile reports,
-business intelligence, BI, dashboards, voice, analytics, conversational, ERP.
+business intelligence, BI, dashboards, voice, analytics, conversational, ERP,
+embedded chat, in-app chat, chat widget, floating chat bubble, export PDF.
 
 Get the app and learn more at https://aski.dev
 """,
@@ -45,11 +52,19 @@ Get the app and learn more at https://aski.dev
     "website": "https://aski.dev",
     "license": "LGPL-3",
     "support": "jhon@aski.dev",
-    "depends": ["base"],
+    "depends": ["base", "web"],
     "data": [
         "security/ir.model.access.csv",
         "views/aski_connect_views.xml",
+        "views/aski_chat_views.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "aski_connector/static/src/chat/**/*",
+            "aski_connector/static/src/systray/**/*",
+        ],
+    },
+    "post_init_hook": "post_init_hook",
     "images": [
         "static/description/banner.png",
         "static/description/shot-1.png",
@@ -60,6 +75,8 @@ Get the app and learn more at https://aski.dev
         "static/description/shot-6.png",
         "static/description/shot-7.png",
         "static/description/shot-8.png",
+        "static/description/shot-9.png",
+        "static/description/shot-10.png",
     ],
     "installable": True,
     "application": True,
