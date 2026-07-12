@@ -1,0 +1,63 @@
+.ac-systray {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+
+    .ac-systray-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: background-color .15s ease;
+        &:hover { background: rgba(0, 0, 0, .06); }
+        .fa-comments { font-size: 18px; color: #e11d48; }
+    }
+
+    .ac-floating-panel {
+        position: fixed;
+        bottom: 16px;
+        // Odoo ancla SUS PROPIAS ventanas nativas de Discuss (y cualquier chat
+        // que las reutilice, como el add-on de WhatsApp AI) abajo-a-la-derecha
+        // en CUALQUIER instancia — es comportamiento core, no algo especifico
+        // de este demo. Vivir en la esquina opuesta (izquierda) evita el choque
+        // de z-index/superposicion sin tener que adivinar que mas hay instalado.
+        left: 16px;
+        // El ancho es mayor que el de Discuss (380px) a proposito: las
+        // respuestas de Aski traen tablas de datos, no solo texto corrido,
+        // y necesitan mas sitio para no quedar apretadas con scroll horizontal.
+        width: 440px;
+        // Altura medida contra la propia ventana nativa de Discuss de Odoo
+        // (o-mail-ChatWindow, ~633px en un viewport de 1000px) para que Aski
+        // se sienta igual de alto, no un widget chico al lado.
+        height: 640px;
+        max-height: calc(100vh - 32px);
+        max-width: calc(100vw - 32px);
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, .25);
+        overflow: hidden;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        transition: height .15s ease;
+
+        .aski-chat { flex: 1; min-height: 0; }
+
+        // Estado minimizado: solo la barra de titulo queda visible, estilo
+        // "chat head" de WhatsApp/Messenger — clic en la barra restaura.
+        &.minimized {
+            height: auto;
+            width: 300px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .2);
+            .aski-chat { flex: none; }
+        }
+    }
+}
