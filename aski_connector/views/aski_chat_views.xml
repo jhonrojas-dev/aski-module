@@ -71,10 +71,13 @@
         </field>
     </record>
 
-    <!-- ir.actions.server, NO act_window estatico: el registro es un singleton
-         resuelto en runtime (_get_or_create), un act_window sin res_id abriria
-         un formulario NUEVO y vacio en vez de la conexion ya guardada. -->
-    <record id="action_aski_account_link" model="ir.actions.server">
+    <!-- El id viejo (action_aski_account_link) era un ir.actions.act_window
+         estatico sin res_id -> abria un formulario NUEVO y vacio en vez de la
+         conexion ya guardada. Se borra (no se puede reusar el mismo id para
+         otro modelo) y se reemplaza por un ir.actions.server que resuelve el
+         singleton real en runtime (_get_or_create) antes de abrirlo. -->
+    <delete model="ir.actions.act_window" id="action_aski_account_link"/>
+    <record id="action_aski_account_link_open" model="ir.actions.server">
         <field name="name">Aski chat settings</field>
         <field name="model_id" ref="model_aski_account_link"/>
         <field name="state">code</field>
