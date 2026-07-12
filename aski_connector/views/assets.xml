@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ODOO 14: la clave `assets` del __manifest__ NO existe (llego en la 15;
+         aqui no hay ni tabla ir_asset). Los assets se declaran heredando el
+         bundle `web.assets_backend`, y las plantillas OWL van por la clave
+         `qweb` del manifest. -->
+    <template id="assets_backend" name="Aski connector assets"
+              inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/scss"
+                  href="/aski_connector/static/src/chat/aski_chat.scss"/>
+            <link rel="stylesheet" type="text/scss"
+                  href="/aski_connector/static/src/systray/aski_systray.scss"/>
+            <script type="text/javascript"
+                    src="/aski_connector/static/src/chat/aski_chat.js"/>
+            <script type="text/javascript"
+                    src="/aski_connector/static/src/systray/aski_systray.js"/>
+        </xpath>
+    </template>
+
+</odoo>

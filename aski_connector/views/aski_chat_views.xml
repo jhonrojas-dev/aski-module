@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Wizard: pegar el Personal Access Token -->
+    <record id="view_aski_chat_connect_wizard" model="ir.ui.view">
+        <field name="name">aski.chat.connect.wizard</field>
+        <field name="model">aski.chat.connect.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Connect Aski chat">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Connect the Aski chat</h1>
+                    </div>
+                    <p>
+                        <b>Aski</b> is an AI assistant that answers questions about your
+                        Odoo in plain language - sales, receivables, top products and more.
+                    </p>
+                    <div class="alert alert-warning" role="alert">
+                        No Aski account yet? Create one at
+                        <a href="https://aski.dev?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_signup"
+                           target="_blank">aski.dev</a> - it takes about 2 minutes and
+                        starts with a 7-day free trial.
+                    </div>
+                    <p>
+                        Already have an account? Generate a <b>Personal access token</b>
+                        in the Aski web app (Settings &gt; Personal access tokens) and
+                        paste it below. This Odoo will be registered as a connection under
+                        your Aski account, so anyone here can chat with your ERP without
+                        leaving Odoo.
+                    </p>
+                    <group>
+                        <field name="pat" placeholder="ask_pat_..."
+                               widget="CopyClipboardChar"/>
+                        <field name="name" placeholder="e.g. Production - Head office"/>
+                    </group>
+                    <p>The connection name is how this Odoo shows up in your Aski connections list, on your phone and on the web - so you can tell it apart from your other instances.</p>
+                    <div class="alert alert-info" role="alert">
+                        Chat usage spends credits from that Aski account's wallet - the
+                        same plan used by the Aski mobile app.
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_connect" type="object" class="btn-primary">Connect Aski</button>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_aski_chat_connect" model="ir.actions.act_window">
+        <field name="name">Connect Aski chat</field>
+        <field name="res_model">aski.chat.connect.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_aski_chat_connect_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Settings: estado de la conexion (reconectar / probar) -->
+    <record id="view_aski_account_link_form" model="ir.ui.view">
+        <field name="name">aski.account.link.form</field>
+        <field name="model">aski.account.link</field>
+        <field name="arch" type="xml">
+            <form string="Aski chat settings">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Aski chat connection</h1>
+                    </div>
+                    <group>
+                        <field name="connected" widget="boolean_toggle" readonly="1"/>
+                        <field name="plan_name" readonly="1"/>
+                        <field name="wallet_credits" readonly="1"/>
+                        <field name="last_synced" readonly="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_test_connection" type="object"
+                            string="Test connection" class="btn-secondary"/>
+                    <button name="%(action_aski_chat_connect)d" type="action"
+                            string="Reconnect / paste a new token" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- El id viejo (action_aski_account_link) era un ir.actions.act_window
+         estatico sin res_id -> abria un formulario NUEVO y vacio en vez de la
+         conexion ya guardada; se borro en la 1.1.3 (no se puede reusar el
+         mismo id para otro modelo) y se reemplazo por este ir.actions.server,
+         que resuelve el singleton real en runtime (_get_or_create) antes de
+         abrirlo. El <delete> de esa migracion ya cumplio su proposito (queda
+         solo en el historial de git) — dejarlo aqui solo generaria un warning
+         de "external id ya no existe" en cada instalacion nueva. -->
+    <record id="action_aski_account_link_open" model="ir.actions.server">
+        <field name="name">Aski chat settings</field>
+        <field name="model_id" ref="model_aski_account_link"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_settings()</field>
+    </record>
+
+    <!-- Chat widget (OWL, estilo Discuss) -->
+    <record id="action_aski_chat" model="ir.actions.client">
+        <field name="name">Chat</field>
+        <field name="tag">aski_chat_widget</field>
+    </record>
+
+    <menuitem id="menu_aski_chat" name="Chat" parent="aski_connector.menu_aski_root"
+              action="action_aski_chat" sequence="5"/>
+    <menuitem id="menu_aski_chat_settings" name="Chat Settings"
+              parent="aski_connector.menu_aski_root"
+              action="action_aski_account_link_open" sequence="20"
+              groups="base.group_system"/>
+
+</odoo>
