@@ -221,8 +221,18 @@ class AskiAccountLink(models.Model):
 
     @api.model
     def get_status(self):
-        """Estado para bootstrap del widget: conectado, saldo, plan."""
+        """Estado para bootstrap del widget: conectado, saldo, plan.
+        Refresca el saldo en vivo contra /billing/me en cada apertura del
+        widget — antes se mostraba el ultimo valor cacheado en
+        wallet_credits, que solo se actualizaba con el boton "Test
+        connection" de Configuracion; un usuario con creditos reales (p.ej.
+        tras una recarga) seguia viendo "Sin creditos" hasta tocar ese boton
+        a mano. Si la sincronizacion falla (sin red, token invalido) se
+        ignora el error y se muestra el ultimo valor cacheado, sin romper
+        la carga del widget."""
         rec = self.sudo()._get_or_create()
+        if rec.connected and rec.pat:
+            rec._sync_wallet()
         return {
             "connected": rec.connected,
             "email": rec.email or "",
