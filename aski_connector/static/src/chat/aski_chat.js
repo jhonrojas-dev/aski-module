@@ -19,6 +19,10 @@ function _inline(s) {
     s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, t, u) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${t}</a>`);
     return s;
 }
+function _isTableStart(lines, idx) {
+    return lines[idx].includes("|") && lines[idx + 1] !== undefined
+        && /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(lines[idx + 1]);
+}
 function mdToHtml(text) {
     const lines = _escapeHtml(text).split("\n");
     const out = [];
@@ -36,7 +40,7 @@ function mdToHtml(text) {
         }
         const h = line.match(/^(#{1,3})\s+(.*)/);
         if (h) { out.push(`<h${h[1].length}>${_inline(h[2])}</h${h[1].length}>`); i++; continue; }
-        if (line.includes("|") && lines[i + 1] && /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(lines[i + 1])) {
+        if (_isTableStart(lines, i)) {
             const split = (l) => l.split("|").map((c) => c.trim()).filter((c, idx, arr) => !((idx === 0 || idx === arr.length - 1) && c === ""));
             const head = split(line);
             let j = i + 2;
@@ -71,7 +75,7 @@ function mdToHtml(text) {
         }
         const buf = [line];
         i++;
-        while (i < lines.length && lines[i].trim() && !/^(#{1,3}\s|[-*]\s|\d+\.\s|>\s?|```)/.test(lines[i])) {
+        while (i < lines.length && lines[i].trim() && !/^(#{1,3}\s|[-*]\s|\d+\.\s|>\s?|```)/.test(lines[i]) && !_isTableStart(lines, i)) {
             buf.push(lines[i]);
             i++;
         }
