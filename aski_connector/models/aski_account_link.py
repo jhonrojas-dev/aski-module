@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """Conexion de esta base Odoo con una cuenta Aski, para el chat embebido.
 
-Un registro por compania. El token (PAT) se pega UNA vez desde la web de Aski
-(app.aski.dev > Settings > Personal access tokens) y de ahi en adelante el
-widget de chat habla con el MISMO backend/motor/wallet que la app Android —
-esto no es un producto nuevo, es un canal nuevo para la misma suscripcion.
+Un registro por BASE DE DATOS (no por compania: una base multi-compania sigue
+siendo una sola instancia hacia afuera, un solo XML-RPC). El token (PAT) se
+pega UNA vez desde la web de Aski (app.aski.dev > Settings > Personal access
+tokens) y de ahi en adelante el widget de chat habla con el MISMO backend/
+motor/wallet que la app Android — esto no es un producto nuevo, es un canal
+nuevo para la misma suscripcion.
 """
 import logging
 
@@ -72,6 +74,23 @@ class AskiAccountLink(models.Model):
         if not rec:
             rec = self.sudo().create({})
         return rec
+
+    @api.model
+    def action_open_settings(self):
+        """Menu 'Aski > Chat Settings'. Un ir.actions.act_window ESTATICO no
+        puede apuntar al singleton (su id no se conoce hasta runtime) — sin
+        res_id, Odoo abre un formulario NUEVO y vacio en vez de la conexion
+        real ya guardada. Este metodo resuelve el registro real primero."""
+        rec = self.sudo()._get_or_create()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Aski chat settings"),
+            "res_model": "aski.account.link",
+            "res_id": rec.id,
+            "view_mode": "form",
+            "view_id": self.env.ref("aski_connector.view_aski_account_link_form").id,
+            "target": "new",
+        }
 
     # ------------------------------------------------------------------
     # Llamadas al backend real de Aski

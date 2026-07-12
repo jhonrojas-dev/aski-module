@@ -71,12 +71,14 @@
         </field>
     </record>
 
-    <record id="action_aski_account_link" model="ir.actions.act_window">
+    <!-- ir.actions.server, NO act_window estatico: el registro es un singleton
+         resuelto en runtime (_get_or_create), un act_window sin res_id abriria
+         un formulario NUEVO y vacio en vez de la conexion ya guardada. -->
+    <record id="action_aski_account_link" model="ir.actions.server">
         <field name="name">Aski chat settings</field>
-        <field name="res_model">aski.account.link</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_aski_account_link_form"/>
-        <field name="target">new</field>
+        <field name="model_id" ref="model_aski_account_link"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_settings()</field>
     </record>
 
     <!-- Chat widget (OWL, estilo Discuss) -->
