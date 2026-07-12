@@ -88,6 +88,34 @@
         background: var(--ac-bg); display: flex; align-items: center; justify-content: center;
         i { color: var(--ac-rose); font-size: 12px; }
     }
+    .ac-bubble-body { min-width: 0; }
+    .ac-credits-used {
+        margin-top: 4px; font-size: 11px; color: var(--ac-muted);
+        i { color: var(--ac-rose); margin-right: 2px; }
+    }
+    // Mismo contrato visual que web/src/chat/MarkdownMessage.tsx (.md en
+    // chat.css) — no se reinventa el formato, solo el motor (OWL vs React).
+    .md {
+        > *:first-child { margin-top: 0; } > *:last-child { margin-bottom: 0; }
+        p { margin: 4px 0; }
+        h1, h2, h3 { margin: 8px 0 4px; font-weight: 800; line-height: 1.25; }
+        h1 { font-size: 18px; } h2 { font-size: 16px; } h3 { font-size: 15px; }
+        strong { font-weight: 700; }
+        em { font-style: italic; }
+        code { font-family: monospace; font-size: 12px; background: var(--ac-bg); padding: 1px 5px; border-radius: 5px; }
+        pre { background: var(--ac-bg); padding: 8px 10px; border-radius: 8px; overflow-x: auto; }
+        pre code { background: transparent; padding: 0; }
+        ul, ol { margin: 4px 0; padding-left: 18px; }
+        li { margin: 2px 0; }
+        blockquote { border-left: 3px solid var(--ac-rose); margin: 4px 0; padding: 2px 0 2px 10px; font-style: italic; opacity: .9; }
+        a { color: var(--ac-navy2); font-weight: 600; }
+    }
+    .md-table-wrap { overflow-x: auto; margin: 6px 0; border-radius: 8px; border: 1px solid var(--ac-line); }
+    .md table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 12px; }
+    .md th, .md td { text-align: left; padding: 5px 8px; white-space: nowrap; border-bottom: 1px solid var(--ac-line); }
+    .md th { background: color-mix(in srgb, var(--ac-navy2) 12%, transparent); font-weight: 700; }
+    .md tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--ac-bg) 60%, transparent); }
+    .md tbody tr:last-child td { border-bottom: 0; }
     .ac-thinking { color: var(--ac-muted); }
     .ac-bubble-error {
         align-self: flex-start; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;

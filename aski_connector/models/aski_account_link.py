@@ -135,7 +135,7 @@ class AskiAccountLink(models.Model):
         wallet = data.get("wallet") or {}
         sub = data.get("subscription") or {}
         rec.write({
-            "wallet_credits": wallet.get("balance_credits", 0),
+            "wallet_credits": wallet.get("balance", 0),
             "plan_name": (sub or {}).get("plan_id") or "",
             "last_synced": fields.Datetime.now(),
         })
