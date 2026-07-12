@@ -674,3 +674,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "No Aski account yet? Create one at"
 msgstr "Noch kein Aski-Konto? Erstellen Sie eines auf"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Export this answer to PDF"
+msgstr "Diese Antwort als PDF exportieren"
