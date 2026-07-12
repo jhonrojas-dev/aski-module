@@ -683,3 +683,57 @@ msgstr "Exporter cette réponse en PDF"
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Connect Aski"
 msgstr "Connecter Aski"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "AI assistant · read-only"
+msgstr "Assistant IA · lecture seule"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Aski - ask your Odoo"
+msgstr "Aski - interrogez votre Odoo"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Hi, I'm Aski"
+msgstr "Bonjour, je suis Aski"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Ask about your business in plain language — sales, receivables, top "
+"customers and more. Read-only & safe."
+msgstr ""
+"Interrogez votre activité en langage naturel — ventes, créances, meilleurs "
+"clients et plus. En lecture seule et sûr."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
+msgid "Connection name"
+msgstr "Nom de la connexion"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
+msgid "How this Odoo will appear in your Aski connections list."
+msgstr "Comment cet Odoo apparaîtra dans votre liste de connexions Aski."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "e.g. Production - Head office"
+msgstr "ex. Production - Siège"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"The connection name is how this Odoo shows up in your Aski connections list,"
+" on your phone and on the web - so you can tell it apart from your other "
+"instances."
+msgstr ""
+"Le nom de la connexion est la façon dont cet Odoo apparaît dans votre liste "
+"de connexions Aski, sur votre téléphone et sur le web, afin de le distinguer"
+" de vos autres instances."

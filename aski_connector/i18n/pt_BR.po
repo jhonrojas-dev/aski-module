@@ -681,3 +681,56 @@ msgstr "Exportar esta resposta em PDF"
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Connect Aski"
 msgstr "Conectar Aski"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "AI assistant · read-only"
+msgstr "Assistente de IA · somente leitura"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Aski - ask your Odoo"
+msgstr "Aski - pergunte ao seu Odoo"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Hi, I'm Aski"
+msgstr "Olá, sou o Aski"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Ask about your business in plain language — sales, receivables, top "
+"customers and more. Read-only & safe."
+msgstr ""
+"Pergunte sobre o seu negócio em linguagem simples — vendas, contas a "
+"receber, principais clientes e mais. Somente leitura e seguro."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
+msgid "Connection name"
+msgstr "Nome da conexão"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
+msgid "How this Odoo will appear in your Aski connections list."
+msgstr "Como este Odoo aparecerá na sua lista de conexões do Aski."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "e.g. Production - Head office"
+msgstr "ex. Produção - Matriz"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"The connection name is how this Odoo shows up in your Aski connections list,"
+" on your phone and on the web - so you can tell it apart from your other "
+"instances."
+msgstr ""
+"O nome da conexão é como este Odoo aparece na sua lista de conexões do Aski,"
+" no celular e na web, para você diferenciá-lo das suas outras instâncias."
