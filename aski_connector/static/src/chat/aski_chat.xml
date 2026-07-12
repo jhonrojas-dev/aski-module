@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Marca Aski: el ICONO REAL de la app, compuesto igual que el adaptive-icon
+         de Android (bg #152642 + foreground con inset 16%, recorte 72/108). Se
+         enmascara con squircle (border-radius 26%) en el SCSS, NO con circulo.
+         OJO: el ?v= es OBLIGATORIO — Odoo/el service worker cachean los estaticos
+         por URL, asi que cambiar el PNG sin cambiar la URL NO se ve (ni con
+         Ctrl+Shift+R). Si se vuelve a tocar el PNG, SUBIR el numero. -->
+    <t t-name="aski_connector.AskiMark" owl="1">
+        <img class="ac-mark-img" src="/aski_connector/static/src/img/aski_mark.png?v=4" alt="Aski"/>
+    </t>
+
+    <t t-name="aski_connector.ChatWidget" owl="1">
+        <div class="aski-chat">
+
+            <div class="ac-header" t-att-class="props.minimized ? 'ac-header-clickable' : ''"
+                 t-on-click="onHeaderClick()">
+                <div class="ac-header-l">
+                    <button t-if="state.connected and !props.minimized" class="ac-icon-btn" title="Conversations"
+                            t-on-click.stop="toggleDrawer">
+                        <i class="fa fa-bars"/>
+                    </button>
+                    <span class="ac-mark">
+                        <t t-call="aski_connector.AskiMark"/>
+                        <span t-if="state.connected" class="ac-mark-dot"/>
+                    </span>
+                    <div class="ac-header-id">
+                        <span class="ac-title">Aski</span>
+                        <span t-if="!props.minimized" class="ac-subtitle">AI assistant · read-only</span>
+                    </div>
+                </div>
+                <div class="ac-header-r">
+                    <t t-if="state.connected">
+                        <button t-if="state.walletCredits === 0" class="ac-credits ac-credits-empty"
+                                title="Out of credits - tap to top up" t-on-click.stop="openBilling">
+                            <i class="fa fa-exclamation-circle"/> Out of credits
+                        </button>
+                        <span class="ac-credits" t-else="">
+                            <i class="fa fa-bolt"/> <t t-esc="state.walletCredits"/>
+                        </span>
+                        <span class="ac-plan" t-if="state.planName and !props.minimized" t-esc="state.planName"/>
+                    </t>
+                    <button t-if="props.onMinimize" class="ac-icon-btn" title="Minimize"
+                            t-on-click.stop="onMinimizeClick()">
+                        <i class="fa fa-minus"/>
+                    </button>
+                    <button t-if="props.onClose" class="ac-icon-btn ac-icon-btn-close" title="Close"
+                            t-on-click.stop="onCloseClick()">
+                        <i class="fa fa-times"/>
+                    </button>
+                </div>
+            </div>
+
+            <t t-if="!props.minimized">
+
+            <!-- Drawer de conversaciones, estilo Discuss/ChatGPT -->
+            <t t-if="state.drawerOpen">
+                <div class="ac-scrim" t-on-click="toggleDrawer"/>
+                <div class="ac-drawer">
+                    <div class="ac-drawer-head">Conversations</div>
+                    <button class="ac-drawer-new" t-on-click="newConversation">
+                        <i class="fa fa-plus"/> New conversation
+                    </button>
+                    <div t-if="!state.conversations.length" class="ac-drawer-empty">
+                        No conversations yet.
+                    </div>
+                    <div t-foreach="state.conversations" t-as="c" t-key="c.id"
+                         t-attf-class="ac-drawer-item {{ c.id === state.conversationId ? 'active' : '' }}"
+                         t-on-click="openConversation(c.id)">
+                        <t t-esc="conversationTitle(c)"/>
+                    </div>
+                </div>
+            </t>
+
+            <!-- loading-state -->
+            <div t-if="state.loading" class="ac-loading">
+                <i class="fa fa-circle-o-notch fa-spin"/> <span>Loading…</span>
+            </div>
+
+            <!-- empty-state: cuenta Aski no conectada -->
+            <div t-elif="!state.connected" class="ac-empty">
+                <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
+                <div class="ac-empty-title">Connect Aski to start chatting</div>
+                <div class="ac-empty-sub">
+                    Ask your Odoo in plain language, right here — sales, receivables,
+                    top products and more.
+                </div>
+                <button class="ac-btn-primary" t-on-click="openConnect">
+                    Connect my Aski account
+                </button>
+            </div>
+
+            <t t-else="">
+                <div class="ac-messages" t-ref="messages">
+                    <!-- welcome hero (nueva conversacion, sin mensajes) -->
+                    <div t-if="!state.messages.length" class="ac-welcome">
+                        <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
+                        <div class="ac-welcome-title">Hi, I'm Aski</div>
+                        <div class="ac-welcome-sub">Ask about your business in plain language — sales, receivables, top customers and more. Read-only &amp; safe.</div>
+                        <!-- Las sugerencias vienen del getter `samples` (JS, con _t()):
+                             la etiqueta y el texto que se ENVIA son el MISMO string
+                             traducido. Antes el t-on-click llevaba el literal ingles
+                             hardcodeado -> se veia en espanol pero se mandaba en ingles. -->
+                        <div class="ac-samples">
+                            <button t-foreach="samples" t-as="s" t-key="s.text"
+                                    class="ac-sample" t-on-click="useSample(s.text)">
+                                <i t-attf-class="fa {{ s.icon }}"/> <t t-esc="s.text"/>
+                            </button>
+                        </div>
+                    </div>
+                    <t t-foreach="state.messages" t-as="m" t-key="m.id">
+                        <div t-if="m.role === 'user'" class="ac-bubble ac-bubble-user">
+                            <span t-esc="m.text"/>
+                        </div>
+                        <div t-elif="m.role === 'assistant'" class="ac-bubble ac-bubble-bot">
+                            <div class="md" t-raw="renderMd(m.text)"/>
+                            <div t-if="m.credits !== null" class="ac-meta">
+                                <span class="ac-credits-chip"><i class="fa fa-bolt"/> <t t-esc="m.credits"/> credits</span>
+                                <button t-if="m.backendId" class="ac-detail-btn" title="Details"
+                                        t-on-click="toggleDetail(m)">
+                                    <i class="fa fa-info-circle"/>
+                                </button>
+                                <button t-if="m.backendId" class="ac-detail-btn" title="Export this answer to PDF"
+                                        t-on-click="exportMessageDetail(m)" t-att-disabled="state.exporting">
+                                    <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
+                                </button>
+                            </div>
+                            <div t-if="state.detailFor === m.id" class="ac-detail">
+                                <div class="ac-detail-stats">
+                                    <div class="ac-stat">
+                                        <i class="fa fa-bolt"/>
+                                        <div><div class="ac-stat-v" t-esc="m.credits ?? 0"/><div class="ac-stat-k">credits</div></div>
+                                    </div>
+                                    <div t-if="m.rows !== null" class="ac-stat">
+                                        <i class="fa fa-table"/>
+                                        <div><div class="ac-stat-v" t-esc="m.rows"/><div class="ac-stat-k">rows</div></div>
+                                    </div>
+                                </div>
+                                <div class="ac-detail-fb">
+                                    <span>Helpful?</span>
+                                    <button t-attf-class="ac-fb-btn {{ m.feedback === 'like' ? 'on' : '' }}"
+                                            t-on-click="setFeedback(m, 'like')">
+                                        <i class="fa fa-thumbs-o-up"/>
+                                    </button>
+                                    <button t-attf-class="ac-fb-btn {{ m.feedback === 'dislike' ? 'on-bad' : '' }}"
+                                            t-on-click="setFeedback(m, 'dislike')">
+                                        <i class="fa fa-thumbs-o-down"/>
+                                    </button>
+                                </div>
+                                <button class="ac-detail-export" t-on-click="exportMessageDetail(m)"
+                                        t-att-disabled="state.exporting">
+                                    <i class="fa fa-file-pdf-o"/> Export this answer
+                                </button>
+                            </div>
+                        </div>
+                        <div t-else="" class="ac-bubble ac-bubble-error">
+                            <div><i class="fa fa-exclamation-triangle"/> <span t-esc="m.text"/></div>
+                            <div class="ac-error-actions">
+                                <button class="ac-btn-link" t-on-click="retry(m.retryText)">
+                                    Retry
+                                </button>
+                                <button class="ac-btn-link" t-on-click="openBilling">
+                                    Top up credits
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                    <!-- "Aski esta pensando" -->
+                    <div t-if="state.sending" class="ac-bubble ac-bubble-bot ac-thinking">
+                        <span class="ac-typing"><i/><i/><i/></span>
+                    </div>
+                </div>
+
+                <div class="ac-composer">
+                    <div class="ac-composer-inner">
+                        <button t-if="state.conversationId" class="ac-export" title="Export last answer to PDF"
+                                t-on-click="exportPdf" t-att-disabled="state.exporting">
+                            <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
+                        </button>
+                        <input type="text" placeholder="Ask Aski anything about your Odoo…"
+                               t-att-value="state.input" t-on-input="onInput" t-on-keydown="onKeydown"
+                               t-att-disabled="state.sending"/>
+                        <button class="ac-send" t-on-click="send()"
+                                t-att-disabled="state.sending || !state.input.trim()">
+                            <i class="fa fa-paper-plane"/>
+                        </button>
+                    </div>
+                </div>
+            </t>
+
+            </t>
+        </div>
+    </t>
+</templates>
