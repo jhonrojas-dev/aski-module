@@ -60,11 +60,15 @@ class AskiAccountLink(models.Model):
             r.pat_enc = r._aski_encrypt(r.pat or "")
 
     # ------------------------------------------------------------------
-    # Singleton por compania — no hace falta mas de una conexion Aski.
+    # Singleton por BASE DE DATOS, no por compania activa. Un Odoo multi-
+    # compania sigue siendo UNA sola instancia hacia afuera (una URL, un
+    # xmlrpc) — usar self.env.company aqui hacia que conectar con la
+    # compania A activa dejara "sin conectar" a la compania B, aunque sea
+    # la MISMA base y la MISMA conexion Aski. Ignorar company_id.
     # ------------------------------------------------------------------
     @api.model
     def _get_or_create(self):
-        rec = self.sudo().search([("company_id", "=", self.env.company.id)], limit=1)
+        rec = self.sudo().search([], order="id", limit=1)
         if not rec:
             rec = self.sudo().create({})
         return rec
