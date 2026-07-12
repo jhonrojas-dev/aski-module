@@ -520,3 +520,21 @@ msgstr "aski.dev"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "or"
 msgstr "o"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Export last answer to PDF"
+msgstr "Exportar la última respuesta a PDF"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "There's no Aski answer to export yet."
+msgstr "Todavía no hay ninguna respuesta de Aski para exportar."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "credits"
+msgstr "créditos"
