@@ -5,11 +5,8 @@
             <button class="ac-systray-btn" t-on-click="toggle" title="Aski">
                 <i class="fa fa-comments"/>
             </button>
-            <div t-if="state.open" class="ac-floating-panel">
-                <button class="ac-floating-close" t-on-click="toggle" title="Close">
-                    <i class="fa fa-times"/>
-                </button>
-                <AskiChatWidget/>
+            <div t-if="state.open" class="ac-floating-panel" t-att-class="state.minimized ? 'minimized' : ''">
+                <AskiChatWidget minimized="state.minimized" onMinimize="() => this.minimize()" onClose="() => this.close()"/>
             </div>
         </div>
     </t>

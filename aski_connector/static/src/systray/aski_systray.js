@@ -14,11 +14,26 @@ export class AskiSystray extends Component {
     static components = { AskiChatWidget };
 
     setup() {
-        this.state = useState({ open: false });
+        this.state = useState({ open: false, minimized: false });
     }
 
     toggle() {
-        this.state.open = !this.state.open;
+        if (this.state.open) {
+            this.state.open = false;
+            this.state.minimized = false;
+        } else {
+            this.state.open = true;
+            this.state.minimized = false;
+        }
+    }
+
+    minimize() {
+        this.state.minimized = !this.state.minimized;
+    }
+
+    close() {
+        this.state.open = false;
+        this.state.minimized = false;
     }
 }
 
