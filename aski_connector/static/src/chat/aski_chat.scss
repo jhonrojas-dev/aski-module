@@ -1,3 +1,12 @@
+// La burbuja flotante (systray) vive, en el DOM, DENTRO de .o_main_navbar
+// aunque se vea flotando aparte gracias a position:fixed — Odoo fuerza
+// `.o_main_navbar button, .o_main_navbar .fa { color: #fff !important; }`
+// para los iconos del propio navbar, y esa regla le gana a CUALQUIER color
+// nuestro que no sea blanco por pura coincidencia. La vista de pantalla
+// completa no sufre esto (vive fuera del navbar), así que el bug solo se
+// veía en la burbuja — por eso aparecían botones/iconos "invisibles" uno
+// por uno según se iban probando ahí. Todos los `color:` de este archivo
+// llevan `!important` a propósito por esta razón, no por estilo.
 .aski-chat {
     --ac-navy: #0f172a;
     --ac-navy2: #1e293b;
@@ -28,11 +37,11 @@
     }
     .ac-drawer-new {
         flex: none; border: 1px dashed var(--ac-line); background: var(--ac-bg);
-        color: var(--ac-navy2); border-radius: 10px; padding: 10px; font-weight: 700;
+        color: var(--ac-navy2) !important; border-radius: 10px; padding: 10px; font-weight: 700;
         cursor: pointer; margin-bottom: 10px; text-align: left;
-        i { margin-right: 6px; color: var(--ac-rose); }
+        i { margin-right: 6px; color: var(--ac-rose) !important; }
     }
-    .ac-drawer-empty { color: var(--ac-muted); font-size: 13px; padding: 8px 4px; }
+    .ac-drawer-empty { color: var(--ac-muted) !important; font-size: 13px; padding: 8px 4px; }
     .ac-drawer-item {
         padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -48,7 +57,7 @@
         color: #fff; padding: 14px 20px;
         .ac-header-l { display: flex; align-items: center; gap: 10px; }
         .ac-icon-btn {
-            border: 0; background: rgba(255, 255, 255, .12); color: #fff;
+            border: 0; background: rgba(255, 255, 255, .12); color: #fff !important;
             width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             &:hover { background: rgba(255, 255, 255, .22); }
@@ -56,7 +65,7 @@
         .ac-avatar {
             width: 30px; height: 30px; border-radius: 999px; background: rgba(255, 255, 255, .14);
             display: flex; align-items: center; justify-content: center;
-            i { color: var(--ac-rose); }
+            i { color: var(--ac-rose) !important; }
         }
         .ac-title { font-size: 17px; font-weight: 700; }
         &.ac-header-clickable { cursor: pointer; }
@@ -65,8 +74,8 @@
         .ac-credits {
             display: flex; align-items: center; gap: 4px; white-space: nowrap;
             background: rgba(255, 255, 255, .12); padding: 3px 8px; border-radius: 999px;
-            font-weight: 700; border: 0; color: #fff; font-size: inherit; font-family: inherit;
-            i.fa-exclamation-circle { color: #fbbf24; }
+            font-weight: 700; border: 0; color: #fff !important; font-size: inherit; font-family: inherit;
+            i.fa-exclamation-circle { color: #fbbf24 !important; }
         }
         .ac-credits-empty {
             cursor: pointer;
@@ -82,16 +91,16 @@
     .ac-loading, .ac-empty {
         flex: 1;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        gap: 10px; color: var(--ac-muted); text-align: center; padding: 40px 24px;
-        i { font-size: 30px; color: var(--ac-rose); }
+        gap: 10px; color: var(--ac-muted) !important; text-align: center; padding: 40px 24px;
+        i { font-size: 30px; color: var(--ac-rose) !important; }
     }
     .ac-loading { flex-direction: row; i { font-size: 18px; } }
-    .ac-empty-title { font-size: 17px; font-weight: 700; color: var(--ac-ink); }
+    .ac-empty-title { font-size: 17px; font-weight: 700; color: var(--ac-ink) !important; }
     .ac-empty-sub { max-width: 360px; }
 
     .ac-btn-primary {
         margin-top: 6px; border: 0; cursor: pointer;
-        background: var(--ac-navy2); color: #fff; font-weight: 700;
+        background: var(--ac-navy2); color: #fff !important; font-weight: 700;
         padding: 10px 18px; border-radius: 999px;
         &:hover { background: var(--ac-navy); }
     }
@@ -104,15 +113,15 @@
         display: flex; flex-direction: column; gap: 10px;
     }
     .ac-hint {
-        margin: auto; color: var(--ac-muted); text-align: center; max-width: 320px;
-        > i.fa { display: block; font-size: 22px; margin-bottom: 8px; color: var(--ac-rose); }
-        i:not(.fa) { color: var(--ac-rose); font-style: italic; }
+        margin: auto; color: var(--ac-muted) !important; text-align: center; max-width: 320px;
+        > i.fa { display: block; font-size: 22px; margin-bottom: 8px; color: var(--ac-rose) !important; }
+        i:not(.fa) { color: var(--ac-rose) !important; font-style: italic; }
     }
     .ac-samples {
         display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px;
     }
     .ac-sample {
-        border: 1px solid var(--ac-line); background: #fff; color: var(--ac-ink);
+        border: 1px solid var(--ac-line); background: #fff; color: var(--ac-ink) !important;
         border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer;
         &:hover { border-color: var(--ac-navy2); background: var(--ac-bg); }
     }
@@ -121,50 +130,54 @@
         white-space: pre-wrap; word-break: break-word;
     }
     .ac-bubble-user {
-        align-self: flex-end; background: var(--ac-navy2); color: #fff;
+        align-self: flex-end; background: var(--ac-navy2); color: #fff !important;
         border-bottom-right-radius: 4px;
     }
     .ac-bubble-bot {
         align-self: flex-start; background: #fff; border: 1px solid var(--ac-line);
         border-bottom-left-radius: 4px; display: flex; gap: 8px; align-items: flex-start;
+        color: var(--ac-ink) !important;
     }
     .ac-bubble-avatar {
         flex: none; width: 22px; height: 22px; border-radius: 999px;
         background: var(--ac-bg); display: flex; align-items: center; justify-content: center;
-        i { color: var(--ac-rose); font-size: 12px; }
+        i { color: var(--ac-rose) !important; font-size: 12px; }
     }
     .ac-bubble-body { min-width: 0; }
     .ac-credits-used {
-        margin-top: 4px; font-size: 11px; color: var(--ac-muted);
+        margin-top: 4px; font-size: 11px; color: var(--ac-muted) !important;
         display: flex; align-items: center; gap: 6px;
-        i { color: var(--ac-rose); margin-right: 2px; }
+        i { color: var(--ac-rose) !important; margin-right: 2px; }
     }
     .ac-detail-btn {
-        border: 0; background: transparent; color: var(--ac-muted); cursor: pointer;
+        border: 0; background: transparent; color: var(--ac-muted) !important; cursor: pointer;
         padding: 0; font-size: 12px;
-        &:hover { color: var(--ac-navy2); }
+        i { color: inherit !important; }
+        &:hover { color: var(--ac-navy2) !important; }
     }
     .ac-detail {
         margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ac-line);
     }
     .ac-detail-stats {
-        display: flex; gap: 12px; font-size: 12px; color: var(--ac-ink); margin-bottom: 6px;
-        i { color: var(--ac-rose); margin-right: 3px; }
+        display: flex; gap: 12px; font-size: 12px; color: var(--ac-ink) !important; margin-bottom: 6px;
+        i { color: var(--ac-rose) !important; margin-right: 3px; }
     }
     .ac-detail-fb {
         display: flex; align-items: center; gap: 8px; font-size: 12px;
-        color: var(--ac-muted); margin-bottom: 8px;
+        color: var(--ac-muted) !important; margin-bottom: 8px;
     }
     .ac-fb-btn {
         border: 1px solid var(--ac-line); background: #fff; border-radius: 6px;
-        width: 26px; height: 26px; cursor: pointer; color: var(--ac-muted);
+        width: 26px; height: 26px; cursor: pointer; color: var(--ac-muted) !important;
+        i { color: inherit !important; }
         &:hover { background: var(--ac-bg); }
-        &.on { border-color: #16a34a; color: #16a34a; }
-        &.on-bad { border-color: #dc2626; color: #dc2626; }
+        &.on { border-color: #16a34a; color: #16a34a !important; }
+        &.on-bad { border-color: #dc2626; color: #dc2626 !important; }
     }
     .ac-detail-export {
-        border: 1px solid var(--ac-line); background: var(--ac-bg); color: var(--ac-navy2);
+        border: 1px solid var(--ac-line); background: var(--ac-bg); color: var(--ac-navy2) !important;
         border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+        i { color: inherit !important; }
         &:hover { border-color: var(--ac-navy2); }
         &:disabled { opacity: .6; cursor: not-allowed; }
     }
@@ -183,7 +196,7 @@
         ul, ol { margin: 4px 0; padding-left: 18px; }
         li { margin: 2px 0; }
         blockquote { border-left: 3px solid var(--ac-rose); margin: 4px 0; padding: 2px 0 2px 10px; font-style: italic; opacity: .9; }
-        a { color: var(--ac-navy2); font-weight: 600; }
+        a { color: var(--ac-navy2) !important; font-weight: 600; }
     }
     .md-table-wrap { overflow-x: auto; margin: 6px 0; border-radius: 8px; border: 1px solid var(--ac-line); }
     .md table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 12px; }
@@ -191,9 +204,9 @@
     .md th { background: color-mix(in srgb, var(--ac-navy2) 12%, transparent); font-weight: 700; }
     .md tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--ac-bg) 60%, transparent); }
     .md tbody tr:last-child td { border-bottom: 0; }
-    .ac-thinking { color: var(--ac-muted); }
+    .ac-thinking { color: var(--ac-muted) !important; }
     .ac-bubble-error {
-        align-self: flex-start; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;
+        align-self: flex-start; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b !important;
         border-bottom-left-radius: 4px;
     }
     .ac-error-actions {
@@ -201,7 +214,7 @@
     }
     .ac-btn-link {
         border: 0; background: transparent; cursor: pointer; padding: 0;
-        color: #991b1b; font-weight: 700; text-decoration: underline;
+        color: #991b1b !important; font-weight: 700; text-decoration: underline;
     }
 
     // ---- composer ----
@@ -216,16 +229,12 @@
         }
         .ac-send {
             flex: none; width: 40px; height: 40px; border-radius: 999px; border: 0;
-            background: var(--ac-navy2); color: #fff; cursor: pointer;
-            &:disabled { background: var(--ac-line); color: var(--ac-muted); cursor: not-allowed; }
+            background: var(--ac-navy2); color: #fff !important; cursor: pointer;
+            &:disabled { background: var(--ac-line); color: var(--ac-muted) !important; cursor: not-allowed; }
         }
         .ac-export {
             flex: none; width: 40px; height: 40px; border-radius: 999px;
             border: 1px solid var(--ac-line); background: #fff; cursor: pointer;
-            // !important: el icono salia blanco-sobre-blanco (invisible) porque
-            // algun estilo generico de boton del webclient de Odoo ganaba la
-            // especificidad sobre el color aqui — bug real detectado en vivo,
-            // no solo cosmetico.
             color: var(--ac-navy2) !important;
             i { color: inherit !important; }
             &:disabled { color: var(--ac-muted) !important; cursor: not-allowed; }
