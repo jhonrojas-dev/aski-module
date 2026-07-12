@@ -1,7 +1,20 @@
 /** @odoo-module **/
 import { Component, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
+import { browser } from "@web/core/browser/browser";
 import { AskiChatWidget } from "../chat/aski_chat";
+
+const STORAGE_KEY = "aski_connector.bubble_state";
+
+function loadBubbleState() {
+    try {
+        const raw = browser.localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return { open: !!parsed.open, minimized: !!parsed.minimized };
+    } catch (e) {
+        return { open: false, minimized: false };
+    }
+}
 
 // Burbuja flotante estilo Discuss/WhatsApp: un icono en la barra superior que
 // abre el MISMO widget de chat (historial, tablas, export a PDF — todo
@@ -14,7 +27,15 @@ export class AskiSystray extends Component {
     static components = { AskiChatWidget };
 
     setup() {
-        this.state = useState({ open: false, minimized: false });
+        // Recuerda si el usuario la dejo abierta/minimizada — al recargar la
+        // pantalla (F5) antes se perdia y volvia a cerrarse siempre.
+        this.state = useState(loadBubbleState());
+    }
+
+    _persist() {
+        browser.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            open: this.state.open, minimized: this.state.minimized,
+        }));
     }
 
     toggle() {
@@ -25,15 +46,18 @@ export class AskiSystray extends Component {
             this.state.open = true;
             this.state.minimized = false;
         }
+        this._persist();
     }
 
     minimize() {
         this.state.minimized = !this.state.minimized;
+        this._persist();
     }
 
     close() {
         this.state.open = false;
         this.state.minimized = false;
+        this._persist();
     }
 }
 
