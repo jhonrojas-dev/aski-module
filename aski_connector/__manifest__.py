@@ -60,6 +60,7 @@ Get the app and learn more at https://aski.dev
     "assets": {
         "web.assets_backend": [
             "aski_connector/static/src/chat/**/*",
+            "aski_connector/static/src/systray/**/*",
         ],
     },
     "post_init_hook": "post_init_hook",

@@ -5,6 +5,10 @@
 
             <div class="ac-header">
                 <div class="ac-header-l">
+                    <button t-if="state.connected" class="ac-icon-btn" title="Conversations"
+                            t-on-click="toggleDrawer">
+                        <i class="fa fa-bars"/>
+                    </button>
                     <span class="ac-avatar"><i class="fa fa-comments"/></span>
                     <span class="ac-title">Aski</span>
                 </div>
@@ -18,6 +22,24 @@
                     <span class="ac-plan" t-if="state.planName" t-esc="state.planName"/>
                 </div>
             </div>
+
+            <!-- Drawer de conversaciones, estilo Discuss -->
+            <t t-if="state.drawerOpen">
+                <div class="ac-scrim" t-on-click="toggleDrawer"/>
+                <div class="ac-drawer">
+                    <button class="ac-drawer-new" t-on-click="newConversation">
+                        <i class="fa fa-plus"/> New conversation
+                    </button>
+                    <div t-if="!state.conversations.length" class="ac-drawer-empty">
+                        No conversations yet.
+                    </div>
+                    <div t-foreach="state.conversations" t-as="c" t-key="c.id"
+                         t-attf-class="ac-drawer-item {{ c.id === state.conversationId ? 'active' : '' }}"
+                         t-on-click="() => this.openConversation(c.id)">
+                        <t t-esc="c.title || 'Untitled'"/>
+                    </div>
+                </div>
+            </t>
 
             <!-- loading-state -->
             <div t-if="state.loading" class="ac-loading">
@@ -43,6 +65,12 @@
                         <i class="fa fa-magic"/>
                         Ask something like <i>"sales this month"</i> or
                         <i>"overdue invoices"</i>.
+                        <div class="ac-samples">
+                            <button class="ac-sample" t-on-click="() => this.useSample('How much did I sell this month?')">How much did I sell this month?</button>
+                            <button class="ac-sample" t-on-click="() => this.useSample('My top 10 customers')">My top 10 customers</button>
+                            <button class="ac-sample" t-on-click="() => this.useSample('Overdue invoices')">Overdue invoices</button>
+                            <button class="ac-sample" t-on-click="() => this.useSample('How many customers do I have?')">How many customers do I have?</button>
+                        </div>
                     </div>
                     <t t-foreach="state.messages" t-as="m" t-key="m.id">
                         <div t-if="m.role === 'user'" class="ac-bubble ac-bubble-user">
