@@ -680,3 +680,57 @@ msgstr "Dit antwoord exporteren als PDF"
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Connect Aski"
 msgstr "Aski verbinden"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "AI assistant · read-only"
+msgstr "AI-assistent · alleen-lezen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Aski - ask your Odoo"
+msgstr "Aski - vraag het je Odoo"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Hi, I'm Aski"
+msgstr "Hoi, ik ben Aski"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Ask about your business in plain language — sales, receivables, top "
+"customers and more. Read-only & safe."
+msgstr ""
+"Stel vragen over je bedrijf in gewone taal — verkoop, vorderingen, "
+"topklanten en meer. Alleen-lezen en veilig."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
+msgid "Connection name"
+msgstr "Naam van de verbinding"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
+msgid "How this Odoo will appear in your Aski connections list."
+msgstr "Hoe deze Odoo verschijnt in je lijst met Aski-verbindingen."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "e.g. Production - Head office"
+msgstr "bijv. Productie - Hoofdkantoor"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"The connection name is how this Odoo shows up in your Aski connections list,"
+" on your phone and on the web - so you can tell it apart from your other "
+"instances."
+msgstr ""
+"De naam van de verbinding bepaalt hoe deze Odoo verschijnt in je lijst met "
+"Aski-verbindingen, op je telefoon en op het web, zodat je hem van je andere "
+"instanties kunt onderscheiden."
