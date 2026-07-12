@@ -625,3 +625,50 @@ msgstr "Sans titre"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Out of credits - tap to top up"
 msgstr "Plus de crédits - touchez pour recharger"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"- it takes about 2 minutes and\n"
+"                        starts with a 7-day free trial."
+msgstr ""
+"- cela prend environ 2 minutes et\n"
+"                        commence par un essai gratuit de 7 jours."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"<b>Aski</b> is an AI assistant that answers questions about your\n"
+"                        Odoo in plain language - sales, receivables, top products and more."
+msgstr ""
+"<b>Aski</b> est un assistant IA qui répond aux questions sur votre\n"
+"                        Odoo en langage simple - ventes, créances, produits les plus vendus et plus encore."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Already have an account? Generate a <b>Personal access token</b>\n"
+"                        in the Aski web app (Settings &gt; Personal access tokens) and\n"
+"                        paste it below. This Odoo will be registered as a connection under\n"
+"                        your Aski account, so anyone here can chat with your ERP without\n"
+"                        leaving Odoo."
+msgstr ""
+"Vous avez déjà un compte ? Générez un <b>jeton d'accès personnel</b>\n"
+"                        dans l'application web d'Aski (Paramètres &gt; Jetons d'accès personnel) et\n"
+"                        collez-le ci-dessous. Cet Odoo sera enregistré comme une connexion de\n"
+"                        votre compte Aski, afin que n'importe qui ici puisse discuter avec\n"
+"                        votre ERP sans quitter Odoo."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Chat usage spends credits from that Aski account's wallet - the\n"
+"                        same plan used by the Aski mobile app."
+msgstr ""
+"L'utilisation du chat consomme des crédits du portefeuille de ce compte Aski - le\n"
+"                        même forfait que celui utilisé par l'application mobile Aski."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "No Aski account yet? Create one at"
+msgstr "Vous n'avez pas encore de compte Aski ? Créez-en un sur"
