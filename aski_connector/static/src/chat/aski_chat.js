@@ -126,6 +126,7 @@ export class AskiChatWidget extends Component {
             exporting: false,
             conversations: [],
             drawerOpen: false,
+            detailFor: null,
         });
         onWillStart(async () => { await this.loadStatus(); });
     }
@@ -197,6 +198,37 @@ export class AskiChatWidget extends Component {
         }
     }
 
+    toggleDetail(m) {
+        this.state.detailFor = this.state.detailFor === m.id ? null : m.id;
+    }
+
+    async setFeedback(m, value) {
+        const previous = m.feedback;
+        const next = previous === value ? null : value;
+        m.feedback = next; // optimista
+        try {
+            await this.orm.call("aski.account.link", "set_feedback", [m.backendId, next]);
+        } catch (e) {
+            m.feedback = previous; // revertir si el backend rechazo el cambio
+        }
+    }
+
+    async exportMessageDetail(m) {
+        if (this.state.exporting) return;
+        this.state.exporting = true;
+        try {
+            const tzOffset = -new Date().getTimezoneOffset();
+            const r = await this.orm.call("aski.account.link", "export_message_pdf",
+                [m.backendId, tzOffset]);
+            printHtml(r.content_html);
+        } catch (e) {
+            const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
+            this.notification.add(msg, { type: "danger", sticky: true });
+        } finally {
+            this.state.exporting = false;
+        }
+    }
+
     openConnect() {
         this.action.doAction("aski_connector.action_aski_chat_connect");
     }
@@ -247,9 +279,20 @@ export class AskiChatWidget extends Component {
             this.state.messages.push({
                 id: `a${Date.now()}`, role: "assistant", text: r.answer || "",
                 credits: typeof r.credits === "number" ? r.credits : null,
+                backendId: null, rows: null, feedback: null,
             });
             if (typeof r.credits === "number") {
                 this.state.walletCredits = Math.max(0, this.state.walletCredits - r.credits);
+            }
+            // Reconciliar con el backend: send_message no devuelve el id real
+            // del mensaje assistant, pero el panel de detalle (creditos,
+            // registros, like/dislike, exportar ESTE mensaje) lo necesita.
+            // Recarga silenciosa -- mismo texto ya visible, solo completa metadata.
+            if (this.state.conversationId) {
+                try {
+                    this.state.messages = await this.orm.call(
+                        "aski.account.link", "load_conversation", [this.state.conversationId]);
+                } catch (e2) { /* la burbuja optimista ya quedo visible, no molestar */ }
             }
         } catch (e) {
             const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");

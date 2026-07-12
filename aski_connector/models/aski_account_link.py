@@ -149,13 +149,27 @@ class AskiAccountLink(models.Model):
             "message": message, "type": "success" if ok else "danger", "sticky": not ok}}
 
     def _register_credential(self, nickname, url, db, login, api_key):
-        """Registra (o refresca) esta base Odoo como una credential mas de la
-        cuenta Aski conectada — POST /users/odoo, guarda el credential_id que
-        despues viaja en cada /chat."""
+        """Registra esta base Odoo como credential de la cuenta Aski conectada.
+        Si YA habia un credential_id de una conexion anterior, actualiza ESE
+        registro (PUT) en vez de crear uno nuevo (POST) — antes cada
+        Reconectar creaba una credential "Odoo (in-app chat)" duplicada."""
         self.ensure_one()
         rec = self.sudo()
         body = {"nickname": nickname, "url": url, "db": db, "login": login,
                 "api_key": api_key, "erp_type": "odoo"}
+        if rec.credential_id:
+            try:
+                resp = requests.put(ASKI_API_BASE + "/users/odoo/%s" % rec.credential_id,
+                                    json=body, headers=rec._headers(), timeout=_TIMEOUT)
+            except Exception as e:  # noqa: BLE001
+                return False, _("Could not reach Aski: %s") % e
+            if resp.status_code == 200:
+                return True, ""
+            if resp.status_code != 404:
+                # 404 = esa credential ya no existe (el user la borro desde la
+                # app) -> cae al POST de abajo para crear una nueva. Cualquier
+                # otro error (403, 5xx) se reporta tal cual, sin duplicar.
+                return False, rec._error_message(resp)
         try:
             resp = requests.post(ASKI_API_BASE + "/users/odoo", json=body,
                                  headers=rec._headers(), timeout=_TIMEOUT)
@@ -250,19 +264,46 @@ class AskiAccountLink(models.Model):
             if role not in ("user", "assistant"):
                 continue
             out.append({
-                "id": "h%s" % m["id"], "role": role, "text": m.get("content", ""),
+                "id": "h%s" % m["id"], "backendId": m["id"], "role": role,
+                "text": m.get("content", ""),
                 "credits": m.get("credits") if role == "assistant" else None,
+                "rows": m.get("odoo_result_count") if role == "assistant" else None,
+                "feedback": m.get("feedback") if role == "assistant" else None,
             })
         return out
 
+    def _fetch_export_html(self, message_id, tz_offset_minutes):
+        rec = self.sudo()
+        try:
+            resp = requests.get(
+                ASKI_API_BASE + "/chat/messages/%s/export-html" % message_id,
+                params={"tz_offset_minutes": tz_offset_minutes},
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 403:
+            raise UserError(rec._error_message(resp))
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        data = resp.json()
+        return {"content_html": data.get("content_html", "")}
+
+    @api.model
+    def export_message_pdf(self, message_id, tz_offset_minutes=0):
+        """Exporta UNA respuesta puntual (boton 'Exportar' del panel de
+        detalle de un mensaje) — mismo endpoint que usan Android/web."""
+        rec = self.sudo()._get_or_create()
+        if not rec.connected:
+            raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
+                              "and paste your personal access token."))
+        return rec._fetch_export_html(message_id, tz_offset_minutes)
+
     @api.model
     def export_answer_pdf(self, conversation_id, tz_offset_minutes=0):
-        """Exporta la ULTIMA respuesta de Aski en esa conversacion como HTML
-        autonomo listo para imprimir a PDF (mismo endpoint y mismo HTML que
-        usan la app Android y la web — el print-to-PDF lo hace el navegador,
-        no el servidor). El endpoint de chat no devuelve el id del mensaje
-        assistant, asi que primero se resuelve via /conversations/.../messages
-        (mismo patron que ya usan Android/web)."""
+        """Exporta la ULTIMA respuesta de Aski en esa conversacion (boton
+        global del composer). El endpoint de chat no devuelve el id del
+        mensaje assistant, asi que primero se resuelve via
+        /conversations/.../messages (mismo patron que ya usan Android/web)."""
         rec = self.sudo()._get_or_create()
         if not rec.connected:
             raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
@@ -279,17 +320,18 @@ class AskiAccountLink(models.Model):
         assistant_msgs = [m for m in messages if m.get("role") == "assistant"]
         if not assistant_msgs:
             raise UserError(_("There's no Aski answer to export yet."))
-        message_id = assistant_msgs[-1]["id"]
+        return rec._fetch_export_html(assistant_msgs[-1]["id"], tz_offset_minutes)
+
+    @api.model
+    def set_feedback(self, message_id, feedback):
+        """Like/dislike de una respuesta (boton del panel de detalle)."""
+        rec = self.sudo()._get_or_create()
         try:
-            resp = requests.get(
-                ASKI_API_BASE + "/chat/messages/%s/export-html" % message_id,
-                params={"tz_offset_minutes": tz_offset_minutes},
-                headers=rec._headers(), timeout=_TIMEOUT)
+            resp = requests.patch(
+                ASKI_API_BASE + "/chat/messages/%s/feedback" % message_id,
+                json={"feedback": feedback}, headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
             raise UserError(_("Could not reach Aski: %s") % e)
-        if resp.status_code == 403:
-            raise UserError(rec._error_message(resp))
-        if resp.status_code != 200:
+        if resp.status_code not in (200, 204):
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
-        data = resp.json()
-        return {"content_html": data.get("content_html", "")}
+        return True
