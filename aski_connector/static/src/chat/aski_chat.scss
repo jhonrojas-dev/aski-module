@@ -144,5 +144,10 @@
             background: var(--ac-navy2); color: #fff; cursor: pointer;
             &:disabled { background: var(--ac-line); color: var(--ac-muted); cursor: not-allowed; }
         }
+        .ac-export {
+            flex: none; width: 40px; height: 40px; border-radius: 999px;
+            border: 1px solid var(--ac-line); background: #fff; color: var(--ac-navy2); cursor: pointer;
+            &:disabled { color: var(--ac-muted); cursor: not-allowed; }
+        }
     }
 }

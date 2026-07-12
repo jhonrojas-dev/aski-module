@@ -84,6 +84,27 @@ function mdToHtml(text) {
     return out.join("");
 }
 
+// Imprime un HTML autonomo a PDF con el dialogo nativo del navegador. MISMA
+// tecnica que web/src/lib/printHtml.ts (iframe oculto, sin bloqueo de
+// pop-ups) — reusa el HTML que ya genera el backend para Android/web.
+function printHtml(html) {
+    const iframe = document.createElement("iframe");
+    Object.assign(iframe.style, { position: "fixed", right: "0", bottom: "0", width: "0", height: "0", border: "0" });
+    iframe.setAttribute("aria-hidden", "true");
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow && iframe.contentWindow.document;
+    if (!doc) { iframe.remove(); return; }
+    doc.open();
+    doc.write(html);
+    doc.close();
+    const win = iframe.contentWindow;
+    const doPrint = () => {
+        try { win.focus(); win.print(); } finally { setTimeout(() => iframe.remove(), 1000); }
+    };
+    if (doc.readyState === "complete") setTimeout(doPrint, 350);
+    else iframe.onload = () => setTimeout(doPrint, 350);
+}
+
 export class AskiChatWidget extends Component {
     static template = "aski_connector.ChatWidget";
     static props = ["*"];
@@ -91,6 +112,7 @@ export class AskiChatWidget extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        this.notification = useService("notification");
         this.messagesRef = useRef("messages");
         this.state = useState({
             loading: true,
@@ -101,6 +123,7 @@ export class AskiChatWidget extends Component {
             input: "",
             sending: false,
             conversationId: null,
+            exporting: false,
         });
         onWillStart(async () => { await this.loadStatus(); });
     }
@@ -121,6 +144,22 @@ export class AskiChatWidget extends Component {
 
     renderMd(text) {
         return markup(mdToHtml(text));
+    }
+
+    async exportPdf() {
+        if (this.state.exporting || !this.state.conversationId) return;
+        this.state.exporting = true;
+        try {
+            const tzOffset = -new Date().getTimezoneOffset();
+            const r = await this.orm.call("aski.account.link", "export_answer_pdf",
+                [this.state.conversationId, tzOffset]);
+            printHtml(r.content_html);
+        } catch (e) {
+            const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
+            this.notification.add(msg, { type: "danger", sticky: true });
+        } finally {
+            this.state.exporting = false;
+        }
     }
 
     openConnect() {

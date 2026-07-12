@@ -215,3 +215,42 @@ class AskiAccountLink(models.Model):
             "wallet_credits": rec.wallet_credits,
             "plan_name": rec.plan_name or "",
         }
+
+    @api.model
+    def export_answer_pdf(self, conversation_id, tz_offset_minutes=0):
+        """Exporta la ULTIMA respuesta de Aski en esa conversacion como HTML
+        autonomo listo para imprimir a PDF (mismo endpoint y mismo HTML que
+        usan la app Android y la web — el print-to-PDF lo hace el navegador,
+        no el servidor). El endpoint de chat no devuelve el id del mensaje
+        assistant, asi que primero se resuelve via /conversations/.../messages
+        (mismo patron que ya usan Android/web)."""
+        rec = self.sudo()._get_or_create()
+        if not rec.connected:
+            raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
+                              "and paste your personal access token."))
+        try:
+            resp = requests.get(
+                ASKI_API_BASE + "/chat/conversations/%s/messages" % conversation_id,
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        messages = resp.json()
+        assistant_msgs = [m for m in messages if m.get("role") == "assistant"]
+        if not assistant_msgs:
+            raise UserError(_("There's no Aski answer to export yet."))
+        message_id = assistant_msgs[-1]["id"]
+        try:
+            resp = requests.get(
+                ASKI_API_BASE + "/chat/messages/%s/export-html" % message_id,
+                params={"tz_offset_minutes": tz_offset_minutes},
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 403:
+            raise UserError(rec._error_message(resp))
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        data = resp.json()
+        return {"content_html": data.get("content_html", "")}

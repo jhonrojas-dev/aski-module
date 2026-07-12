@@ -77,6 +77,10 @@
                 </div>
 
                 <div class="ac-composer">
+                    <button t-if="state.conversationId" class="ac-export" title="Export last answer to PDF"
+                            t-on-click="exportPdf" t-att-disabled="state.exporting">
+                        <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
+                    </button>
                     <input type="text" placeholder="Ask Aski anything about your Odoo…"
                            t-att-value="state.input" t-on-input="onInput" t-on-keydown="onKeydown"
                            t-att-disabled="state.sending"/>
