@@ -1,0 +1,120 @@
+.aski-chat {
+    --ac-navy: #0f172a;
+    --ac-navy2: #1e293b;
+    --ac-ink: #0f172a;
+    --ac-muted: #64748b;
+    --ac-line: #e6e9ef;
+    --ac-bg: #f4f6fa;
+    --ac-rose: #e11d48;
+
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    background: var(--ac-bg);
+    color: var(--ac-ink);
+    font-size: 14px;
+
+    // ---- header (linea de la familia: navy gradient) ----
+    .ac-header {
+        flex: none;
+        display: flex; align-items: center; justify-content: space-between;
+        background: linear-gradient(120deg, #0f172a 0%, #1e293b 55%, #334155 100%);
+        color: #fff; padding: 14px 20px;
+        .ac-header-l { display: flex; align-items: center; gap: 10px; }
+        .ac-avatar {
+            width: 30px; height: 30px; border-radius: 999px; background: rgba(255, 255, 255, .14);
+            display: flex; align-items: center; justify-content: center;
+            i { color: var(--ac-rose); }
+        }
+        .ac-title { font-size: 17px; font-weight: 700; }
+        .ac-header-r { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+        .ac-credits {
+            display: flex; align-items: center; gap: 5px;
+            background: rgba(255, 255, 255, .12); padding: 3px 10px; border-radius: 999px;
+            font-weight: 700;
+            i.fa-exclamation-circle { color: #fbbf24; }
+        }
+        .ac-plan {
+            background: rgba(255, 255, 255, .12); padding: 3px 10px; border-radius: 999px;
+            text-transform: capitalize;
+        }
+    }
+
+    // ---- states ----
+    .ac-loading, .ac-empty {
+        flex: 1;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 10px; color: var(--ac-muted); text-align: center; padding: 40px 24px;
+        i { font-size: 30px; color: var(--ac-rose); }
+    }
+    .ac-loading { flex-direction: row; i { font-size: 18px; } }
+    .ac-empty-title { font-size: 17px; font-weight: 700; color: var(--ac-ink); }
+    .ac-empty-sub { max-width: 360px; }
+
+    .ac-btn-primary {
+        margin-top: 6px; border: 0; cursor: pointer;
+        background: var(--ac-navy2); color: #fff; font-weight: 700;
+        padding: 10px 18px; border-radius: 999px;
+        &:hover { background: var(--ac-navy); }
+    }
+
+    // ---- mensajes (estilo Discuss: burbujas + avatar) ----
+    .ac-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 18px 20px;
+        display: flex; flex-direction: column; gap: 10px;
+    }
+    .ac-hint {
+        margin: auto; color: var(--ac-muted); text-align: center; max-width: 320px;
+        > i.fa { display: block; font-size: 22px; margin-bottom: 8px; color: var(--ac-rose); }
+        i:not(.fa) { color: var(--ac-rose); font-style: italic; }
+    }
+    .ac-bubble {
+        max-width: 78%; padding: 10px 14px; border-radius: 14px; line-height: 1.4;
+        white-space: pre-wrap; word-break: break-word;
+    }
+    .ac-bubble-user {
+        align-self: flex-end; background: var(--ac-navy2); color: #fff;
+        border-bottom-right-radius: 4px;
+    }
+    .ac-bubble-bot {
+        align-self: flex-start; background: #fff; border: 1px solid var(--ac-line);
+        border-bottom-left-radius: 4px; display: flex; gap: 8px; align-items: flex-start;
+    }
+    .ac-bubble-avatar {
+        flex: none; width: 22px; height: 22px; border-radius: 999px;
+        background: var(--ac-bg); display: flex; align-items: center; justify-content: center;
+        i { color: var(--ac-rose); font-size: 12px; }
+    }
+    .ac-thinking { color: var(--ac-muted); }
+    .ac-bubble-error {
+        align-self: flex-start; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;
+        border-bottom-left-radius: 4px;
+    }
+    .ac-error-actions {
+        margin-top: 6px; display: flex; gap: 14px;
+    }
+    .ac-btn-link {
+        border: 0; background: transparent; cursor: pointer; padding: 0;
+        color: #991b1b; font-weight: 700; text-decoration: underline;
+    }
+
+    // ---- composer ----
+    .ac-composer {
+        flex: none; display: flex; gap: 8px; padding: 12px 16px;
+        background: #fff; border-top: 1px solid var(--ac-line);
+        input {
+            flex: 1; border: 1px solid var(--ac-line); border-radius: 999px;
+            padding: 10px 16px; font-size: 14px; outline: none;
+            &:focus { border-color: var(--ac-navy2); }
+            &:disabled { background: var(--ac-bg); }
+        }
+        .ac-send {
+            flex: none; width: 40px; height: 40px; border-radius: 999px; border: 0;
+            background: var(--ac-navy2); color: #fff; cursor: pointer;
+            &:disabled { background: var(--ac-line); color: var(--ac-muted); cursor: not-allowed; }
+        }
+    }
+}
