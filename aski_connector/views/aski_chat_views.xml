@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Wizard: pegar el Personal Access Token -->
+    <record id="view_aski_chat_connect_wizard" model="ir.ui.view">
+        <field name="name">aski.chat.connect.wizard</field>
+        <field name="model">aski.chat.connect.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Connect Aski chat">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Connect the Aski chat</h1>
+                    </div>
+                    <p>
+                        Generate a <b>Personal access token</b> once in the Aski web app
+                        (Settings &gt; Personal access tokens) and paste it below. This
+                        Odoo will be registered as a connection under your Aski account,
+                        so anyone here can chat with your ERP without leaving Odoo.
+                    </p>
+                    <group>
+                        <field name="pat" placeholder="ask_pat_..." nolabel="1"
+                               widget="CopyClipboardChar"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        Chat usage spends credits from that Aski account's wallet — the
+                        same plan used by the Aski mobile app.
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_connect" type="object"
+                            string="Connect" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_aski_chat_connect" model="ir.actions.act_window">
+        <field name="name">Connect Aski chat</field>
+        <field name="res_model">aski.chat.connect.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_aski_chat_connect_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Settings: estado de la conexion (reconectar / probar) -->
+    <record id="view_aski_account_link_form" model="ir.ui.view">
+        <field name="name">aski.account.link.form</field>
+        <field name="model">aski.account.link</field>
+        <field name="arch" type="xml">
+            <form string="Aski chat settings">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Aski chat connection</h1>
+                    </div>
+                    <group>
+                        <field name="connected" widget="boolean_toggle" readonly="1"/>
+                        <field name="plan_name" readonly="1"/>
+                        <field name="wallet_credits" readonly="1"/>
+                        <field name="last_synced" readonly="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_test_connection" type="object"
+                            string="Test connection" class="btn-secondary"/>
+                    <button name="%(action_aski_chat_connect)d" type="action"
+                            string="Reconnect / paste a new token" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_aski_account_link" model="ir.actions.act_window">
+        <field name="name">Aski chat settings</field>
+        <field name="res_model">aski.account.link</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_aski_account_link_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Chat widget (OWL, estilo Discuss) -->
+    <record id="action_aski_chat" model="ir.actions.client">
+        <field name="name">Chat</field>
+        <field name="tag">aski_chat_widget</field>
+    </record>
+
+    <menuitem id="menu_aski_chat" name="Chat" parent="aski_connector.menu_aski_root"
+              action="action_aski_chat" sequence="5"/>
+    <menuitem id="menu_aski_chat_settings" name="Chat Settings"
+              parent="aski_connector.menu_aski_root"
+              action="action_aski_account_link" sequence="20"
+              groups="base.group_system"/>
+
+</odoo>

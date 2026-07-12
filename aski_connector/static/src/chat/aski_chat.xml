@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="aski_connector.ChatWidget" owl="1">
+        <div class="aski-chat">
+
+            <div class="ac-header">
+                <div class="ac-header-l">
+                    <span class="ac-avatar"><i class="fa fa-comments"/></span>
+                    <span class="ac-title">Aski</span>
+                </div>
+                <div class="ac-header-r" t-if="state.connected">
+                    <span class="ac-credits" t-if="state.walletCredits === 0" title="Out of credits">
+                        <i class="fa fa-exclamation-circle"/> 0
+                    </span>
+                    <span class="ac-credits" t-else="">
+                        <i class="fa fa-bolt"/> <t t-esc="state.walletCredits"/>
+                    </span>
+                    <span class="ac-plan" t-if="state.planName" t-esc="state.planName"/>
+                </div>
+            </div>
+
+            <!-- loading-state -->
+            <div t-if="state.loading" class="ac-loading">
+                <i class="fa fa-circle-o-notch fa-spin"/> <span>Loading…</span>
+            </div>
+
+            <!-- empty-state: cuenta Aski no conectada -->
+            <div t-elif="!state.connected" class="ac-empty">
+                <i class="fa fa-comments-o"/>
+                <div class="ac-empty-title">Connect Aski to start chatting</div>
+                <div class="ac-empty-sub">
+                    Ask your Odoo in plain language, right here — sales, receivables,
+                    top products and more.
+                </div>
+                <button class="ac-btn-primary" t-on-click="openConnect">
+                    Connect my Aski account
+                </button>
+            </div>
+
+            <t t-else="">
+                <div class="ac-messages" t-ref="messages">
+                    <div t-if="!state.messages.length" class="ac-hint">
+                        <i class="fa fa-magic"/>
+                        Ask something like <i>"sales this month"</i> or
+                        <i>"overdue invoices"</i>.
+                    </div>
+                    <t t-foreach="state.messages" t-as="m" t-key="m.id">
+                        <div t-if="m.role === 'user'" class="ac-bubble ac-bubble-user">
+                            <span t-esc="m.text"/>
+                        </div>
+                        <div t-elif="m.role === 'assistant'" class="ac-bubble ac-bubble-bot">
+                            <span class="ac-bubble-avatar"><i class="fa fa-comments"/></span>
+                            <span t-esc="m.text"/>
+                        </div>
+                        <div t-else="" class="ac-bubble ac-bubble-error">
+                            <div><i class="fa fa-exclamation-triangle"/> <span t-esc="m.text"/></div>
+                            <div class="ac-error-actions">
+                                <button class="ac-btn-link" t-on-click="() => this.retry(m.retryText)">
+                                    Retry
+                                </button>
+                                <button class="ac-btn-link" t-on-click="openBilling">
+                                    Top up credits
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                    <!-- "Aski esta pensando" -->
+                    <div t-if="state.sending" class="ac-bubble ac-bubble-bot ac-thinking">
+                        <span class="ac-bubble-avatar"><i class="fa fa-comments"/></span>
+                        <i class="fa fa-circle-o-notch fa-spin"/> Aski is thinking…
+                    </div>
+                </div>
+
+                <div class="ac-composer">
+                    <input type="text" placeholder="Ask Aski anything about your Odoo…"
+                           t-att-value="state.input" t-on-input="onInput" t-on-keydown="onKeydown"
+                           t-att-disabled="state.sending"/>
+                    <button class="ac-send" t-on-click="() => this.send()"
+                            t-att-disabled="state.sending || !state.input.trim()">
+                        <i class="fa fa-paper-plane"/>
+                    </button>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>
