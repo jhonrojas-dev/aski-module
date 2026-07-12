@@ -100,6 +100,10 @@
                                             t-on-click="() => this.toggleDetail(m)">
                                         <i class="fa fa-info-circle"/>
                                     </button>
+                                    <button t-if="m.backendId" class="ac-detail-btn" title="Export this answer to PDF"
+                                            t-on-click="() => this.exportMessageDetail(m)" t-att-disabled="state.exporting">
+                                        <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
+                                    </button>
                                 </div>
                                 <div t-if="state.detailFor === m.id" class="ac-detail">
                                     <div class="ac-detail-stats">
