@@ -47,7 +47,6 @@ msgstr "Schließen"
 
 #. module: aski_connector
 #: model:ir.ui.menu,name:aski_connector.menu_aski_connect
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Connect"
 msgstr "Verbinden"
 
@@ -681,3 +680,8 @@ msgstr "Noch kein Aski-Konto? Erstellen Sie eines auf"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Export this answer to PDF"
 msgstr "Diese Antwort als PDF exportieren"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Connect Aski"
+msgstr "Aski verbinden"
