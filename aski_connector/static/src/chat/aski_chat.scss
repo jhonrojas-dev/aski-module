@@ -65,8 +65,12 @@
         .ac-credits {
             display: flex; align-items: center; gap: 5px;
             background: rgba(255, 255, 255, .12); padding: 3px 10px; border-radius: 999px;
-            font-weight: 700;
+            font-weight: 700; border: 0; color: #fff; font-size: inherit; font-family: inherit;
             i.fa-exclamation-circle { color: #fbbf24; }
+        }
+        .ac-credits-empty {
+            cursor: pointer;
+            &:hover { background: rgba(255, 255, 255, .22); }
         }
         .ac-plan {
             background: rgba(255, 255, 255, .12); padding: 3px 10px; border-radius: 999px;

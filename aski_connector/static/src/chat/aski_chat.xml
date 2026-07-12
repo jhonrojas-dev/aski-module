@@ -15,9 +15,10 @@
                 </div>
                 <div class="ac-header-r">
                     <t t-if="state.connected">
-                        <span class="ac-credits" t-if="state.walletCredits === 0" title="Out of credits">
-                            <i class="fa fa-exclamation-circle"/> 0
-                        </span>
+                        <button t-if="state.walletCredits === 0" class="ac-credits ac-credits-empty"
+                                title="Out of credits - tap to top up" t-on-click.stop="openBilling">
+                            <i class="fa fa-exclamation-circle"/> Out of credits
+                        </button>
                         <span class="ac-credits" t-else="">
                             <i class="fa fa-bolt"/> <t t-esc="state.walletCredits"/>
                         </span>

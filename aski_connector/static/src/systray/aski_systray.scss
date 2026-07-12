@@ -31,7 +31,10 @@
         // de z-index/superposicion sin tener que adivinar que mas hay instalado.
         left: 16px;
         width: 380px;
-        height: 560px;
+        // Altura medida contra la propia ventana nativa de Discuss de Odoo
+        // (o-mail-ChatWindow, ~633px en un viewport de 1000px) para que Aski
+        // se sienta igual de alto, no un widget chico al lado.
+        height: 640px;
         max-height: calc(100vh - 32px);
         max-width: calc(100vw - 32px);
         background: #fff;
