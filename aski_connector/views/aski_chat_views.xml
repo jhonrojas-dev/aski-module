@@ -94,7 +94,7 @@
               action="action_aski_chat" sequence="5"/>
     <menuitem id="menu_aski_chat_settings" name="Chat Settings"
               parent="aski_connector.menu_aski_root"
-              action="action_aski_account_link" sequence="20"
+              action="action_aski_account_link_open" sequence="20"
               groups="base.group_system"/>
 
 </odoo>
