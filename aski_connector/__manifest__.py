@@ -3,7 +3,7 @@
     "name": "Aski - AI assistant: ask your Odoo in natural language (chat & voice)",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
-    "version": "19.0.1.2.1",
+    "version": "19.0.1.3.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -60,6 +60,7 @@ Get the app and learn more at https://aski.dev
     "assets": {
         "web.assets_backend": [
             "aski_connector/static/src/chat/**/*",
+            "aski_connector/static/src/systray/**/*",
         ],
     },
     "post_init_hook": "post_init_hook",

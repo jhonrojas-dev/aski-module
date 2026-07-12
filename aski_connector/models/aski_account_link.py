@@ -217,6 +217,45 @@ class AskiAccountLink(models.Model):
         }
 
     @api.model
+    def list_conversations(self):
+        """Historial de conversaciones de ESTA conexion (drawer del widget,
+        igual que Android/web) — mas reciente primero."""
+        rec = self.sudo()._get_or_create()
+        if not rec.connected or not rec.credential_id:
+            return []
+        try:
+            resp = requests.get(ASKI_API_BASE + "/chat/conversations", headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception:  # noqa: BLE001
+            return []
+        if resp.status_code != 200:
+            return []
+        return [c for c in resp.json() if c.get("odoo_credential_id") == rec.credential_id]
+
+    @api.model
+    def load_conversation(self, conversation_id):
+        """Mensajes de una conversacion (al abrirla desde el drawer, o al
+        restaurar la mas reciente cuando se recarga la pantalla)."""
+        rec = self.sudo()._get_or_create()
+        try:
+            resp = requests.get(
+                ASKI_API_BASE + "/chat/conversations/%s/messages" % conversation_id,
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception:  # noqa: BLE001
+            return []
+        if resp.status_code != 200:
+            return []
+        out = []
+        for m in resp.json():
+            role = m.get("role")
+            if role not in ("user", "assistant"):
+                continue
+            out.append({
+                "id": "h%s" % m["id"], "role": role, "text": m.get("content", ""),
+                "credits": m.get("credits") if role == "assistant" else None,
+            })
+        return out
+
+    @api.model
     def export_answer_pdf(self, conversation_id, tz_offset_minutes=0):
         """Exporta la ULTIMA respuesta de Aski en esa conversacion como HTML
         autonomo listo para imprimir a PDF (mismo endpoint y mismo HTML que

@@ -124,6 +124,8 @@ export class AskiChatWidget extends Component {
             sending: false,
             conversationId: null,
             exporting: false,
+            conversations: [],
+            drawerOpen: false,
         });
         onWillStart(async () => { await this.loadStatus(); });
     }
@@ -135,11 +137,44 @@ export class AskiChatWidget extends Component {
             this.state.connected = !!st.connected;
             this.state.walletCredits = st.wallet_credits || 0;
             this.state.planName = st.plan_name || "";
+            if (this.state.connected) {
+                await this.refreshConversations();
+                // Restaura el hilo MAS RECIENTE al recargar la pantalla — sin esto
+                // el chat parecia perder todo el historial en cada F5.
+                const latest = this.state.conversations[0];
+                if (latest) await this.openConversation(latest.id);
+            }
         } catch (e) {
             this.state.connected = false;
         } finally {
             this.state.loading = false;
         }
+    }
+
+    async refreshConversations() {
+        this.state.conversations = await this.orm.call("aski.account.link", "list_conversations", []);
+    }
+
+    async openConversation(conversationId) {
+        this.state.drawerOpen = false;
+        this.state.conversationId = conversationId;
+        this.state.messages = await this.orm.call("aski.account.link", "load_conversation", [conversationId]);
+        this._scrollToBottom();
+    }
+
+    newConversation() {
+        this.state.drawerOpen = false;
+        this.state.conversationId = null;
+        this.state.messages = [];
+    }
+
+    toggleDrawer() {
+        this.state.drawerOpen = !this.state.drawerOpen;
+    }
+
+    useSample(text) {
+        this.state.input = text;
+        this.send();
     }
 
     renderMd(text) {
@@ -202,11 +237,13 @@ export class AskiChatWidget extends Component {
         this.state.sending = true;
         this._scrollToBottom();
         try {
+            const isNewThread = !this.state.conversationId;
             const r = await this.orm.call("aski.account.link", "send_message",
                 [text, this.state.conversationId]);
             if (r.conversation_id) {
                 this.state.conversationId = r.conversation_id;
             }
+            if (isNewThread) this.refreshConversations();
             this.state.messages.push({
                 id: `a${Date.now()}`, role: "assistant", text: r.answer || "",
                 credits: typeof r.credits === "number" ? r.credits : null,

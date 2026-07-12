@@ -14,6 +14,31 @@
     background: var(--ac-bg);
     color: var(--ac-ink);
     font-size: 14px;
+    position: relative;
+    overflow: hidden;
+
+    // ---- drawer de conversaciones (estilo Discuss) ----
+    .ac-scrim {
+        position: absolute; inset: 0; background: rgba(15, 23, 42, .35); z-index: 10;
+    }
+    .ac-drawer {
+        position: absolute; top: 0; left: 0; bottom: 0; width: 78%; max-width: 280px;
+        background: #fff; z-index: 11; box-shadow: 4px 0 16px rgba(0, 0, 0, .12);
+        display: flex; flex-direction: column; overflow-y: auto; padding: 12px;
+    }
+    .ac-drawer-new {
+        flex: none; border: 1px dashed var(--ac-line); background: var(--ac-bg);
+        color: var(--ac-navy2); border-radius: 10px; padding: 10px; font-weight: 700;
+        cursor: pointer; margin-bottom: 10px; text-align: left;
+        i { margin-right: 6px; color: var(--ac-rose); }
+    }
+    .ac-drawer-empty { color: var(--ac-muted); font-size: 13px; padding: 8px 4px; }
+    .ac-drawer-item {
+        padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        &:hover { background: var(--ac-bg); }
+        &.active { background: color-mix(in srgb, var(--ac-rose) 10%, transparent); font-weight: 700; }
+    }
 
     // ---- header (linea de la familia: navy gradient) ----
     .ac-header {
@@ -22,6 +47,12 @@
         background: linear-gradient(120deg, #0f172a 0%, #1e293b 55%, #334155 100%);
         color: #fff; padding: 14px 20px;
         .ac-header-l { display: flex; align-items: center; gap: 10px; }
+        .ac-icon-btn {
+            border: 0; background: rgba(255, 255, 255, .12); color: #fff;
+            width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            &:hover { background: rgba(255, 255, 255, .22); }
+        }
         .ac-avatar {
             width: 30px; height: 30px; border-radius: 999px; background: rgba(255, 255, 255, .14);
             display: flex; align-items: center; justify-content: center;
@@ -70,6 +101,14 @@
         margin: auto; color: var(--ac-muted); text-align: center; max-width: 320px;
         > i.fa { display: block; font-size: 22px; margin-bottom: 8px; color: var(--ac-rose); }
         i:not(.fa) { color: var(--ac-rose); font-style: italic; }
+    }
+    .ac-samples {
+        display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px;
+    }
+    .ac-sample {
+        border: 1px solid var(--ac-line); background: #fff; color: var(--ac-ink);
+        border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+        &:hover { border-color: var(--ac-navy2); background: var(--ac-bg); }
     }
     .ac-bubble {
         max-width: 78%; padding: 10px 14px; border-radius: 14px; line-height: 1.4;
