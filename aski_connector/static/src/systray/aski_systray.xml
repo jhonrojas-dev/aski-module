@@ -2,8 +2,8 @@
 <templates xml:space="preserve">
     <t t-name="aski_connector.Systray" owl="1">
         <div class="ac-systray">
-            <button class="ac-systray-btn" t-on-click="toggle" title="Aski">
-                <i class="fa fa-comments"/>
+            <button class="ac-systray-btn" t-on-click="toggle" title="Aski - ask your Odoo">
+                <span class="ac-mark--systray"><t t-call="aski_connector.AskiMark"/></span>
             </button>
             <div t-if="state.open" class="ac-floating-panel" t-att-class="state.minimized ? 'minimized' : ''">
                 <AskiChatWidget minimized="state.minimized" onMinimize="() => this.minimize()" onClose="() => this.close()"/>

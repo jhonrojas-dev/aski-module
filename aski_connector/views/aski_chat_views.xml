@@ -29,9 +29,11 @@
                         leaving Odoo.
                     </p>
                     <group>
-                        <field name="pat" placeholder="ask_pat_..." nolabel="1"
+                        <field name="pat" placeholder="ask_pat_..."
                                widget="CopyClipboardChar"/>
+                        <field name="name" placeholder="e.g. Production - Head office"/>
                     </group>
+                    <p>The connection name is how this Odoo shows up in your Aski connections list, on your phone and on the web - so you can tell it apart from your other instances.</p>
                     <div class="alert alert-info" role="alert">
                         Chat usage spends credits from that Aski account's wallet - the
                         same plan used by the Aski mobile app.
