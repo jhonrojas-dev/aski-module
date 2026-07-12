@@ -7,7 +7,7 @@
     # las ramas iban desincronizadas (16/17/18 en 1.1.0 pero 19.0 en 1.4.10).
     # Por eso se unifico todo en 1.5.0: es mayor que la mas alta publicada, asi
     # que ninguna serie ve un downgrade. Mantenerlas iguales de aqui en adelante.
-    "version": "15.0.1.5.0",
+    "version": "15.0.1.6.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -25,14 +25,14 @@ This lightweight connector removes the manual setup: install it, click
 scan the code, and your phone is securely linked to this Odoo - no need to type
 URLs, databases or API keys by hand.
 
-New: chat with Aski right inside Odoo (16+) - paste a personal access token
+New: chat with Aski right inside Odoo - paste a personal access token
 generated once in the Aski web app, and a chat panel appears under Aski > Chat.
 Same account, same wallet as the mobile app - just another way to ask.
 
 * Read-only by design: Aski only reads and reports - it never creates, edits or
   deletes records in your Odoo.
-* Works with Odoo Community and Enterprise (14 to 19). The in-Odoo chat panel
-  needs 16+; the QR connector for the mobile app works on every version.
+* Works with Odoo Community and Enterprise (14 to 19) - BOTH the in-Odoo chat
+  and the QR connector for the mobile app work on EVERY version, 14 included.
 * Generates a standard Odoo API key for your user (you can revoke it anytime in
   Settings > Users > API Keys).
 * No data leaves your Odoo through this module beyond what you ask Aski: the
