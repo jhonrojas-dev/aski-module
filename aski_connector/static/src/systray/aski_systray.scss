@@ -24,7 +24,12 @@
     .ac-floating-panel {
         position: fixed;
         bottom: 16px;
-        right: 16px;
+        // Odoo ancla SUS PROPIAS ventanas nativas de Discuss (y cualquier chat
+        // que las reutilice, como el add-on de WhatsApp AI) abajo-a-la-derecha
+        // en CUALQUIER instancia — es comportamiento core, no algo especifico
+        // de este demo. Vivir en la esquina opuesta (izquierda) evita el choque
+        // de z-index/superposicion sin tener que adivinar que mas hay instalado.
+        left: 16px;
         width: 380px;
         height: 560px;
         max-height: calc(100vh - 32px);
