@@ -16,7 +16,9 @@ Salida:  dist/aski_connector-<serie>.0.zip  (uno por serie)
 import os
 import re
 import shutil
+import subprocess
 import sys
+import tarfile
 import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -67,26 +69,56 @@ def _zip_dir(folder, zip_path):
                 zf.write(full, arc)
 
 
+def _export_branch(series, dest_parent):
+    """Extrae el modulo desde la RAMA de esa serie (origin/<serie>.0), no desde
+    el directorio de trabajo.
+
+    ⚠️ Esto NO es un detalle: las series NO comparten el mismo frontend.
+      * 16-19 -> OWL 2 (import de "@odoo/owl", t-out, registries de wowl)
+      * 15    -> OWL 1.4 sobre wowl (owl global, t-raw, assets_qweb)
+      * 14    -> OWL 1.4 sobre el web client legacy (odoo.define, ComponentWrapper,
+                 SystrayMenu/action_registry, assets por XML)
+    Empaquetar todas las series desde una sola copia (lo que hacia antes) meteria
+    el codigo OWL 2 en los zips de 14/15 -> el chat NO cargaria ahi. Cada rama es
+    la fuente de verdad de su serie.
+    """
+    ref = f"origin/{series}.0"
+    try:
+        subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref],
+                       cwd=HERE, check=True, stdout=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        sys.exit(f"No existe la rama {ref}. Corre `git fetch origin` primero.")
+    os.makedirs(dest_parent, exist_ok=True)
+    tar_path = os.path.join(dest_parent, "m.tar")
+    with open(tar_path, "wb") as fh:
+        subprocess.run(["git", "archive", ref, "aski_connector"],
+                       cwd=HERE, check=True, stdout=fh)
+    with tarfile.open(tar_path) as tf:
+        tf.extractall(dest_parent)
+    os.remove(tar_path)
+    return os.path.join(dest_parent, "aski_connector")
+
+
 def main(series_list):
-    if not os.path.isdir(SRC):
-        sys.exit(f"No encuentro el modulo en {SRC}")
-    module_version = _module_version()
-    print(f"Version del modulo (del manifest): {module_version}\n")
+    subprocess.run(["git", "fetch", "-q", "origin"], cwd=HERE, check=False)
     if os.path.isdir(DIST):
         shutil.rmtree(DIST)
     os.makedirs(DIST)
     for series in series_list:
         stage = os.path.join(DIST, f"build-{series}")
-        dest = os.path.join(stage, "aski_connector")
-        shutil.copytree(
-            SRC, dest,
-            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
-        )
-        _stamp_manifest(os.path.join(dest, "__manifest__.py"), series, module_version)
+        dest = _export_branch(series, stage)
+        # la version ya viene estampada en la rama; se re-estampa por si acaso
+        mf = os.path.join(dest, "__manifest__.py")
+        with open(mf, "r", encoding="utf-8") as fh:
+            cur = re.search(r'"version"\s*:\s*"([^"]+)"', fh.read()).group(1)
+        parts = cur.split(".")
+        modver = ".".join(parts[2:]) if len(parts) == 5 else cur
+        _stamp_manifest(mf, series, modver)
         zip_path = os.path.join(DIST, f"aski_connector-{series}.0.zip")
         _zip_dir(dest, zip_path)
         shutil.rmtree(stage)
-        print(f"  OK  {series}.0.{module_version}  ->  {os.path.relpath(zip_path, HERE)}")
+        print(f"  OK  {series}.0.{modver}  (de origin/{series}.0)  ->  "
+              f"{os.path.relpath(zip_path, HERE)}")
     print("\nListo. Sube cada .zip a la rama/serie correspondiente en "
           "https://apps.odoo.com (o usa el repo en GitHub conectado a la tienda).")
 

@@ -106,6 +106,16 @@
 
     <menuitem id="menu_aski_chat" name="Chat" parent="aski_connector.menu_aski_root"
               action="action_aski_chat" sequence="5"/>
+
+    <!-- Hasta la 1.6.0, un post_init_hook desactivaba ESTE menu en Odoo 14/15
+         (se daba por hecho que el widget OWL no podia cargar ahi). Ya no es
+         cierto: el chat corre en 14-19. Las instalaciones que quedaron con el
+         menu oculto tienen `active=False` guardado en BD, y un `menuitem` no
+         toca ese campo al actualizar -> seguirian sin ver el chat. Este record
+         lo fuerza a True en cada actualizacion. -->
+    <record id="menu_aski_chat" model="ir.ui.menu">
+        <field name="active" eval="True"/>
+    </record>
     <menuitem id="menu_aski_chat_settings" name="Chat Settings"
               parent="aski_connector.menu_aski_root"
               action="action_aski_account_link_open" sequence="20"
