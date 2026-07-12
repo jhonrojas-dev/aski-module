@@ -165,10 +165,16 @@ class AskiAccountLink(models.Model):
                 return False, _("Could not reach Aski: %s") % e
             if resp.status_code == 200:
                 return True, ""
-            if resp.status_code != 404:
+            if resp.status_code in (403, 404):
                 # 404 = esa credential ya no existe (el user la borro desde la
-                # app) -> cae al POST de abajo para crear una nueva. Cualquier
-                # otro error (403, 5xx) se reporta tal cual, sin duplicar.
+                # app). 403 = existe pero NO es de la cuenta del token que se
+                # acaba de pegar -> el usuario esta conectando OTRA cuenta Aski,
+                # y el credential_id que teniamos guardado es de la cuenta vieja
+                # (sin esto, conectar una cuenta distinta fallaba con un error
+                # de permisos incomprensible). En ambos casos: olvidar el id
+                # viejo y crear una conexion nueva en la cuenta actual.
+                rec.write({"credential_id": False})
+            else:
                 return False, rec._error_message(resp)
         try:
             resp = requests.post(ASKI_API_BASE + "/users/odoo", json=body,
@@ -284,10 +290,15 @@ class AskiAccountLink(models.Model):
 
     def _fetch_export_html(self, message_id, tz_offset_minutes):
         rec = self.sudo()
+        # Idioma del usuario de Odoo (es_419, en_US, pt_BR...): el backend lo
+        # normaliza y devuelve el "chrome" del reporte (titulo, "Exportado", el
+        # pie) en ese idioma. Sin esto el PDF salia siempre en espanol, aunque
+        # el usuario tuviera Odoo en ingles.
+        lang = self.env.user.lang or ""
         try:
             resp = requests.get(
                 ASKI_API_BASE + "/chat/messages/%s/export-html" % message_id,
-                params={"tz_offset_minutes": tz_offset_minutes},
+                params={"tz_offset_minutes": tz_offset_minutes, "lang": lang},
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
             raise UserError(_("Could not reach Aski: %s") % e)

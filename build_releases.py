@@ -22,14 +22,34 @@ import zipfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "aski_connector")
 DIST = os.path.join(HERE, "dist")
-MODULE_VERSION = "1.0.0"  # tu version interna del modulo (no la serie de Odoo)
 SERIES = ["14", "15", "16", "17", "18", "19"]
 
 
-def _stamp_manifest(path, series):
+def _module_version():
+    """Version interna del modulo, LEIDA del manifest (no hardcodeada aqui).
+
+    Antes era una constante `MODULE_VERSION = "1.0.0"` que se quedo congelada
+    mientras el manifest avanzaba a 1.1.x: los zips salian estampados como
+    `<serie>.0.1.0.0`, o sea una version MAS VIEJA que la publicada -> la tienda
+    los habria tomado como una regresion. Con una sola fuente de verdad no puede
+    volver a desincronizarse."""
+    manifest = os.path.join(SRC, "__manifest__.py")
+    with open(manifest, "r", encoding="utf-8") as fh:
+        m = re.search(r'"version"\s*:\s*"([^"]+)"', fh.read())
+    if not m:
+        sys.exit("No pude leer 'version' del manifest")
+    ver = m.group(1)
+    # Si ya viniera estampada como "18.0.1.2.0", quedarse con la parte del modulo.
+    parts = ver.split(".")
+    if len(parts) == 5:
+        return ".".join(parts[2:])
+    return ver
+
+
+def _stamp_manifest(path, series, module_version):
     with open(path, "r", encoding="utf-8") as fh:
         txt = fh.read()
-    new = f'"version": "{series}.0.{MODULE_VERSION}"'
+    new = f'"version": "{series}.0.{module_version}"'
     txt2 = re.sub(r'"version"\s*:\s*"[^"]*"', new, txt, count=1)
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(txt2)
@@ -50,6 +70,8 @@ def _zip_dir(folder, zip_path):
 def main(series_list):
     if not os.path.isdir(SRC):
         sys.exit(f"No encuentro el modulo en {SRC}")
+    module_version = _module_version()
+    print(f"Version del modulo (del manifest): {module_version}\n")
     if os.path.isdir(DIST):
         shutil.rmtree(DIST)
     os.makedirs(DIST)
@@ -60,11 +82,11 @@ def main(series_list):
             SRC, dest,
             ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
         )
-        _stamp_manifest(os.path.join(dest, "__manifest__.py"), series)
+        _stamp_manifest(os.path.join(dest, "__manifest__.py"), series, module_version)
         zip_path = os.path.join(DIST, f"aski_connector-{series}.0.zip")
         _zip_dir(dest, zip_path)
         shutil.rmtree(stage)
-        print(f"  OK  {series}.0  ->  {os.path.relpath(zip_path, HERE)}")
+        print(f"  OK  {series}.0.{module_version}  ->  {os.path.relpath(zip_path, HERE)}")
     print("\nListo. Sube cada .zip a la rama/serie correspondiente en "
           "https://apps.odoo.com (o usa el repo en GitHub conectado a la tienda).")
 
