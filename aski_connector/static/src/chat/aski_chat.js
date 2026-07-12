@@ -55,9 +55,12 @@ function mdToHtml(text) {
             i = j;
             continue;
         }
-        if (/^>\s?/.test(line)) {
+        // El texto ya paso por _escapeHtml, asi que ">" quedo como "&gt;" — el
+        // detector de blockquote debe buscar "&gt;", no ">" (si no, la cita
+        // se renderizaba literal, con el "&gt;" a la vista).
+        if (/^&gt;\s?/.test(line)) {
             const buf = [];
-            while (i < lines.length && /^>\s?/.test(lines[i])) { buf.push(lines[i].replace(/^>\s?/, "")); i++; }
+            while (i < lines.length && /^&gt;\s?/.test(lines[i])) { buf.push(lines[i].replace(/^&gt;\s?/, "")); i++; }
             out.push(`<blockquote>${_inline(buf.join(" "))}</blockquote>`);
             continue;
         }
@@ -75,7 +78,7 @@ function mdToHtml(text) {
         }
         const buf = [line];
         i++;
-        while (i < lines.length && lines[i].trim() && !/^(#{1,3}\s|[-*]\s|\d+\.\s|>\s?|```)/.test(lines[i]) && !_isTableStart(lines, i)) {
+        while (i < lines.length && lines[i].trim() && !/^(#{1,3}\s|[-*]\s|\d+\.\s|&gt;\s?|```)/.test(lines[i]) && !_isTableStart(lines, i)) {
             buf.push(lines[i]);
             i++;
         }
@@ -171,6 +174,22 @@ export class AskiChatWidget extends Component {
 
     toggleDrawer() {
         this.state.drawerOpen = !this.state.drawerOpen;
+    }
+
+    // Sugerencias del estado de bienvenida. Van AQUI (no como literales en el
+    // t-on-click de la plantilla) porque antes la ETIQUETA se traducia pero el
+    // texto que se ENVIABA era el literal ingles del handler: el usuario en
+    // espanol veia "¿Cuanto vendi este mes?" y a Aski le llegaba "How much did
+    // I sell this month?". Un solo string traducido = etiqueta y payload iguales.
+    // _t() se evalua en cada render (getter), no al cargar el modulo, para que
+    // las traducciones ya esten disponibles.
+    get samples() {
+        return [
+            { icon: "fa-line-chart", text: _t("How much did I sell this month?") },
+            { icon: "fa-trophy", text: _t("My top 10 customers") },
+            { icon: "fa-clock-o", text: _t("Overdue invoices") },
+            { icon: "fa-users", text: _t("How many customers do I have?") },
+        ];
     }
 
     useSample(text) {

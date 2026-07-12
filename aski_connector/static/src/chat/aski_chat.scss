@@ -2,88 +2,165 @@
 // aunque se vea flotando aparte gracias a position:fixed — Odoo fuerza
 // `.o_main_navbar button, .o_main_navbar .fa { color: #fff !important; }`
 // para los iconos del propio navbar, y esa regla le gana a CUALQUIER color
-// nuestro que no sea blanco por pura coincidencia. La vista de pantalla
-// completa no sufre esto (vive fuera del navbar), así que el bug solo se
-// veía en la burbuja — por eso aparecían botones/iconos "invisibles" uno
-// por uno según se iban probando ahí. Todos los `color:` de este archivo
-// llevan `!important` a propósito por esta razón, no por estilo.
+// nuestro que no sea blanco. Por eso TODOS los `color:` de este archivo llevan
+// `!important`. (Las barras del waveform usan `background`, no `color`, y no
+// llevan clase `.fa`, asi que sobreviven sin trucos.)
+//
+// PALETA: replica EXACTA del tema de la app Aski (Android Color.kt + web
+// theme.css/chat.css). El chat de la app es NAVY-primary (#152642); el dorado
+// #E8C058 es el color de MARCA y se usa con moderacion (la onda del avatar y el
+// boton CTA), no como acento general. Burbuja del usuario = navy solido; boton
+// de enviar = navy; pill de creditos = azul-claro (primary-container). NO se
+// "reinventa" el look: se replica el de la app para que se sienta el MISMO
+// producto dentro de Odoo.
 .aski-chat {
-    --ac-navy: #0f172a;
-    --ac-navy2: #1e293b;
-    --ac-ink: #0f172a;
-    --ac-muted: #64748b;
-    --ac-line: #e6e9ef;
-    --ac-bg: #f4f6fa;
-    --ac-rose: #e11d48;
+    --ac-navy: #152642;
+    --ac-navy-dark: #0A1224;
+    --ac-gold: #E8C058;
+    --ac-gold-light: #F8D060;
+    --ac-gold-deep: #B89846;
+    --ac-on-gold: #2E2200;
+    --ac-bg: #FAFAFE;
+    --ac-surface: #FFFFFF;
+    --ac-surface-2: #F2F4FA;
+    --ac-surface-variant: #E3E7F0;
+    --ac-on-surface: #152642;
+    --ac-on-variant: #44546A;
+    --ac-primary-container: #D9E2F1;
+    --ac-on-primary-container: #0A1224;
+    --ac-outline: #B0B8C5;
+    --ac-outline-soft: #E5E7EB;
+    --ac-error: #B3261E;
+    --ac-success: #1B8A4B;
+
+    --ac-shadow: 0 8px 24px rgba(21, 38, 66, .10);
 
     display: flex;
     flex-direction: column;
     height: 100%;
     box-sizing: border-box;
-    background: var(--ac-bg);
-    color: var(--ac-ink);
+    // Fondo con el mismo degradado navy->bg del .chat-page de la app.
+    background: linear-gradient(to bottom,
+        rgba(21, 38, 66, .10) 0%, rgba(21, 38, 66, .035) 20%, var(--ac-bg) 42%, var(--ac-bg) 100%);
+    color: var(--ac-on-surface);
     font-size: 14px;
     position: relative;
     overflow: hidden;
 
-    // ---- drawer de conversaciones (estilo Discuss) ----
-    .ac-scrim {
-        position: absolute; inset: 0; background: rgba(15, 23, 42, .35); z-index: 10;
-    }
-    .ac-drawer {
-        position: absolute; top: 0; left: 0; bottom: 0; width: 78%; max-width: 280px;
-        background: #fff; z-index: 11; box-shadow: 4px 0 16px rgba(0, 0, 0, .12);
-        display: flex; flex-direction: column; overflow-y: auto; padding: 12px;
-    }
-    .ac-drawer-new {
-        flex: none; border: 1px dashed var(--ac-line); background: var(--ac-bg);
-        color: var(--ac-navy2) !important; border-radius: 10px; padding: 10px; font-weight: 700;
-        cursor: pointer; margin-bottom: 10px; text-align: left;
-        i { margin-right: 6px; color: var(--ac-rose) !important; }
-    }
-    .ac-drawer-empty { color: var(--ac-muted) !important; font-size: 13px; padding: 8px 4px; }
-    .ac-drawer-item {
-        padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        &:hover { background: var(--ac-bg); }
-        &.active { background: color-mix(in srgb, var(--ac-rose) 10%, transparent); font-weight: 700; }
+    * { box-sizing: border-box; }
+
+    // =====================================================================
+    //  Marca Aski = el ICONO REAL de la app (aski_mark.png), SIN recortar y
+    //  con mascara de SQUIRCLE (cuadrado redondeado), tal como lo renderiza
+    //  el launcher del celular. Recortarlo a circulo dejaba un anillo navy
+    //  muerto alrededor del aro dorado (el aro es ~65% del marco en TODAS las
+    //  variantes oficiales) y se veia chico/flotando; en squircle se ve lleno.
+    // =====================================================================
+    .ac-mark {
+        flex: none;
+        position: relative;
+        width: 34px; height: 34px;
+        border-radius: 26%;
+        background: var(--ac-navy);
+        box-shadow: 0 1px 3px rgba(10, 18, 36, .28);
+        .ac-mark-img {
+            width: 100%; height: 100%; border-radius: 26%; object-fit: cover; display: block;
+        }
+        .ac-mark-dot {
+            position: absolute; right: -2px; bottom: -2px;
+            width: 9px; height: 9px; border-radius: 999px;
+            background: var(--ac-success); box-shadow: 0 0 0 2px var(--ac-surface);
+        }
+        &.ac-mark--lg { width: 66px; height: 66px;
+            box-shadow: 0 6px 18px rgba(21, 38, 66, .2);
+        }
+        &.ac-mark--systray { width: 30px; height: 30px; }
     }
 
-    // ---- header (linea de la familia: navy gradient) ----
+    // ---- drawer de conversaciones (replica de .conv-drawer) ----
+    .ac-scrim {
+        position: absolute; inset: 0; background: rgba(10, 18, 36, .34);
+        z-index: 10; animation: ac-fade .15s ease;
+    }
+    .ac-drawer {
+        position: absolute; top: 0; left: 0; bottom: 0; width: 86%; max-width: 300px;
+        background: var(--ac-surface); z-index: 11; box-shadow: 0 8px 40px rgba(10, 18, 36, .22);
+        border-right: 1px solid var(--ac-outline-soft);
+        display: flex; flex-direction: column; overflow-y: auto; padding: 12px 10px;
+        animation: ac-slide-in .2s ease-out;
+    }
+    .ac-drawer-head {
+        font-size: 15px; font-weight: 800; color: var(--ac-on-surface) !important; padding: 6px 8px 10px;
+    }
+    .ac-drawer-new {
+        flex: none; border: 0; border-radius: 12px; padding: 11px 14px; font-weight: 700; font-size: 14px;
+        cursor: pointer; margin: 0 2px 10px; text-align: left;
+        display: flex; align-items: center; gap: 8px;
+        background: var(--ac-primary-container); color: var(--ac-on-primary-container) !important;
+        i { color: var(--ac-on-primary-container) !important; }
+        transition: filter .14s ease;
+        &:hover { filter: brightness(.97); }
+    }
+    .ac-drawer-empty { color: var(--ac-on-variant) !important; font-size: 13px; padding: 8px 6px; }
+    .ac-drawer-item {
+        padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        display: flex; align-items: center; gap: 9px; color: var(--ac-on-surface) !important;
+        transition: background .12s ease;
+        &:before {
+            content: "\f075"; font-family: FontAwesome; font-size: 12px;
+            color: var(--ac-on-variant) !important; flex: none; opacity: .75;
+        }
+        &:hover { background: var(--ac-surface-variant); }
+        &.active {
+            background: color-mix(in srgb, var(--ac-navy) 10%, transparent);
+            color: var(--ac-navy) !important;
+            &:before { color: var(--ac-navy) !important; opacity: 1; }
+        }
+    }
+
+    // =====================================================================
+    //  Header — glassy claro (replica de .chat-header de la app)
+    // =====================================================================
     .ac-header {
         flex: none;
-        display: flex; align-items: center; justify-content: space-between;
-        background: linear-gradient(120deg, #0f172a 0%, #1e293b 55%, #334155 100%);
-        color: #fff; padding: 14px 20px;
-        .ac-header-l { display: flex; align-items: center; gap: 10px; }
+        display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        background: color-mix(in srgb, var(--ac-surface) 88%, transparent);
+        backdrop-filter: saturate(180%) blur(12px);
+        border-bottom: 1px solid var(--ac-outline-soft);
+        color: var(--ac-on-surface) !important; padding: 10px 14px; position: relative;
+        .ac-header-l { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .ac-header-id { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
         .ac-icon-btn {
-            border: 0; background: rgba(255, 255, 255, .12); color: #fff !important;
-            width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            &:hover { background: rgba(255, 255, 255, .22); }
+            border: 0; background: transparent; color: var(--ac-on-surface) !important;
+            width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex: none;
+            transition: background .14s ease;
+            i { color: inherit !important; }
+            &:hover { background: var(--ac-surface-variant); }
         }
-        .ac-avatar {
-            width: 30px; height: 30px; border-radius: 999px; background: rgba(255, 255, 255, .14);
-            display: flex; align-items: center; justify-content: center;
-            i { color: var(--ac-rose) !important; }
-        }
-        .ac-title { font-size: 17px; font-weight: 700; }
+        .ac-title { font-size: 15px; font-weight: 800; letter-spacing: .01em; color: var(--ac-on-surface) !important;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ac-subtitle { font-size: 11px; color: var(--ac-on-variant) !important;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         &.ac-header-clickable { cursor: pointer; }
-        .ac-header-r { display: flex; align-items: center; gap: 6px; font-size: 11.5px; }
-        .ac-icon-btn-close:hover { background: rgba(225, 29, 72, .55); }
+        .ac-header-r { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .ac-icon-btn-close:hover { background: color-mix(in srgb, var(--ac-error) 16%, transparent);
+            color: var(--ac-error) !important; }
+        // pill de creditos = azul-claro (primary-container), como .credits-pill
         .ac-credits {
-            display: flex; align-items: center; gap: 4px; white-space: nowrap;
-            background: rgba(255, 255, 255, .12); padding: 3px 8px; border-radius: 999px;
-            font-weight: 700; border: 0; color: #fff !important; font-size: inherit; font-family: inherit;
-            i.fa-exclamation-circle { color: #fbbf24 !important; }
+            display: flex; align-items: center; gap: 5px; white-space: nowrap;
+            background: var(--ac-primary-container); padding: 5px 11px; border-radius: 999px;
+            font-weight: 800; border: 0;
+            color: var(--ac-on-primary-container) !important; font-size: 12px; font-family: inherit;
+            i.fa-bolt { color: var(--ac-on-primary-container) !important; }
+            i.fa-exclamation-circle { color: var(--ac-gold-deep) !important; }
         }
-        .ac-credits-empty {
-            cursor: pointer;
-            &:hover { background: rgba(255, 255, 255, .22); }
-        }
+        .ac-credits-empty { cursor: pointer; &:hover { filter: brightness(.97); } }
         .ac-plan {
-            background: rgba(255, 255, 255, .12); padding: 3px 8px; border-radius: 999px;
-            text-transform: capitalize; white-space: nowrap;
+            background: var(--ac-surface-variant); padding: 5px 11px; border-radius: 999px;
+            text-transform: capitalize; white-space: nowrap; font-weight: 700; font-size: 12px;
+            color: var(--ac-on-variant) !important;
         }
     }
 
@@ -91,153 +168,214 @@
     .ac-loading, .ac-empty {
         flex: 1;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        gap: 10px; color: var(--ac-muted) !important; text-align: center; padding: 40px 24px;
-        i { font-size: 30px; color: var(--ac-rose) !important; }
+        gap: 12px; color: var(--ac-on-variant) !important; text-align: center; padding: 40px 26px;
     }
-    .ac-loading { flex-direction: row; i { font-size: 18px; } }
-    .ac-empty-title { font-size: 17px; font-weight: 700; color: var(--ac-ink) !important; }
-    .ac-empty-sub { max-width: 360px; }
+    .ac-loading { flex-direction: row; gap: 8px;
+        i { font-size: 18px; color: var(--ac-navy) !important; opacity: .8; }
+    }
+    .ac-empty-title { font-size: 18px; font-weight: 800; color: var(--ac-on-surface) !important; margin-top: 2px; }
+    .ac-empty-sub { max-width: 360px; line-height: 1.5; }
 
+    // Boton CTA = dorado de marca (replica de .btn default: accent + on-accent)
     .ac-btn-primary {
-        margin-top: 6px; border: 0; cursor: pointer;
-        background: var(--ac-navy2); color: #fff !important; font-weight: 700;
-        padding: 10px 18px; border-radius: 999px;
-        &:hover { background: var(--ac-navy); }
+        margin-top: 8px; border: 0; cursor: pointer;
+        background: var(--ac-gold); color: var(--ac-on-gold) !important; font-weight: 800;
+        padding: 12px 22px; border-radius: 14px; box-shadow: 0 4px 14px rgba(184, 152, 70, .34);
+        transition: transform .12s ease, filter .12s ease;
+        &:hover { transform: translateY(-1px); filter: brightness(1.03); }
     }
 
-    // ---- mensajes (estilo Discuss: burbujas + avatar) ----
+    // =====================================================================
+    //  Lista de mensajes / bienvenida
+    // =====================================================================
     .ac-messages {
         flex: 1;
         overflow-y: auto;
-        padding: 18px 20px;
+        padding: 16px 14px 10px;
         display: flex; flex-direction: column; gap: 10px;
+        width: 100%; max-width: 860px; margin: 0 auto;
+        scrollbar-width: thin; scrollbar-color: rgba(21, 38, 66, .18) transparent;
+        &::-webkit-scrollbar { width: 9px; }
+        &::-webkit-scrollbar-thumb { background: rgba(21, 38, 66, .16); border-radius: 8px;
+            border: 2px solid transparent; background-clip: padding-box; }
+        &::-webkit-scrollbar-thumb:hover { background: rgba(21, 38, 66, .3); background-clip: padding-box; }
     }
-    .ac-hint {
-        margin: auto; color: var(--ac-muted) !important; text-align: center; max-width: 320px;
-        > i.fa { display: block; font-size: 22px; margin-bottom: 8px; color: var(--ac-rose) !important; }
-        i:not(.fa) { color: var(--ac-rose) !important; font-style: italic; }
+    .ac-welcome {
+        margin: auto 0; padding: 16px 8px; text-align: center;
+        display: flex; flex-direction: column; align-items: center; gap: 10px;
+        color: var(--ac-on-variant) !important; animation: ac-in .22s ease;
+        .ac-welcome-title { font-size: 20px; font-weight: 800; color: var(--ac-on-surface) !important; margin-top: 6px; }
+        .ac-welcome-sub { color: var(--ac-on-variant) !important; max-width: 340px; line-height: 1.5; font-size: 14px; }
     }
-    .ac-samples {
-        display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px;
-    }
+    // sample pills (replica de .sample-chips)
+    .ac-samples { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
     .ac-sample {
-        border: 1px solid var(--ac-line); background: #fff; color: var(--ac-ink) !important;
-        border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer;
-        &:hover { border-color: var(--ac-navy2); background: var(--ac-bg); }
+        border: 1px solid var(--ac-outline-soft); background: var(--ac-surface);
+        color: var(--ac-on-surface) !important; border-radius: 999px;
+        padding: 9px 15px; font-size: 13px; font-weight: 600; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 8px;
+        transition: background .13s ease, border-color .13s ease, transform .13s ease;
+        i { color: var(--ac-gold-deep) !important; font-size: 13px; }
+        &:hover { background: var(--ac-surface-variant); border-color: var(--ac-outline); transform: translateY(-1px); }
     }
+
+    // =====================================================================
+    //  Burbujas (replica de .bubble)
+    // =====================================================================
     .ac-bubble {
-        max-width: 92%; padding: 10px 14px; border-radius: 14px; line-height: 1.4;
-        white-space: pre-wrap; word-break: break-word;
+        max-width: 86%; padding: 10px 14px; border-radius: 18px; line-height: 1.5;
+        white-space: pre-wrap; word-break: break-word; font-size: 14px;
+        animation: ac-in .2s ease;
     }
     .ac-bubble-user {
-        align-self: flex-end; background: var(--ac-navy2); color: #fff !important;
+        align-self: flex-end; max-width: 82%;
+        background: var(--ac-navy); color: #fff !important;
         border-bottom-right-radius: 4px;
     }
     .ac-bubble-bot {
-        align-self: flex-start; background: #fff; border: 1px solid var(--ac-line);
-        border-bottom-left-radius: 4px; display: flex; gap: 8px; align-items: flex-start;
-        color: var(--ac-ink) !important;
+        align-self: flex-start; max-width: 92%;
+        background: var(--ac-surface); border: 1px solid var(--ac-outline-soft);
+        border-bottom-left-radius: 4px; color: var(--ac-on-surface) !important;
+        box-shadow: 0 1px 2px rgba(21, 38, 66, .05);
     }
-    .ac-bubble-avatar {
-        flex: none; width: 22px; height: 22px; border-radius: 999px;
-        background: var(--ac-bg); display: flex; align-items: center; justify-content: center;
-        i { color: var(--ac-rose) !important; font-size: 12px; }
-    }
-    .ac-bubble-body { min-width: 0; }
-    .ac-credits-used {
-        margin-top: 4px; font-size: 11px; color: var(--ac-muted) !important;
-        display: flex; align-items: center; gap: 6px;
-        i { color: var(--ac-rose) !important; margin-right: 2px; }
+    // meta (creditos + detalle + export), como el .ts de la app
+    .ac-meta {
+        margin-top: 6px; font-size: 11px; color: var(--ac-on-variant) !important;
+        display: flex; align-items: center; gap: 8px;
+        .ac-credits-chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; opacity: .85;
+            i { color: var(--ac-gold-deep) !important; }
+        }
     }
     .ac-detail-btn {
-        border: 0; background: transparent; color: var(--ac-muted) !important; cursor: pointer;
-        padding: 0; font-size: 12px;
+        border: 0; background: transparent; color: var(--ac-on-variant) !important; cursor: pointer;
+        padding: 3px; font-size: 12px; border-radius: 6px; line-height: 1; opacity: .7;
         i { color: inherit !important; }
-        &:hover { color: var(--ac-navy2) !important; }
+        &:hover { opacity: 1; background: color-mix(in srgb, var(--ac-on-surface) 9%, transparent); }
     }
     .ac-detail {
-        margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ac-line);
+        margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--ac-outline-soft);
+        animation: ac-in .16s ease;
     }
     .ac-detail-stats {
-        display: flex; gap: 12px; font-size: 12px; color: var(--ac-ink) !important; margin-bottom: 6px;
-        i { color: var(--ac-rose) !important; margin-right: 3px; }
+        display: flex; gap: 10px; margin-bottom: 10px;
+        .ac-stat { flex: 1; display: flex; align-items: center; gap: 9px;
+            padding: 10px 12px; border-radius: 12px; background: var(--ac-surface-variant);
+            i { color: var(--ac-navy) !important; opacity: .8; font-size: 15px; }
+            .ac-stat-v { font-size: 15px; font-weight: 800; line-height: 1.1; color: var(--ac-on-surface) !important; }
+            .ac-stat-k { font-size: 11px; color: var(--ac-on-variant) !important; }
+        }
     }
     .ac-detail-fb {
-        display: flex; align-items: center; gap: 8px; font-size: 12px;
-        color: var(--ac-muted) !important; margin-bottom: 8px;
+        display: flex; align-items: center; gap: 8px; font-size: 13px;
+        color: var(--ac-on-variant) !important; margin-bottom: 10px;
     }
     .ac-fb-btn {
-        border: 1px solid var(--ac-line); background: #fff; border-radius: 6px;
-        width: 26px; height: 26px; cursor: pointer; color: var(--ac-muted) !important;
+        border: 1.5px solid var(--ac-outline-soft); background: var(--ac-surface); border-radius: 10px;
+        width: 40px; height: 32px; cursor: pointer; color: var(--ac-on-variant) !important;
+        transition: all .12s ease;
         i { color: inherit !important; }
-        &:hover { background: var(--ac-bg); }
-        &.on { border-color: #16a34a; color: #16a34a !important; }
-        &.on-bad { border-color: #dc2626; color: #dc2626 !important; }
+        &:hover { background: var(--ac-surface-variant); }
+        &.on, &.on-bad { background: var(--ac-navy); border-color: var(--ac-navy); color: #fff !important; }
     }
     .ac-detail-export {
-        border: 1px solid var(--ac-line); background: var(--ac-bg); color: var(--ac-navy2) !important;
-        border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
-        i { color: inherit !important; }
-        &:hover { border-color: var(--ac-navy2); }
-        &:disabled { opacity: .6; cursor: not-allowed; }
+        border: 1.5px solid var(--ac-outline-soft); background: var(--ac-surface); color: var(--ac-on-surface) !important;
+        border-radius: 12px; padding: 9px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 7px; transition: all .12s ease;
+        i { color: var(--ac-navy) !important; opacity: .8; }
+        &:hover { background: var(--ac-surface-variant); }
+        &:disabled { opacity: .5; cursor: not-allowed; }
     }
-    // Mismo contrato visual que web/src/chat/MarkdownMessage.tsx (.md en
-    // chat.css) — no se reinventa el formato, solo el motor (OWL vs React).
+    // Markdown (replica de .md de la app)
     .md {
         > *:first-child { margin-top: 0; } > *:last-child { margin-bottom: 0; }
-        p { margin: 4px 0; }
-        h1, h2, h3 { margin: 8px 0 4px; font-weight: 800; line-height: 1.25; }
+        p { margin: 6px 0; }
+        h1, h2, h3 { margin: 10px 0 6px; font-weight: 800; line-height: 1.25; color: var(--ac-on-surface) !important; }
         h1 { font-size: 18px; } h2 { font-size: 16px; } h3 { font-size: 15px; }
         strong { font-weight: 700; }
         em { font-style: italic; }
-        code { font-family: monospace; font-size: 12px; background: var(--ac-bg); padding: 1px 5px; border-radius: 5px; }
-        pre { background: var(--ac-bg); padding: 8px 10px; border-radius: 8px; overflow-x: auto; }
+        code { font-family: monospace; font-size: 12.5px; background: var(--ac-surface-variant); padding: 1px 5px; border-radius: 5px; }
+        pre { background: var(--ac-surface-variant); padding: 10px 12px; border-radius: 10px; overflow-x: auto; }
         pre code { background: transparent; padding: 0; }
-        ul, ol { margin: 4px 0; padding-left: 18px; }
+        ul, ol { margin: 6px 0; padding-left: 20px; }
         li { margin: 2px 0; }
-        blockquote { border-left: 3px solid var(--ac-rose); margin: 4px 0; padding: 2px 0 2px 10px; font-style: italic; opacity: .9; }
-        a { color: var(--ac-navy2) !important; font-weight: 600; }
+        blockquote { border-left: 3px solid var(--ac-navy); margin: 6px 0; padding: 2px 0 2px 12px;
+            font-style: italic; opacity: .9; color: var(--ac-on-surface) !important; }
+        a { color: var(--ac-navy) !important; font-weight: 600; }
     }
-    .md-table-wrap { overflow-x: auto; margin: 6px 0; border-radius: 8px; border: 1px solid var(--ac-line); }
-    .md table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 12px; }
-    .md th, .md td { text-align: left; padding: 5px 8px; white-space: nowrap; border-bottom: 1px solid var(--ac-line); }
-    .md th { background: color-mix(in srgb, var(--ac-navy2) 12%, transparent); font-weight: 700; }
-    .md tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--ac-bg) 60%, transparent); }
+    .md-table-wrap { overflow-x: auto; margin: 8px 0; border-radius: 10px; border: 1px solid var(--ac-outline-soft); }
+    .md table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 12.5px; }
+    .md th, .md td { text-align: left; padding: 7px 10px; white-space: nowrap; border-bottom: 1px solid var(--ac-outline-soft); }
+    .md th { background: color-mix(in srgb, var(--ac-navy) 12%, transparent); font-weight: 700; color: var(--ac-on-surface) !important; }
+    .md tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--ac-surface-variant) 45%, transparent); }
     .md tbody tr:last-child td { border-bottom: 0; }
-    .ac-thinking { color: var(--ac-muted) !important; }
+
+    // ---- indicador "pensando" (replica de .typing) ----
+    .ac-thinking { color: var(--ac-on-variant) !important; }
+    .ac-typing { display: inline-flex; align-items: center; gap: 5px; padding: 4px 2px; }
+    .ac-typing i {
+        width: 7px; height: 7px; border-radius: 50%; background: var(--ac-on-variant);
+        display: block; animation: ac-bounce .9s infinite;
+    }
+    .ac-typing i:nth-child(2) { animation-delay: .15s; }
+    .ac-typing i:nth-child(3) { animation-delay: .3s; }
+
+    // ---- error ----
     .ac-bubble-error {
-        align-self: flex-start; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b !important;
+        align-self: flex-start; background: #fef2f2;
+        border: 1px solid color-mix(in srgb, var(--ac-error) 40%, transparent); color: #8f1d18 !important;
         border-bottom-left-radius: 4px;
+        i.fa-exclamation-triangle { color: var(--ac-error) !important; }
     }
-    .ac-error-actions {
-        margin-top: 6px; display: flex; gap: 14px;
-    }
+    .ac-error-actions { margin-top: 8px; display: flex; gap: 16px; }
     .ac-btn-link {
         border: 0; background: transparent; cursor: pointer; padding: 0;
-        color: #991b1b !important; font-weight: 700; text-decoration: underline;
+        color: var(--ac-error) !important; font-weight: 800; text-decoration: underline;
     }
 
-    // ---- composer ----
+    // =====================================================================
+    //  Composer (replica de .input-bar + .send-fab navy)
+    // =====================================================================
     .ac-composer {
-        flex: none; display: flex; gap: 8px; padding: 12px 16px;
-        background: #fff; border-top: 1px solid var(--ac-line);
+        flex: none; padding: 10px 12px 12px;
+        background: var(--ac-bg); border-top: 1px solid var(--ac-outline-soft);
+    }
+    .ac-composer-inner {
+        display: flex; gap: 8px; align-items: center;
+        width: 100%; max-width: 860px; margin: 0 auto;
         input {
-            flex: 1; border: 1px solid var(--ac-line); border-radius: 999px;
-            padding: 10px 16px; font-size: 14px; outline: none;
-            &:focus { border-color: var(--ac-navy2); }
-            &:disabled { background: var(--ac-bg); }
+            flex: 1; min-width: 0; border: 1.5px solid var(--ac-outline-soft); border-radius: 22px;
+            padding: 11px 16px; font-size: 14px; outline: none; color: var(--ac-on-surface);
+            background: var(--ac-surface); transition: border-color .14s ease, box-shadow .14s ease;
+            &::placeholder { color: var(--ac-on-variant); opacity: .7; }
+            &:focus { border-color: var(--ac-navy); box-shadow: 0 0 0 3px rgba(21, 38, 66, .1); }
+            &:disabled { background: var(--ac-surface-2); }
         }
         .ac-send {
-            flex: none; width: 40px; height: 40px; border-radius: 999px; border: 0;
-            background: var(--ac-navy2); color: #fff !important; cursor: pointer;
-            &:disabled { background: var(--ac-line); color: var(--ac-muted) !important; cursor: not-allowed; }
+            flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0;
+            background: var(--ac-navy); color: #fff !important; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+            box-shadow: 0 2px 6px rgba(10, 18, 36, .2);
+            transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+            i { color: inherit !important; }
+            &:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
+            &:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
         }
         .ac-export {
-            flex: none; width: 40px; height: 40px; border-radius: 999px;
-            border: 1px solid var(--ac-line); background: #fff; cursor: pointer;
-            color: var(--ac-navy2) !important;
-            i { color: inherit !important; }
-            &:disabled { color: var(--ac-muted) !important; cursor: not-allowed; }
+            flex: none; width: 44px; height: 44px; border-radius: 50%;
+            border: 1.5px solid var(--ac-outline-soft); background: var(--ac-surface); cursor: pointer;
+            color: var(--ac-navy) !important; display: flex; align-items: center; justify-content: center;
+            transition: border-color .12s ease, background .12s ease;
+            i { color: var(--ac-navy) !important; opacity: .82; }
+            &:hover:not(:disabled) { background: var(--ac-surface-variant); }
+            &:disabled { cursor: not-allowed; i { color: var(--ac-on-variant) !important; opacity: .5; } }
         }
     }
+
+    // =====================================================================
+    //  Animaciones
+    // =====================================================================
+    @keyframes ac-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+    @keyframes ac-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes ac-slide-in { from { transform: translateX(-100%); } to { transform: none; } }
+    @keyframes ac-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-5px); opacity: 1; } }
 }
