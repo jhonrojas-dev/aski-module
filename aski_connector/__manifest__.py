@@ -3,7 +3,7 @@
     "name": "Aski - AI assistant: ask your Odoo in natural language (chat & voice)",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
-    "version": "19.0.1.4.9",
+    "version": "19.0.1.4.10",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -43,7 +43,8 @@ inactive customers, cash flow - by chat or voice. A simpler alternative to
 building dashboards or BI reports for everyday questions.
 
 Keywords: AI, assistant, chatbot, natural language, ask Odoo, mobile reports,
-business intelligence, BI, dashboards, voice, analytics, conversational, ERP.
+business intelligence, BI, dashboards, voice, analytics, conversational, ERP,
+embedded chat, in-app chat, chat widget, floating chat bubble, export PDF.
 
 Get the app and learn more at https://aski.dev
 """,
@@ -74,6 +75,8 @@ Get the app and learn more at https://aski.dev
         "static/description/shot-6.png",
         "static/description/shot-7.png",
         "static/description/shot-8.png",
+        "static/description/shot-9.png",
+        "static/description/shot-10.png",
     ],
     "installable": True,
     "application": True,
