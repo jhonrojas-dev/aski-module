@@ -3,7 +3,7 @@
     "name": "Aski - AI assistant: ask your Odoo in natural language (chat & voice)",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
-    "version": "19.0.1.1.2",
+    "version": "19.0.1.1.3",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
