@@ -38,8 +38,7 @@
                     </div>
                 </sheet>
                 <footer>
-                    <button name="action_connect" type="object"
-                            string="Connect" class="btn-primary"/>
+                    <button name="action_connect" type="object" class="btn-primary">Connect Aski</button>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
