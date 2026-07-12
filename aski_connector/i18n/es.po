@@ -47,6 +47,7 @@ msgstr "Cerrar"
 
 #. module: aski_connector
 #: model:ir.ui.menu,name:aski_connector.menu_aski_connect
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Connect"
 msgstr "Conectar"
 
