@@ -50,7 +50,12 @@
                         </div>
                         <div t-elif="m.role === 'assistant'" class="ac-bubble ac-bubble-bot">
                             <span class="ac-bubble-avatar"><i class="fa fa-comments"/></span>
-                            <span t-esc="m.text"/>
+                            <div class="ac-bubble-body">
+                                <div class="md" t-out="renderMd(m.text)"/>
+                                <div t-if="m.credits !== null" class="ac-credits-used">
+                                    <i class="fa fa-bolt"/> <t t-esc="m.credits"/> credits
+                                </div>
+                            </div>
                         </div>
                         <div t-else="" class="ac-bubble ac-bubble-error">
                             <div><i class="fa fa-exclamation-triangle"/> <span t-esc="m.text"/></div>

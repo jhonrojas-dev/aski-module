@@ -115,6 +115,10 @@ export class AskiChatWidget extends Component {
         }
     }
 
+    renderMd(text) {
+        return markup(mdToHtml(text));
+    }
+
     openConnect() {
         this.action.doAction("aski_connector.action_aski_chat_connect");
     }
@@ -160,7 +164,10 @@ export class AskiChatWidget extends Component {
             if (r.conversation_id) {
                 this.state.conversationId = r.conversation_id;
             }
-            this.state.messages.push({ id: `a${Date.now()}`, role: "assistant", text: r.answer || "" });
+            this.state.messages.push({
+                id: `a${Date.now()}`, role: "assistant", text: r.answer || "",
+                credits: typeof r.credits === "number" ? r.credits : null,
+            });
             if (typeof r.credits === "number") {
                 this.state.walletCredits = Math.max(0, this.state.walletCredits - r.credits);
             }
