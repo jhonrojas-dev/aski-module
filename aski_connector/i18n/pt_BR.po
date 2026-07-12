@@ -623,3 +623,50 @@ msgstr "Sem título"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Out of credits - tap to top up"
 msgstr "Sem créditos - toque para recarregar"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"- it takes about 2 minutes and\n"
+"                        starts with a 7-day free trial."
+msgstr ""
+"- leva cerca de 2 minutos e\n"
+"                        começa com um teste gratuito de 7 dias."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"<b>Aski</b> is an AI assistant that answers questions about your\n"
+"                        Odoo in plain language - sales, receivables, top products and more."
+msgstr ""
+"<b>Aski</b> é um assistente de IA que responde perguntas sobre seu\n"
+"                        Odoo em linguagem simples - vendas, contas a receber, produtos mais vendidos e mais."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Already have an account? Generate a <b>Personal access token</b>\n"
+"                        in the Aski web app (Settings &gt; Personal access tokens) and\n"
+"                        paste it below. This Odoo will be registered as a connection under\n"
+"                        your Aski account, so anyone here can chat with your ERP without\n"
+"                        leaving Odoo."
+msgstr ""
+"Já tem uma conta? Gere um <b>token de acesso pessoal</b>\n"
+"                        no aplicativo web da Aski (Configurações &gt; Tokens de acesso pessoal) e\n"
+"                        cole abaixo. Este Odoo ficará registrado como uma conexão da sua\n"
+"                        conta Aski, para que qualquer pessoa aqui possa conversar com seu\n"
+"                        ERP sem sair do Odoo."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Chat usage spends credits from that Aski account's wallet - the\n"
+"                        same plan used by the Aski mobile app."
+msgstr ""
+"O uso do chat consome créditos da carteira dessa conta Aski - o\n"
+"                        mesmo plano usado pelo aplicativo móvel da Aski."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "No Aski account yet? Create one at"
+msgstr "Ainda não tem conta na Aski? Crie uma em"
