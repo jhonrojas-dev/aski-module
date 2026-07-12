@@ -82,6 +82,31 @@
                                 <div class="md" t-out="renderMd(m.text)"/>
                                 <div t-if="m.credits !== null" class="ac-credits-used">
                                     <i class="fa fa-bolt"/> <t t-esc="m.credits"/> credits
+                                    <button t-if="m.backendId" class="ac-detail-btn" title="Details"
+                                            t-on-click="() => this.toggleDetail(m)">
+                                        <i class="fa fa-info-circle"/>
+                                    </button>
+                                </div>
+                                <div t-if="state.detailFor === m.id" class="ac-detail">
+                                    <div class="ac-detail-stats">
+                                        <span><i class="fa fa-bolt"/> <t t-esc="m.credits ?? 0"/> credits</span>
+                                        <span t-if="m.rows !== null"><i class="fa fa-table"/> <t t-esc="m.rows"/> rows</span>
+                                    </div>
+                                    <div class="ac-detail-fb">
+                                        <span>Helpful?</span>
+                                        <button t-attf-class="ac-fb-btn {{ m.feedback === 'like' ? 'on' : '' }}"
+                                                t-on-click="() => this.setFeedback(m, 'like')">
+                                            <i class="fa fa-thumbs-o-up"/>
+                                        </button>
+                                        <button t-attf-class="ac-fb-btn {{ m.feedback === 'dislike' ? 'on-bad' : '' }}"
+                                                t-on-click="() => this.setFeedback(m, 'dislike')">
+                                            <i class="fa fa-thumbs-o-down"/>
+                                        </button>
+                                    </div>
+                                    <button class="ac-detail-export" t-on-click="() => this.exportMessageDetail(m)"
+                                            t-att-disabled="state.exporting">
+                                        <i class="fa fa-file-pdf-o"/> Export this answer
+                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -130,7 +130,37 @@
     .ac-bubble-body { min-width: 0; }
     .ac-credits-used {
         margin-top: 4px; font-size: 11px; color: var(--ac-muted);
+        display: flex; align-items: center; gap: 6px;
         i { color: var(--ac-rose); margin-right: 2px; }
+    }
+    .ac-detail-btn {
+        border: 0; background: transparent; color: var(--ac-muted); cursor: pointer;
+        padding: 0; font-size: 12px;
+        &:hover { color: var(--ac-navy2); }
+    }
+    .ac-detail {
+        margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ac-line);
+    }
+    .ac-detail-stats {
+        display: flex; gap: 12px; font-size: 12px; color: var(--ac-ink); margin-bottom: 6px;
+        i { color: var(--ac-rose); margin-right: 3px; }
+    }
+    .ac-detail-fb {
+        display: flex; align-items: center; gap: 8px; font-size: 12px;
+        color: var(--ac-muted); margin-bottom: 8px;
+    }
+    .ac-fb-btn {
+        border: 1px solid var(--ac-line); background: #fff; border-radius: 6px;
+        width: 26px; height: 26px; cursor: pointer; color: var(--ac-muted);
+        &:hover { background: var(--ac-bg); }
+        &.on { border-color: #16a34a; color: #16a34a; }
+        &.on-bad { border-color: #dc2626; color: #dc2626; }
+    }
+    .ac-detail-export {
+        border: 1px solid var(--ac-line); background: var(--ac-bg); color: var(--ac-navy2);
+        border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+        &:hover { border-color: var(--ac-navy2); }
+        &:disabled { opacity: .6; cursor: not-allowed; }
     }
     // Mismo contrato visual que web/src/chat/MarkdownMessage.tsx (.md en
     // chat.css) — no se reinventa el formato, solo el motor (OWL vs React).
