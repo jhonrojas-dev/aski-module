@@ -54,10 +54,27 @@ class AskiChatConnectWizard(models.TransientModel):
         if not ok:
             raise UserError(message)
 
-        # Recarga COMPLETA del cliente web. Devolver la accion del chat solo
-        # re-montaba la pantalla completa: la burbuja del systray sigue montada
-        # y conservaba en su estado la conversacion/creditos de la cuenta
-        # ANTERIOR (se veia el historial de otra cuenta tras pegar un token
-        # nuevo). Con el reload, TODA instancia del widget vuelve a arrancar
-        # contra la cuenta recien conectada.
-        return {"type": "ir.actions.client", "tag": "reload"}
+        # Carga de pagina COMPLETA que ademas ATERRIZA EN EL CHAT.
+        #
+        # Hace falta que sea completa: devolver solo la accion del chat re-monta
+        # la pantalla completa, pero la burbuja del systray sigue montada y
+        # conservaria en su estado la conversacion/creditos de la cuenta ANTERIOR
+        # (se veia el historial de otra cuenta tras pegar un token nuevo).
+        #
+        # Pero un `{"tag": "reload"}` a secas recarga la URL ACTUAL, que puede ser
+        # la del PROPIO WIZARD -> tras conectar se reabria el MISMO dialogo y
+        # parecia que no habia pasado nada (reportado en Odoo 14, donde el boton
+        # "Connect my Aski account" del chat navega por hash a la accion del
+        # wizard porque esa serie no tiene servicio `action`).
+        #
+        # Un act_url con target=self fuerza la carga completa Y deja al usuario en
+        # el chat. Ojo: en 14-17 el chat vive en /web#action=<id> y cambiar SOLO
+        # el hash NO recarga la pagina -> se anade un parametro de query que la
+        # obliga.
+        from odoo import release
+        chat = self.env.ref("aski_connector.action_aski_chat")
+        if release.version_info[0] >= 18:
+            url = "/odoo/action-%s" % chat.id
+        else:
+            url = "/web?aski_connected=1#action=%s" % chat.id
+        return {"type": "ir.actions.act_url", "url": url, "target": "self"}
