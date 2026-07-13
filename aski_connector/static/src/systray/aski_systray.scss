@@ -85,3 +85,35 @@
         to { opacity: 1; transform: none; }
     }
 }
+
+// ---------------------------------------------------------------------------
+// ODOO 14 — altura de la pantalla completa (accion cliente legacy).
+// ---------------------------------------------------------------------------
+// El AbstractAction legacy NO le da altura util al contenedor donde se monta el
+// componente: el `height:100%` de .aski-chat no resuelve contra nada y el chat
+// salia a MEDIA PANTALLA (medido: contenedor 854px, chat 427px), con el header
+// flotando en el aire. En 16-19 la accion cliente de wowl ya estira al hijo.
+// Aqui se estira a mano: contenedor en columna con altura completa y el chat
+// como unico item flexible.
+.o_action.o_aski_chat_action {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+
+    // `.o_content` es el area de contenido que ya trae el AbstractAction; el
+    // chat se monta DENTRO de ella (ver aski_systray.js).
+    > .o_content {
+        flex: 1 1 auto;
+        min-height: 0;   // sin esto un item flex no puede encoger y desborda
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .aski-chat {
+        flex: 1 1 auto;
+        min-height: 0;
+        height: auto;    // anula el height:100%, que aqui no resuelve
+    }
+}

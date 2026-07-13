@@ -87,8 +87,15 @@ const AskiChatAction = AbstractAction.extend({
     hasControlPanel: false,
     start: function () {
         this.$el.addClass("o_aski_chat_action");
+        // El AbstractAction de la 14 ya renderiza un `.o_content` (su area de
+        // contenido). Montando con `mount(this.el)` el componente quedaba
+        // COLGADO AL LADO de ese div, no dentro: el `.o_content` vacio se comia
+        // 600px y el chat aparecia a media pantalla, con el header flotando en
+        // el aire. Se monta DENTRO de `.o_content` (y si no existiera, en el
+        // propio elemento, sin romperse).
+        const target = this.el.querySelector(".o_content") || this.el;
         this.component = new ComponentWrapper(this, AskiChatWidget, {});
-        return this.component.mount(this.el).then(this._super.bind(this));
+        return this.component.mount(target).then(this._super.bind(this));
     },
 });
 core.action_registry.add("aski_chat_widget", AskiChatAction);
