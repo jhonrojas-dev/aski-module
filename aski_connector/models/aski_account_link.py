@@ -300,11 +300,14 @@ class AskiAccountLink(models.Model):
                 "You can't disconnect this Aski connection. Ask an administrator."))
         if self.sudo().connected:
             self._disconnect_link(self)
+        # Recarga COMPLETA: al cerrar el dialogo, la burbuja del systray sigue
+        # montada con su estado "conectado" y su composer usable. Mismo motivo
+        # que en el widget (y que en action_connect al conectar).
         return {"type": "ir.actions.client", "tag": "display_notification", "params": {
             "title": _("Aski connection"),
             "message": _("Aski account disconnected."),
             "type": "success",
-            "next": {"type": "ir.actions.act_window_close"}}}
+            "next": {"type": "ir.actions.client", "tag": "reload"}}}
 
     def _register_credential(self, nickname, url, db, login, api_key):
         """Registra esta base Odoo como credential de la cuenta Aski conectada.
