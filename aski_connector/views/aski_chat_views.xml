@@ -102,10 +102,13 @@
     <!-- El menu es visible a todo usuario interno: en modo "por usuario"
          cualquiera puede conectar su cuenta. La restriccion real por modo la
          aplican los guards del backend + los estados del widget; la burbuja del
-         systray si queda precisa (usa can_use_chat, que es mode-aware). -->
+         systray si queda precisa (usa can_use_chat, que es mode-aware).
+         El "-group_aski_chat_user" quita el gateo anterior (el groups= de
+         menuitem SUMA, no reemplaza) — asi no queda redundante en upgrades;
+         en instalacion nueva el unlink es no-op. -->
     <menuitem id="menu_aski_chat" name="Chat" parent="aski_connector.menu_aski_root"
               action="action_aski_chat" sequence="5"
-              groups="base.group_user"/>
+              groups="base.group_user,-aski_connector.group_aski_chat_user"/>
 
     <!-- Hasta la 1.6.0, un post_init_hook desactivaba ESTE menu en Odoo 14/15
          (se daba por hecho que el widget OWL no podia cargar ahi). Ya no es
