@@ -249,6 +249,63 @@ class AskiAccountLink(models.Model):
             "title": _("Aski connection") if ok else _("Aski connection issue"),
             "message": message, "type": "success" if ok else "danger", "sticky": not ok}}
 
+    # ------------------------------------------------------------------
+    # Desconectar (cerrar sesion de la cuenta Aski)
+    # ------------------------------------------------------------------
+    def _disconnect_link(self, rec):
+        """Desvincula una conexion: archiva la credencial del lado de Aski,
+        revoca la API key de Odoo y limpia el registro local.
+
+        El corte REAL es archivar la credencial en Aski: aunque la revocacion
+        local falle (o la key sea de OTRO admin, que fue quien conecto en modo
+        compartido), Aski ya no puede entrar a este Odoo. Por eso el archivado va
+        primero y la limpieza local ocurre IGUAL si la red falla — si no, el
+        usuario quedaria atrapado con una conexion que no puede quitar.
+        """
+        rec = rec.sudo()
+        if rec.credential_id:
+            try:
+                requests.delete(
+                    ASKI_API_BASE + "/users/odoo/%s" % rec.credential_id,
+                    headers=rec._headers(), timeout=_TIMEOUT)
+            except Exception:  # noqa: BLE001
+                _logger.info("Aski: no se pudo archivar la credencial remota al "
+                             "desconectar; se limpia igual en local", exc_info=True)
+        rec._aski_revoke_previous("Aski Chat")
+        rec.write({
+            "pat_enc": False, "credential_id": False, "wallet_credits": 0,
+            "plan_name": False, "email": False, "last_synced": False,
+        })
+
+    @api.model
+    def disconnect_account(self):
+        """Desde el widget (orm.call). Desconecta la conexion que le corresponde
+        a ESTE usuario segun el modo: la suya propia en `per_user`, la global en
+        los modos compartidos (donde solo un admin puede)."""
+        user = self.env.user
+        if not self._user_can_connect(user):
+            raise AccessError(_(
+                "You can't disconnect this Aski connection. Ask an administrator."))
+        rec = self._active_link(user)
+        if not rec or not rec.connected:
+            return {"ok": True, "message": _("Aski was already disconnected.")}
+        self._disconnect_link(rec)
+        return {"ok": True, "message": _("Aski account disconnected.")}
+
+    def action_disconnect(self):
+        """Boton 'Disconnect' del formulario de Chat Settings (admin)."""
+        self.ensure_one()
+        if not self._user_can_connect(self.env.user):
+            raise AccessError(_(
+                "You can't disconnect this Aski connection. Ask an administrator."))
+        if self.sudo().connected:
+            self._disconnect_link(self)
+        return {"type": "ir.actions.client", "tag": "display_notification", "params": {
+            "title": _("Aski connection"),
+            "message": _("Aski account disconnected."),
+            "type": "success",
+            "next": {"type": "ir.actions.act_window_close"}}}
+
     def _register_credential(self, nickname, url, db, login, api_key):
         """Registra esta base Odoo como credential de la cuenta Aski conectada.
         Si YA habia un credential_id de una conexion anterior, actualiza ESE
