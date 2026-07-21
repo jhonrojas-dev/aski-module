@@ -70,6 +70,27 @@
                          t-on-click="() => this.openConversation(c.id)">
                         <t t-esc="this.conversationTitle(c)"/>
                     </div>
+
+                    <!-- Cerrar sesion de la cuenta Aski. Solo a quien le
+                         corresponde: en per_user cada quien la suya, en los
+                         modos compartidos solo el admin (canConnect). -->
+                    <div t-if="state.connected and state.canConnect" class="ac-drawer-foot">
+                        <button t-if="!state.confirmDisconnect" class="ac-drawer-disconnect"
+                                t-on-click="askDisconnect">
+                            <i class="fa fa-sign-out"/> Disconnect my Aski account
+                        </button>
+                        <div t-else="" class="ac-confirm">
+                            <div class="ac-confirm-txt">Disconnect this Aski account? You can reconnect anytime with your token.</div>
+                            <div class="ac-confirm-actions">
+                                <button class="ac-confirm-cancel" t-on-click="cancelDisconnect">Cancel</button>
+                                <button class="ac-confirm-ok" t-on-click="doDisconnect"
+                                        t-att-disabled="state.disconnecting">
+                                    <i t-if="state.disconnecting" class="fa fa-circle-o-notch fa-spin"/>
+                                    Disconnect
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </t>
 
