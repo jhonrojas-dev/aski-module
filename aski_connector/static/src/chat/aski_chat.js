@@ -133,6 +133,9 @@ export class AskiChatWidget extends Component {
             conversations: [],
             drawerOpen: false,
             detailFor: null,
+            // Confirmacion IN-APP de desconectar (nunca window.confirm).
+            confirmDisconnect: false,
+            disconnecting: false,
         });
         onWillStart(async () => { await this.loadStatus(); });
     }
@@ -268,6 +271,40 @@ export class AskiChatWidget extends Component {
 
     openConnect() {
         this.action.doAction("aski_connector.action_aski_chat_connect");
+    }
+
+    askDisconnect() {
+        this.state.confirmDisconnect = true;
+    }
+
+    cancelDisconnect() {
+        this.state.confirmDisconnect = false;
+    }
+
+    async doDisconnect() {
+        if (this.state.disconnecting) {
+            return; // guarda contra doble tap
+        }
+        this.state.disconnecting = true;
+        try {
+            const r = await this.orm.call("aski.account.link", "disconnect_account", []);
+            this.notification.add(r.message || _t("Aski account disconnected."),
+                                  { type: "success" });
+            // El historial en pantalla pertenece a la cuenta recien desvinculada:
+            // se limpia para no dejar datos de esa cuenta a la vista.
+            this.state.confirmDisconnect = false;
+            this.state.drawerOpen = false;
+            this.state.messages = [];
+            this.state.conversations = [];
+            this.state.conversationId = null;
+            this.state.detailFor = null;
+            await this.loadStatus();
+        } catch (e) {
+            const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
+            this.notification.add(msg, { type: "danger", sticky: true });
+        } finally {
+            this.state.disconnecting = false;
+        }
     }
 
     openBilling() {
