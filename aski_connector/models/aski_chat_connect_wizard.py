@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import _, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 
 class AskiChatConnectWizard(models.TransientModel):
@@ -30,14 +30,28 @@ class AskiChatConnectWizard(models.TransientModel):
         if not pat:
             raise UserError(_("Paste your Aski personal access token."))
 
-        link = self.env["aski.account.link"].sudo()._get_or_create()
+        # A que conexion se pega el token depende del modo (configurado por el
+        # admin en Chat Settings):
+        #  - modos compartidos: el registro GLOBAL, y SOLO un admin lo configura.
+        #  - por usuario: el registro del PROPIO usuario (cada quien el suyo).
+        Link = self.env["aski.account.link"]
+        user = self.env.user
+        if Link._current_mode() == "per_user":
+            if not Link._user_can_use_chat(user):
+                raise AccessError(_("You can't use the Aski chat. Ask an "
+                                    "administrator for access."))
+            link = Link._get_user_link(user, create=True).sudo()
+        else:
+            if not user.has_group("base.group_system"):
+                raise AccessError(_("Only administrators can set up the shared "
+                                    "Aski connection."))
+            link = Link._get_global().sudo()
         link.write({"pat": pat})
 
         ok, message = link._sync_wallet()
         if not ok:
             raise UserError(message)
 
-        user = self.env.user
         base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url") or ""
         dbname = self.env.cr.dbname
         # El nombre de la API KEY de Odoo se mantiene fijo ("Aski Chat") a

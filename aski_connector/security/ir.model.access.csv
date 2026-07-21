@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_aski_connect_wizard_system,aski.connect.wizard system,model_aski_connect_wizard,base.group_system,1,1,1,1
-access_aski_chat_connect_wizard_system,aski.chat.connect.wizard system,model_aski_chat_connect_wizard,base.group_system,1,1,1,1
+access_aski_chat_connect_wizard_user,aski.chat.connect.wizard user,model_aski_chat_connect_wizard,base.group_user,1,1,1,1
 access_aski_account_link_user,aski.account.link user read,model_aski_account_link,base.group_user,1,0,0,0
 access_aski_account_link_system,aski.account.link system,model_aski_account_link,base.group_system,1,1,1,1

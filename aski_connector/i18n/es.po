@@ -749,17 +749,16 @@ msgstr "Consulta todos los planes y precios, y más información, en"
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ""
-"<b>Your data stays private.</b> The chat reads through this shared "
-"connection, so only the users you add to the <b>Use the Aski chat</b> group "
-"can open it and see your figures - not everyone in Odoo. Grant access in "
-"Settings &gt; Users &amp; Companies &gt; Users. Administrators already have "
-"it."
+"<b>Your data stays private.</b> Who can use the chat - and whose data they "
+"see - is set by the administrator in Aski &gt; Chat Settings: share one "
+"connection with a group, keep it to administrators only, or let each person "
+"connect their own Aski account and see only what their own Odoo user can."
 msgstr ""
-"<b>Tus datos siguen siendo privados.</b> El chat lee a través de esta "
-"conexión compartida, así que solo los usuarios que agregues al grupo "
-"<b>Usar el chat de Aski</b> pueden abrirlo y ver tus cifras - no todos en "
-"Odoo. Concede el acceso en Ajustes &gt; Usuarios y compañías &gt; Usuarios. "
-"Los administradores ya lo tienen."
+"<b>Tus datos siguen siendo privados.</b> Quién puede usar el chat - y qué "
+"datos ve - lo define el administrador en Aski &gt; Configuración del chat: "
+"comparte una conexión con un grupo, resérvala solo para administradores, o "
+"deja que cada persona conecte su propia cuenta de Aski y vea solo lo que su "
+"propio usuario de Odoo puede."
 
 #. module: aski_connector
 #. odoo-javascript
@@ -781,8 +780,76 @@ msgstr ""
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid ""
-"You don't have access to the Aski chat. Ask an administrator to add you to "
-"the \"Use the Aski chat\" group."
+"You don't have access to the Aski chat. Ask an administrator for access."
 msgstr ""
-"No tienes acceso al chat de Aski. Pídele a un administrador que te agregue "
-"al grupo \"Usar el chat de Aski\"."
+"No tienes acceso al chat de Aski. Pídele acceso a un administrador."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__access_mode
+msgid "Chat access mode"
+msgstr "Modo de acceso del chat"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__shared_group
+msgid "Shared - the Aski Chat group uses my connection"
+msgstr "Compartida - el grupo del chat usa mi conexión"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__shared_admin
+msgid "Private - only administrators use my connection"
+msgstr "Privada - solo los administradores usan mi conexión"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__per_user
+msgid "Per user - each person connects their own Aski account"
+msgstr "Por usuario - cada persona conecta su propia cuenta de Aski"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__user_id
+msgid "User"
+msgstr "Usuario"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Aski isn't set up yet"
+msgstr "Aski aún no está configurado"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask an administrator to connect Aski for your team."
+msgstr "Pídele a un administrador que conecte Aski para tu equipo."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Per user:</b> each internal user connects their own Aski account from the "
+"chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what their "
+"own Odoo user can see, and each person spends their own credits - nothing "
+"else to set up here."
+msgstr ""
+"<b>Por usuario:</b> cada usuario interno conecta su propia cuenta de Aski "
+"desde el botón <b>Conectar</b> del chat (Aski &gt; Chat). Aski solo ve lo que "
+"su propio usuario de Odoo puede ver, y cada persona gasta sus propios "
+"créditos - no hay nada más que configurar aquí."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Connect your own Aski account first: open Aski > Chat and click Connect."
+msgstr ""
+"Conecta primero tu propia cuenta de Aski: abre Aski > Chat y pulsa Conectar."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "You can't use the Aski chat. Ask an administrator for access."
+msgstr "No puedes usar el chat de Aski. Pídele acceso a un administrador."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Only administrators can set up the shared Aski connection."
+msgstr "Solo los administradores pueden configurar la conexión compartida de Aski."

@@ -47,6 +47,28 @@ class AskiAccountLink(models.Model):
     plan_name = fields.Char(string="Plan", readonly=True)
     last_synced = fields.Datetime(string="Last synced", readonly=True)
 
+    # Vacio en el registro GLOBAL/compartido (la conexion del admin); en modo
+    # "por usuario" cada usuario tiene su PROPIO registro con este campo puesto.
+    user_id = fields.Many2one(
+        "res.users", string="User", index=True, ondelete="cascade", copy=False,
+        help="Empty on the shared connection; set on each person's own "
+             "connection when the access mode is 'Per user'.")
+    # Solo se lee del registro GLOBAL. Decide COMO autentica el chat embebido.
+    access_mode = fields.Selection(
+        selection=[
+            ("shared_group", "Shared - the Aski Chat group uses my connection"),
+            ("shared_admin", "Private - only administrators use my connection"),
+            ("per_user", "Per user - each person connects their own Aski account"),
+        ],
+        string="Chat access mode", default="shared_group", required=True,
+        help="How the in-Odoo chat authenticates against Aski:\n"
+             "- Shared: everyone in the 'Use the Aski chat' group asks through "
+             "this one connection - your account, your data, your credits.\n"
+             "- Private: only administrators can use this connection.\n"
+             "- Per user: each internal user connects their own Aski account, "
+             "so Aski only sees what their own Odoo user can see and each one "
+             "spends their own credits.")
+
     @api.depends("pat_enc")
     def _compute_connected(self):
         for r in self:
@@ -62,43 +84,97 @@ class AskiAccountLink(models.Model):
             r.pat_enc = r._aski_encrypt(r.pat or "")
 
     # ------------------------------------------------------------------
-    # Singleton por BASE DE DATOS, no por compania activa. Un Odoo multi-
-    # compania sigue siendo UNA sola instancia hacia afuera (una URL, un
-    # xmlrpc) — usar self.env.company aqui hacia que conectar con la
-    # compania A activa dejara "sin conectar" a la compania B, aunque sea
-    # la MISMA base y la MISMA conexion Aski. Ignorar company_id.
-    # ------------------------------------------------------------------
-    @api.model
-    def _get_or_create(self):
-        rec = self.sudo().search([], order="id", limit=1)
-        if not rec:
-            rec = self.sudo().create({})
-        return rec
-
-    # ------------------------------------------------------------------
-    # Acceso al chat: grupo EXCLUSIVO. El chat lee via la conexion compartida
-    # (el token del admin), asi que un usuario fuera del grupo veria cifras de
-    # toda la empresa saltandose sus propias reglas de registro. El grupo es la
-    # unica puerta: los admin lo tienen implicito; a los demas se les concede a
-    # mano en Ajustes > Usuarios.
+    # Modo de acceso + resolucion del link activo (compartido vs por-usuario).
+    #
+    # Registro GLOBAL (user_id = False): guarda `access_mode` y, en los modos
+    # compartidos, el PAT/credencial del admin. Un Odoo multi-compania sigue
+    # siendo UNA sola instancia hacia afuera (una URL, un xmlrpc) -> el global es
+    # unico por BASE, se ignora company_id.
+    #
+    # Modo `per_user`: cada usuario tiene su PROPIO registro (user_id = usuario)
+    # con su PAT + su credencial; el api_key de esa credencial es el suyo, asi
+    # que el RPC de Aski entra a Odoo COMO ese usuario -> solo sus permisos, sin
+    # escalada.
     # ------------------------------------------------------------------
     _CHAT_GROUP = "aski_connector.group_aski_chat_user"
 
     @api.model
+    def _get_global(self):
+        rec = self.sudo().search([("user_id", "=", False)], order="id", limit=1)
+        if not rec:
+            rec = self.sudo().create({})
+        return rec
+
+    # Compat: el "singleton" historico ES el registro global (config del admin).
+    @api.model
+    def _get_or_create(self):
+        return self._get_global()
+
+    @api.model
+    def _get_user_link(self, user, create=False):
+        rec = self.sudo().search([("user_id", "=", user.id)], order="id", limit=1)
+        if not rec and create:
+            rec = self.sudo().create({"user_id": user.id})
+        return rec
+
+    @api.model
+    def _current_mode(self):
+        return self._get_global().access_mode or "shared_group"
+
+    @api.model
+    def _active_link(self, user):
+        """El link que ESTE usuario usa para chatear, segun el modo. En per_user
+        puede ser un recordset vacio (aun no conecto su cuenta)."""
+        if self._current_mode() == "per_user":
+            return self._get_user_link(user)
+        return self._get_global()
+
+    # ------------------------------------------------------------------
+    # Quien puede USAR el chat, y quien puede CONECTAR (pegar token) — depende
+    # del modo. En modos compartidos el chat lee via la conexion del admin
+    # (sudo), asi que solo un grupo/los admin deben poder invocarlo; en per_user
+    # cada quien usa SU cuenta con SUS permisos, por eso basta ser interno.
+    # ------------------------------------------------------------------
+    @api.model
+    def _user_can_use_chat(self, user):
+        mode = self._current_mode()
+        if mode == "shared_admin":
+            return user.has_group("base.group_system")
+        if mode == "per_user":
+            return user.has_group("base.group_user")  # cualquier interno
+        return user.has_group(self._CHAT_GROUP)  # shared_group
+
+    @api.model
+    def _user_can_connect(self, user):
+        """Quien puede pegar/gestionar un token: en modos compartidos solo los
+        admins (configuran la conexion global); en per_user cada usuario conecta
+        la suya."""
+        if self._current_mode() == "per_user":
+            return self._user_can_use_chat(user)
+        return user.has_group("base.group_system")
+
+    @api.model
     def can_use_chat(self):
-        """True si el usuario actual pertenece al grupo del chat. Lo consulta el
-        systray para NO mostrar la burbuja a quien no tiene acceso (barato: es
-        un has_group, no toca el backend de Aski)."""
-        return self.env.user.has_group(self._CHAT_GROUP)
+        """True si el usuario actual puede usar el chat en el modo vigente. Lo
+        consulta el systray para NO mostrar la burbuja a quien no tiene acceso."""
+        return self._user_can_use_chat(self.env.user)
 
     def _ensure_chat_access(self):
-        """Barrera REAL: los metodos del chat corren con sudo() (usan el token del
-        admin), asi que ocultar el menu/burbuja no basta — hay que rechazar la
-        llamada RPC directa de quien no esta en el grupo."""
-        if not self.env.user.has_group(self._CHAT_GROUP):
+        """Barrera REAL: los metodos del chat corren con sudo(), asi que ocultar
+        el menu/burbuja no basta — hay que rechazar la llamada RPC directa de
+        quien no puede usar el chat en el modo vigente."""
+        if not self._user_can_use_chat(self.env.user):
             raise AccessError(_(
-                "You don't have access to the Aski chat. Ask an administrator to "
-                "add you to the \"Use the Aski chat\" group."))
+                "You don't have access to the Aski chat. Ask an administrator "
+                "for access."))
+
+    def _not_connected_error(self):
+        """Mensaje de 'aun no conectado', segun el modo."""
+        if self._current_mode() == "per_user":
+            return _("Connect your own Aski account first: open Aski > Chat and "
+                     "click Connect.")
+        return _("Aski isn't connected yet. Open Aski > Chat Settings and paste "
+                 "your personal access token.")
 
     @api.model
     def action_open_settings(self):
@@ -221,13 +297,9 @@ class AskiAccountLink(models.Model):
         token en si, PERO solo tras verificar que el usuario esta en el grupo del
         chat (si no, veria datos de toda la empresa saltandose sus reglas)."""
         self._ensure_chat_access()
-        rec = self.sudo()._get_or_create()
-        if not rec.connected:
-            raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
-                              "and paste your personal access token."))
-        if not rec.credential_id:
-            raise UserError(_("This Odoo isn't registered with your Aski account yet. "
-                              "Open Aski > Chat Settings and reconnect."))
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            raise UserError(self._not_connected_error())
         body = {"credential_id": rec.credential_id, "prompt": text}
         if conversation_id:
             body["conversation_id"] = conversation_id
@@ -263,20 +335,26 @@ class AskiAccountLink(models.Model):
         a mano. Si la sincronizacion falla (sin red, token invalido) se
         ignora el error y se muestra el ultimo valor cacheado, sin romper
         la carga del widget."""
-        # Suave (no lanza): el widget muestra el estado "sin acceso" en vez de
-        # un error. La barrera dura vive en los metodos que traen datos.
-        if not self.env.user.has_group(self._CHAT_GROUP):
-            return {"allowed": False, "connected": False, "email": "",
-                    "wallet_credits": 0, "plan_name": ""}
-        rec = self.sudo()._get_or_create()
-        if rec.connected and rec.pat:
+        # Suave (no lanza): el widget muestra el estado correcto (sin acceso /
+        # conectar tu cuenta / pide al admin). La barrera dura vive en los
+        # metodos que traen datos.
+        user = self.env.user
+        mode = self._current_mode()
+        if not self._user_can_use_chat(user):
+            return {"allowed": False, "mode": mode, "can_connect": False,
+                    "connected": False, "email": "", "wallet_credits": 0,
+                    "plan_name": ""}
+        rec = self._active_link(user)
+        if rec and rec.connected and rec.pat:
             rec._sync_wallet()
         return {
             "allowed": True,
-            "connected": rec.connected,
-            "email": rec.email or "",
-            "wallet_credits": rec.wallet_credits,
-            "plan_name": rec.plan_name or "",
+            "mode": mode,
+            "can_connect": self._user_can_connect(user),
+            "connected": bool(rec) and rec.connected,
+            "email": (rec.email or "") if rec else "",
+            "wallet_credits": rec.wallet_credits if rec else 0,
+            "plan_name": (rec.plan_name or "") if rec else "",
         }
 
     @api.model
@@ -284,8 +362,8 @@ class AskiAccountLink(models.Model):
         """Historial de conversaciones de ESTA conexion (drawer del widget,
         igual que Android/web) — mas reciente primero."""
         self._ensure_chat_access()
-        rec = self.sudo()._get_or_create()
-        if not rec.connected or not rec.credential_id:
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
             return []
         try:
             resp = requests.get(ASKI_API_BASE + "/chat/conversations", headers=rec._headers(), timeout=_TIMEOUT)
@@ -300,7 +378,9 @@ class AskiAccountLink(models.Model):
         """Mensajes de una conversacion (al abrirla desde el drawer, o al
         restaurar la mas reciente cuando se recarga la pantalla)."""
         self._ensure_chat_access()
-        rec = self.sudo()._get_or_create()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            return []
         try:
             resp = requests.get(
                 ASKI_API_BASE + "/chat/conversations/%s/messages" % conversation_id,
@@ -349,10 +429,9 @@ class AskiAccountLink(models.Model):
         """Exporta UNA respuesta puntual (boton 'Exportar' del panel de
         detalle de un mensaje) — mismo endpoint que usan Android/web."""
         self._ensure_chat_access()
-        rec = self.sudo()._get_or_create()
-        if not rec.connected:
-            raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
-                              "and paste your personal access token."))
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
         return rec._fetch_export_html(message_id, tz_offset_minutes)
 
     @api.model
@@ -362,10 +441,9 @@ class AskiAccountLink(models.Model):
         mensaje assistant, asi que primero se resuelve via
         /conversations/.../messages (mismo patron que ya usan Android/web)."""
         self._ensure_chat_access()
-        rec = self.sudo()._get_or_create()
-        if not rec.connected:
-            raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
-                              "and paste your personal access token."))
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
         try:
             resp = requests.get(
                 ASKI_API_BASE + "/chat/conversations/%s/messages" % conversation_id,
@@ -384,7 +462,9 @@ class AskiAccountLink(models.Model):
     def set_feedback(self, message_id, feedback):
         """Like/dislike de una respuesta (boton del panel de detalle)."""
         self._ensure_chat_access()
-        rec = self.sudo()._get_or_create()
+        rec = self._active_link(self.env.user)
+        if not rec:
+            raise UserError(self._not_connected_error())
         try:
             resp = requests.patch(
                 ASKI_API_BASE + "/chat/messages/%s/feedback" % message_id,
