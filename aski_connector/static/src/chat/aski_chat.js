@@ -15,7 +15,12 @@ const { Component } = owl;
 const { useState, useRef, onWillStart } = owl.hooks;
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { browser } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
+
+// Margen para que el aviso de "cuenta desconectada" se alcance a leer antes de
+// que la recarga completa se lo lleve por delante.
+const DISCONNECT_RELOAD_DELAY_MS = 1200;
 
 // Markdown -> HTML minimo (bold, italic, code, listas, tablas GFM, blockquote,
 // links). Misma cobertura que web/src/chat/MarkdownMessage.tsx (react-markdown
@@ -318,19 +323,28 @@ export class AskiChatWidget extends Component {
             const r = await this.orm.call("aski.account.link", "disconnect_account", []);
             this.notification.add(r.message || _t("Aski account disconnected."),
                                   { type: "success" });
-            // El historial en pantalla pertenece a la cuenta recien desvinculada:
-            // se limpia para no dejar datos de esa cuenta a la vista.
+            // Corta el chat AQUI mismo (el historial pertenece a la cuenta recien
+            // desvinculada, y sin esto el composer seguiria usable hasta la
+            // recarga).
             this.state.confirmDisconnect = false;
             this.state.drawerOpen = false;
+            this.state.connected = false;
             this.state.messages = [];
             this.state.conversations = [];
             this.state.conversationId = null;
             this.state.detailFor = null;
-            await this.loadStatus();
+            // Y ademas RECARGA la pagina completa. Refrescar solo el estado de
+            // ESTE widget no basta: el chat puede estar montado DOS veces a la
+            // vez (pantalla completa del menu + burbuja del systray) y la otra
+            // instancia se quedaria "conectada", con composer usable, dejando
+            // mandar preguntas a una cuenta que ya no sirve. Mismo motivo por el
+            // que action_connect fuerza una carga completa al conectar.
+            // `disconnecting` NO se libera: mantiene el boton bloqueado hasta que
+            // la pagina se va.
+            browser.setTimeout(() => browser.location.reload(), DISCONNECT_RELOAD_DELAY_MS);
         } catch (e) {
             const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
             this.notification.add(msg, { type: "danger", sticky: true });
-        } finally {
             this.state.disconnecting = false;
         }
     }
