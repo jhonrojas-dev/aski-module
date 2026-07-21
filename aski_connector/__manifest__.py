@@ -58,6 +58,7 @@ Get the app and learn more at https://aski.dev
     "support": "jhon@aski.dev",
     "depends": ["base", "web"],
     "data": [
+        "security/aski_security.xml",
         "security/ir.model.access.csv",
         "views/aski_connect_views.xml",
         "views/aski_chat_views.xml",

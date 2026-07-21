@@ -11,33 +11,20 @@
                     <div class="oe_title">
                         <h1>Connect the Aski chat</h1>
                     </div>
-                    <p>
-                        <b>Aski</b> is an AI assistant that answers questions about your
-                        Odoo in plain language - sales, receivables, top products and more.
-                    </p>
+                    <p><b>Aski</b> is an AI assistant that answers questions about your Odoo in plain language - sales, receivables, top products and more. Ask from your phone, from the web, or right here inside Odoo.</p>
                     <div class="alert alert-warning" role="alert">
-                        No Aski account yet? Create one at
-                        <a href="https://aski.dev?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_signup"
-                           target="_blank">aski.dev</a> - it takes about 2 minutes and
-                        starts with a 7-day free trial.
+                        <p class="mb-1">No Aski account yet? Create one at <a href="https://app.aski.dev?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_signup" target="_blank">app.aski.dev</a> - it takes about 2 minutes and starts with a 7-day free trial.</p>
+                        <p class="mb-0">See all plans and pricing, and learn more, at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev</a>.</p>
                     </div>
-                    <p>
-                        Already have an account? Generate a <b>Personal access token</b>
-                        in the Aski web app (Settings &gt; Personal access tokens) and
-                        paste it below. This Odoo will be registered as a connection under
-                        your Aski account, so anyone here can chat with your ERP without
-                        leaving Odoo.
-                    </p>
+                    <p>Already have an account? Generate a <b>Personal access token</b> in the Aski web app (<b>app.aski.dev</b> &gt; Settings &gt; Personal access tokens) and paste it below. This Odoo is then registered as a connection under your Aski account.</p>
+                    <div class="alert alert-info" role="alert"><b>Your data stays private.</b> The chat reads through this shared connection, so only the users you add to the <b>Use the Aski chat</b> group can open it and see your figures - not everyone in Odoo. Grant access in Settings &gt; Users &amp; Companies &gt; Users. Administrators already have it.</div>
                     <group>
                         <field name="pat" placeholder="ask_pat_..."
                                widget="CopyClipboardChar"/>
                         <field name="name" placeholder="e.g. Production - Head office"/>
                     </group>
                     <p>The connection name is how this Odoo shows up in your Aski connections list, on your phone and on the web - so you can tell it apart from your other instances.</p>
-                    <div class="alert alert-info" role="alert">
-                        Chat usage spends credits from that Aski account's wallet - the
-                        same plan used by the Aski mobile app.
-                    </div>
+                    <div class="alert alert-info" role="alert">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web.</div>
                 </sheet>
                 <footer>
                     <button name="action_connect" type="object" class="btn-primary">Connect Aski</button>
@@ -105,7 +92,8 @@
     </record>
 
     <menuitem id="menu_aski_chat" name="Chat" parent="aski_connector.menu_aski_root"
-              action="action_aski_chat" sequence="5"/>
+              action="action_aski_chat" sequence="5"
+              groups="aski_connector.group_aski_chat_user"/>
 
     <!-- Hasta la 1.6.0, un post_init_hook desactivaba ESTE menu en Odoo 14/15
          (se daba por hecho que el widget OWL no podia cargar ahi). Ya no es

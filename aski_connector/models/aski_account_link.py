@@ -13,7 +13,7 @@ import logging
 import requests
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 from .aski_common import ASKI_API_BASE
 
@@ -74,6 +74,31 @@ class AskiAccountLink(models.Model):
         if not rec:
             rec = self.sudo().create({})
         return rec
+
+    # ------------------------------------------------------------------
+    # Acceso al chat: grupo EXCLUSIVO. El chat lee via la conexion compartida
+    # (el token del admin), asi que un usuario fuera del grupo veria cifras de
+    # toda la empresa saltandose sus propias reglas de registro. El grupo es la
+    # unica puerta: los admin lo tienen implicito; a los demas se les concede a
+    # mano en Ajustes > Usuarios.
+    # ------------------------------------------------------------------
+    _CHAT_GROUP = "aski_connector.group_aski_chat_user"
+
+    @api.model
+    def can_use_chat(self):
+        """True si el usuario actual pertenece al grupo del chat. Lo consulta el
+        systray para NO mostrar la burbuja a quien no tiene acceso (barato: es
+        un has_group, no toca el backend de Aski)."""
+        return self.env.user.has_group(self._CHAT_GROUP)
+
+    def _ensure_chat_access(self):
+        """Barrera REAL: los metodos del chat corren con sudo() (usan el token del
+        admin), asi que ocultar el menu/burbuja no basta — hay que rechazar la
+        llamada RPC directa de quien no esta en el grupo."""
+        if not self.env.user.has_group(self._CHAT_GROUP):
+            raise AccessError(_(
+                "You don't have access to the Aski chat. Ask an administrator to "
+                "add you to the \"Use the Aski chat\" group."))
 
     @api.model
     def action_open_settings(self):
@@ -191,9 +216,11 @@ class AskiAccountLink(models.Model):
     def send_message(self, text, conversation_id=None):
         """Envia una pregunta al motor real de Aski (mismo determinista +
         narrador + wallet que la app Android) y devuelve la respuesta.
-        Llamado desde el widget OWL via orm.call — corre siempre con sudo()
-        para que cualquier usuario interno pueda usar la conexion configurada
-        por el admin, sin necesitar acceso de lectura al token en si."""
+        Llamado desde el widget OWL via orm.call — corre con sudo() para usar la
+        conexion configurada por el admin sin necesitar acceso de lectura al
+        token en si, PERO solo tras verificar que el usuario esta en el grupo del
+        chat (si no, veria datos de toda la empresa saltandose sus reglas)."""
+        self._ensure_chat_access()
         rec = self.sudo()._get_or_create()
         if not rec.connected:
             raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
@@ -236,10 +263,16 @@ class AskiAccountLink(models.Model):
         a mano. Si la sincronizacion falla (sin red, token invalido) se
         ignora el error y se muestra el ultimo valor cacheado, sin romper
         la carga del widget."""
+        # Suave (no lanza): el widget muestra el estado "sin acceso" en vez de
+        # un error. La barrera dura vive en los metodos que traen datos.
+        if not self.env.user.has_group(self._CHAT_GROUP):
+            return {"allowed": False, "connected": False, "email": "",
+                    "wallet_credits": 0, "plan_name": ""}
         rec = self.sudo()._get_or_create()
         if rec.connected and rec.pat:
             rec._sync_wallet()
         return {
+            "allowed": True,
             "connected": rec.connected,
             "email": rec.email or "",
             "wallet_credits": rec.wallet_credits,
@@ -250,6 +283,7 @@ class AskiAccountLink(models.Model):
     def list_conversations(self):
         """Historial de conversaciones de ESTA conexion (drawer del widget,
         igual que Android/web) — mas reciente primero."""
+        self._ensure_chat_access()
         rec = self.sudo()._get_or_create()
         if not rec.connected or not rec.credential_id:
             return []
@@ -265,6 +299,7 @@ class AskiAccountLink(models.Model):
     def load_conversation(self, conversation_id):
         """Mensajes de una conversacion (al abrirla desde el drawer, o al
         restaurar la mas reciente cuando se recarga la pantalla)."""
+        self._ensure_chat_access()
         rec = self.sudo()._get_or_create()
         try:
             resp = requests.get(
@@ -313,6 +348,7 @@ class AskiAccountLink(models.Model):
     def export_message_pdf(self, message_id, tz_offset_minutes=0):
         """Exporta UNA respuesta puntual (boton 'Exportar' del panel de
         detalle de un mensaje) — mismo endpoint que usan Android/web."""
+        self._ensure_chat_access()
         rec = self.sudo()._get_or_create()
         if not rec.connected:
             raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
@@ -325,6 +361,7 @@ class AskiAccountLink(models.Model):
         global del composer). El endpoint de chat no devuelve el id del
         mensaje assistant, asi que primero se resuelve via
         /conversations/.../messages (mismo patron que ya usan Android/web)."""
+        self._ensure_chat_access()
         rec = self.sudo()._get_or_create()
         if not rec.connected:
             raise UserError(_("Aski isn't connected yet. Open Aski > Chat Settings "
@@ -346,6 +383,7 @@ class AskiAccountLink(models.Model):
     @api.model
     def set_feedback(self, message_id, feedback):
         """Like/dislike de una respuesta (boton del panel de detalle)."""
+        self._ensure_chat_access()
         rec = self.sudo()._get_or_create()
         try:
             resp = requests.patch(
