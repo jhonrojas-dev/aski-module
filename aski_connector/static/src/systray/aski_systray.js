@@ -11,13 +11,14 @@ odoo.define("aski_connector.systray", function (require) {
 //     registrada en `core.action_registry` con el tag `aski_chat_widget` (el
 //     mismo que usa el ir.actions.client del XML, comun a todas las series).
 const core = require("web.core");
+const rpc = require("web.rpc");
 const Widget = require("web.Widget");
 const SystrayMenu = require("web.SystrayMenu");
 const AbstractAction = require("web.AbstractAction");
 const { ComponentWrapper } = require("web.OwlCompatibility");
 const { AskiChatWidget } = require("aski_connector.chat");
 const { Component } = owl;
-const { useState } = owl.hooks;
+const { useState, onWillStart } = owl.hooks;
 
 const STORAGE_KEY = "aski_connector.bubble_state";
 
@@ -38,7 +39,24 @@ class AskiSystray extends Component {
     setup() {
         // Recuerda si el usuario la dejo abierta/minimizada — al recargar la
         // pantalla (F5) antes se perdia y volvia a cerrarse siempre.
-        this.state = useState(loadBubbleState());
+        // `canUse` decide si la burbuja se muestra: depende del MODO de acceso
+        // (compartida al grupo / solo admin / por usuario). Arranca en false
+        // para NO parpadear la burbuja antes de resolver el permiso.
+        this.state = useState({ ...loadBubbleState(), canUse: false });
+        onWillStart(async () => {
+            try {
+                // La 14 no tiene los servicios de wowl (no hay useService/orm):
+                // web.rpc.query() es el equivalente legacy de orm.call(), igual
+                // que en el shim del chat.
+                this.state.canUse = await rpc.query({
+                    model: "aski.account.link",
+                    method: "can_use_chat",
+                    args: [],
+                });
+            } catch (e) {
+                this.state.canUse = false;
+            }
+        });
         // OWL 1: en las plantillas `this` NO es el componente, asi que las props
         // callback se pasan YA atadas desde aqui.
         this.onMinimize = () => this.minimize();

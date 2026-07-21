@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="aski_connector.Systray" owl="1">
-        <div class="ac-systray">
+        <div t-if="state.canUse" class="ac-systray">
             <button class="ac-systray-btn" t-on-click="toggle" title="Aski - ask your Odoo">
                 <span class="ac-mark--systray"><t t-call="aski_connector.AskiMark"/></span>
             </button>
