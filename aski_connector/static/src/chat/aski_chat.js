@@ -119,6 +119,7 @@ export class AskiChatWidget extends Component {
         this.messagesRef = useRef("messages");
         this.state = useState({
             loading: true,
+            allowed: true,
             connected: false,
             walletCredits: 0,
             planName: "",
@@ -138,6 +139,13 @@ export class AskiChatWidget extends Component {
         this.state.loading = true;
         try {
             const st = await this.orm.call("aski.account.link", "get_status", []);
+            // Fuera del grupo del chat -> no se muestra ni el estado de conexion
+            // ni el boton de conectar, sino un aviso de "pide acceso al admin".
+            this.state.allowed = st.allowed !== false;
+            if (!this.state.allowed) {
+                this.state.connected = false;
+                return;
+            }
             this.state.connected = !!st.connected;
             this.state.walletCredits = st.wallet_credits || 0;
             this.state.planName = st.plan_name || "";
