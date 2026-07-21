@@ -17,7 +17,7 @@
                         <p class="mb-0">See all plans and pricing, and learn more, at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev</a>.</p>
                     </div>
                     <p>Already have an account? Generate a <b>Personal access token</b> in the Aski web app (<b>app.aski.dev</b> &gt; Settings &gt; Personal access tokens) and paste it below. This Odoo is then registered as a connection under your Aski account.</p>
-                    <div class="alert alert-info" role="alert"><b>Your data stays private.</b> The chat reads through this shared connection, so only the users you add to the <b>Use the Aski chat</b> group can open it and see your figures - not everyone in Odoo. Grant access in Settings &gt; Users &amp; Companies &gt; Users. Administrators already have it.</div>
+                    <div class="alert alert-info" role="alert"><b>Your data stays private.</b> Who can use the chat - and whose data they see - is set by the administrator in Aski &gt; Chat Settings: share one connection with a group, keep it to administrators only, or let each person connect their own Aski account and see only what their own Odoo user can.</div>
                     <group>
                         <field name="pat" placeholder="ask_pat_..."
                                widget="CopyClipboardChar"/>
@@ -53,6 +53,12 @@
                         <h1>Aski chat connection</h1>
                     </div>
                     <group>
+                        <field name="access_mode"/>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="access_mode != 'per_user'">
+                        <b>Per user:</b> each internal user connects their own Aski account from the chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what their own Odoo user can see, and each person spends their own credits - nothing else to set up here.
+                    </div>
+                    <group invisible="access_mode == 'per_user'">
                         <field name="connected" widget="boolean_toggle" readonly="1"/>
                         <field name="plan_name" readonly="1"/>
                         <field name="wallet_credits" readonly="1"/>
@@ -61,9 +67,11 @@
                 </sheet>
                 <footer>
                     <button name="action_test_connection" type="object"
-                            string="Test connection" class="btn-secondary"/>
+                            string="Test connection" class="btn-secondary"
+                            invisible="access_mode == 'per_user'"/>
                     <button name="%(action_aski_chat_connect)d" type="action"
-                            string="Reconnect / paste a new token" class="btn-primary"/>
+                            string="Reconnect / paste a new token" class="btn-primary"
+                            invisible="access_mode == 'per_user'"/>
                     <button string="Close" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
@@ -91,9 +99,13 @@
         <field name="tag">aski_chat_widget</field>
     </record>
 
+    <!-- El menu es visible a todo usuario interno: en modo "por usuario"
+         cualquiera puede conectar su cuenta. La restriccion real por modo la
+         aplican los guards del backend + los estados del widget; la burbuja del
+         systray si queda precisa (usa can_use_chat, que es mode-aware). -->
     <menuitem id="menu_aski_chat" name="Chat" parent="aski_connector.menu_aski_root"
               action="action_aski_chat" sequence="5"
-              groups="aski_connector.group_aski_chat_user"/>
+              groups="base.group_user"/>
 
     <!-- Hasta la 1.6.0, un post_init_hook desactivaba ESTE menu en Odoo 14/15
          (se daba por hecho que el widget OWL no podia cargar ahi). Ya no es
