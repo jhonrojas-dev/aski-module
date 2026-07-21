@@ -72,6 +72,10 @@
                     <button name="%(action_aski_chat_connect)d" type="action"
                             string="Reconnect / paste a new token" class="btn-primary"
                             invisible="access_mode == 'per_user'"/>
+                    <button name="action_disconnect" type="object"
+                            string="Disconnect" class="btn-secondary"
+                            confirm="Disconnect this Aski account? You can reconnect anytime with your token."
+                            invisible="access_mode == 'per_user' or not connected"/>
                     <button string="Close" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
