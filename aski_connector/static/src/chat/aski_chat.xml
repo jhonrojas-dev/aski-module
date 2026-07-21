@@ -78,6 +78,13 @@
                 <i class="fa fa-circle-o-notch fa-spin"/> <span>Loading…</span>
             </div>
 
+            <!-- empty-state: usuario fuera del grupo "Use the Aski chat" -->
+            <div t-elif="!state.allowed" class="ac-empty">
+                <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
+                <div class="ac-empty-title">Aski chat isn't enabled for your user</div>
+                <div class="ac-empty-sub">Ask an administrator to add you to the "Use the Aski chat" group to start asking your Odoo in plain language.</div>
+            </div>
+
             <!-- empty-state: cuenta Aski no conectada -->
             <div t-elif="!state.connected" class="ac-empty">
                 <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
