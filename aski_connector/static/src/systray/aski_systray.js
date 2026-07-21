@@ -1,7 +1,8 @@
 /** @odoo-module **/
-import { Component, useState } from "@odoo/owl";
+import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { browser } from "@web/core/browser/browser";
+import { useService } from "@web/core/utils/hooks";
 import { AskiChatWidget } from "../chat/aski_chat";
 
 const STORAGE_KEY = "aski_connector.bubble_state";
@@ -27,9 +28,22 @@ export class AskiSystray extends Component {
     static components = { AskiChatWidget };
 
     setup() {
+        this.orm = useService("orm");
         // Recuerda si el usuario la dejo abierta/minimizada — al recargar la
         // pantalla (F5) antes se perdia y volvia a cerrarse siempre.
-        this.state = useState(loadBubbleState());
+        // `canUse` decide si la burbuja se muestra: solo a los miembros del
+        // grupo del chat (el chat lee via la conexion compartida del admin, asi
+        // que no debe estar al alcance de todo usuario interno). Arranca en
+        // false para NO parpadear la burbuja antes de resolver el permiso.
+        this.state = useState({ ...loadBubbleState(), canUse: false });
+        onWillStart(async () => {
+            try {
+                this.state.canUse = await this.orm.call(
+                    "aski.account.link", "can_use_chat", []);
+            } catch (e) {
+                this.state.canUse = false;
+            }
+        });
     }
 
     _persist() {
