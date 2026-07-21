@@ -853,3 +853,44 @@ msgstr "No puedes usar el chat de Aski. Pídele acceso a un administrador."
 #: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid "Only administrators can set up the shared Aski connection."
 msgstr "Solo los administradores pueden configurar la conexión compartida de Aski."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Disconnect my Aski account"
+msgstr "Desconectar mi cuenta de Aski"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"Disconnect this Aski account? You can reconnect anytime with your token."
+msgstr ""
+"¿Desconectar esta cuenta de Aski? Puedes volver a conectarla cuando quieras "
+"con tu token."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid "Disconnect"
+msgstr "Desconectar"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You can't disconnect this Aski connection. Ask an administrator."
+msgstr "No puedes desconectar esta conexión de Aski. Pídeselo a un administrador."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Aski was already disconnected."
+msgstr "Aski ya estaba desconectado."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Aski account disconnected."
+msgstr "Cuenta de Aski desconectada."
