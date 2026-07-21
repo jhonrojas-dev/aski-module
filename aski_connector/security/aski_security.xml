@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Categoria propia para que el grupo aparezca como su propia seccion en
-         Ajustes > Usuarios (una casilla asignable), no perdido entre "Otros". -->
+    <!-- Categoria propia para agrupar el grupo en Ajustes > Usuarios. -->
     <record id="module_category_aski" model="ir.module.category">
         <field name="name">Aski</field>
         <field name="sequence">90</field>
+    </record>
+
+    <!-- Odoo 19 refactoro el modelo de seguridad: res.groups YA NO tiene
+         category_id. La agrupacion en Ajustes > Usuarios vive ahora en
+         res.groups.privilege (name + category_id -> ir.module.category), y el
+         grupo se hace visible/asignable con privilege_id. En las ramas 14-18 se
+         usa category_id directo en el grupo (delta por serie). -->
+    <record id="privilege_aski_chat" model="res.groups.privilege">
+        <field name="name">Aski chat</field>
+        <field name="category_id" ref="module_category_aski"/>
+        <field name="sequence">10</field>
     </record>
 
     <!-- Grupo EXCLUSIVO para usar el chat de Aski dentro de Odoo.
@@ -16,7 +26,7 @@
          Ajustes > Usuarios. -->
     <record id="group_aski_chat_user" model="res.groups">
         <field name="name">Use the Aski chat</field>
-        <field name="category_id" ref="module_category_aski"/>
+        <field name="privilege_id" ref="privilege_aski_chat"/>
         <field name="comment">Members can open the Aski chat and ask questions about this Odoo's data (sales, receivables, top products and more). The chat reads through the shared Aski connection, so only grant it to people you trust with company-wide figures. Everyone else won't see the Aski chat, on the phone or the web.</field>
     </record>
 
