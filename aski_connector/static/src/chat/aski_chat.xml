@@ -88,14 +88,22 @@
             <!-- empty-state: cuenta Aski no conectada -->
             <div t-elif="!state.connected" class="ac-empty">
                 <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
-                <div class="ac-empty-title">Connect Aski to start chatting</div>
-                <div class="ac-empty-sub">
-                    Ask your Odoo in plain language, right here — sales, receivables,
-                    top products and more.
-                </div>
-                <button class="ac-btn-primary" t-on-click="openConnect">
-                    Connect my Aski account
-                </button>
+                <t t-if="state.canConnect">
+                    <div class="ac-empty-title">Connect Aski to start chatting</div>
+                    <div class="ac-empty-sub">
+                        Ask your Odoo in plain language, right here — sales, receivables,
+                        top products and more.
+                    </div>
+                    <button class="ac-btn-primary" t-on-click="openConnect">
+                        Connect my Aski account
+                    </button>
+                </t>
+                <t t-else="">
+                    <div class="ac-empty-title">Aski isn't set up yet</div>
+                    <div class="ac-empty-sub">
+                        Ask an administrator to connect Aski for your team.
+                    </div>
+                </t>
             </div>
 
             <t t-else="">
