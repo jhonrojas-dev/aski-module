@@ -2,9 +2,10 @@
 // VARIANTE ODOO 15 — OWL 1.4: no existe "@odoo/owl" (ver la nota larga en
 // chat/aski_chat.js). OWL va por el global; los hooks bajo owl.hooks.
 const { Component } = owl;
-const { useState } = owl.hooks;
+const { useState, onWillStart } = owl.hooks;
 import { registry } from "@web/core/registry";
 import { browser } from "@web/core/browser/browser";
+import { useService } from "@web/core/utils/hooks";
 import { AskiChatWidget } from "../chat/aski_chat";
 
 const STORAGE_KEY = "aski_connector.bubble_state";
@@ -30,9 +31,21 @@ export class AskiSystray extends Component {
     static components = { AskiChatWidget };
 
     setup() {
+        this.orm = useService("orm");
         // Recuerda si el usuario la dejo abierta/minimizada — al recargar la
         // pantalla (F5) antes se perdia y volvia a cerrarse siempre.
-        this.state = useState(loadBubbleState());
+        // `canUse` decide si la burbuja se muestra: depende del MODO de acceso
+        // (compartida al grupo / solo admin / por usuario). Arranca en false
+        // para NO parpadear la burbuja antes de resolver el permiso.
+        this.state = useState({ ...loadBubbleState(), canUse: false });
+        onWillStart(async () => {
+            try {
+                this.state.canUse = await this.orm.call(
+                    "aski.account.link", "can_use_chat", []);
+            } catch (e) {
+                this.state.canUse = false;
+            }
+        });
         // OWL 1: en las plantillas `this` NO es el componente, asi que una prop
         // como `onMinimize="() => this.minimize()"` se evaluaria con un `this`
         // equivocado al invocarse. Se pasan callbacks YA atados desde aqui.
