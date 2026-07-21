@@ -119,6 +119,48 @@
         }
     }
 
+    // Pie del drawer: desconectar la cuenta Aski. `margin-top: auto` lo ancla
+    // abajo (el drawer es flex-column) para que no compita con la lista.
+    .ac-drawer-foot {
+        margin-top: auto; padding-top: 10px;
+        border-top: 1px solid var(--ac-outline-soft);
+    }
+    .ac-drawer-disconnect {
+        width: 100%; border: 0; background: transparent; cursor: pointer;
+        padding: 10px 12px; border-radius: 10px; text-align: left;
+        display: flex; align-items: center; gap: 9px;
+        font-size: 14px; font-weight: 700; color: var(--ac-error) !important;
+        i { color: var(--ac-error) !important; flex: none; }
+        transition: background .12s ease;
+        &:hover { background: color-mix(in srgb, var(--ac-error) 10%, transparent); }
+    }
+    .ac-confirm {
+        padding: 10px 12px; border-radius: 12px;
+        background: color-mix(in srgb, var(--ac-error) 8%, transparent);
+        border: 1px solid color-mix(in srgb, var(--ac-error) 28%, transparent);
+    }
+    .ac-confirm-txt {
+        font-size: 13px; font-weight: 600; line-height: 1.35;
+        color: var(--ac-on-surface) !important; margin-bottom: 10px;
+    }
+    .ac-confirm-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    .ac-confirm-cancel {
+        border: 0; background: transparent; cursor: pointer; padding: 7px 12px;
+        border-radius: 9px; font-size: 13px; font-weight: 700;
+        color: var(--ac-on-variant) !important;
+        &:hover { background: var(--ac-surface-variant); }
+    }
+    .ac-confirm-ok {
+        border: 0; cursor: pointer; padding: 7px 14px; border-radius: 9px;
+        font-size: 13px; font-weight: 800;
+        background: var(--ac-error); color: #fff !important;
+        i { color: #fff !important; }
+        display: inline-flex; align-items: center; gap: 6px;
+        transition: filter .12s ease;
+        &:hover { filter: brightness(1.05); }
+        &[disabled] { opacity: .65; cursor: default; }
+    }
+
     // =====================================================================
     //  Header — glassy claro (replica de .chat-header de la app)
     // =====================================================================
