@@ -133,6 +133,8 @@ export class AskiChatWidget extends Component {
         this.state = useState({
             loading: true,
             allowed: true,
+            mode: "shared_group",
+            canConnect: false,
             connected: false,
             walletCredits: 0,
             planName: "",
@@ -152,8 +154,12 @@ export class AskiChatWidget extends Component {
         this.state.loading = true;
         try {
             const st = await this.orm.call("aski.account.link", "get_status", []);
-            // Fuera del grupo del chat -> no se muestra ni el estado de conexion
-            // ni el boton de conectar, sino un aviso de "pide acceso al admin".
+            // El estado depende del modo (compartida/solo-admin/por-usuario):
+            //   allowed=false        -> no puede usar el chat (aviso).
+            //   canConnect=true      -> puede pegar su token (admin o por-usuario).
+            //   canConnect=false     -> no conectada; que la conecte el admin.
+            this.state.mode = st.mode || "shared_group";
+            this.state.canConnect = !!st.can_connect;
             this.state.allowed = st.allowed !== false;
             if (!this.state.allowed) {
                 this.state.connected = false;
