@@ -55,10 +55,10 @@
                     <group>
                         <field name="access_mode"/>
                     </group>
-                    <div class="alert alert-info" role="alert" invisible="access_mode != 'per_user'">
+                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('access_mode', '!=', 'per_user')]}">
                         <b>Per user:</b> each internal user connects their own Aski account from the chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what their own Odoo user can see, and each person spends their own credits - nothing else to set up here.
                     </div>
-                    <group invisible="access_mode == 'per_user'">
+                    <group attrs="{'invisible': [('access_mode', '=', 'per_user')]}">
                         <field name="connected" widget="boolean_toggle" readonly="1"/>
                         <field name="plan_name" readonly="1"/>
                         <field name="wallet_credits" readonly="1"/>
@@ -68,14 +68,14 @@
                 <footer>
                     <button name="action_test_connection" type="object"
                             string="Test connection" class="btn-secondary"
-                            invisible="access_mode == 'per_user'"/>
+                            attrs="{'invisible': [('access_mode', '=', 'per_user')]}"/>
                     <button name="%(action_aski_chat_connect)d" type="action"
                             string="Reconnect / paste a new token" class="btn-primary"
-                            invisible="access_mode == 'per_user'"/>
+                            attrs="{'invisible': [('access_mode', '=', 'per_user')]}"/>
                     <button name="action_disconnect" type="object"
                             string="Disconnect" class="btn-secondary"
                             confirm="Disconnect this Aski account? You can reconnect anytime with your token."
-                            invisible="access_mode == 'per_user' or not connected"/>
+                            attrs="{'invisible': ['|', ('access_mode', '=', 'per_user'), ('connected', '=', False)]}"/>
                     <button string="Close" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
