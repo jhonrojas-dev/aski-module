@@ -905,3 +905,8 @@ msgstr "Aski était déjà déconnecté."
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "Aski account disconnected."
 msgstr "Compte Aski déconnecté."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid "Save"
+msgstr "Enregistrer"
