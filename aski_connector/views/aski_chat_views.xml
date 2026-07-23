@@ -66,11 +66,19 @@
                     </group>
                 </sheet>
                 <footer>
+                    <!-- Guardar SIEMPRE visible: es el unico boton que persiste el
+                         modo de acceso en el modo 'per_user' (ahi los botones de
+                         conexion se ocultan). Sin el, cambiar a 'per_user' quedaba
+                         solo con 'Close' (special=cancel) y el cambio se descartaba
+                         al cerrar -> el modo nunca se aplicaba. Como es type=object,
+                         el framework guarda el registro antes de llamar al metodo. -->
+                    <button name="action_save_settings" type="object"
+                            string="Save" class="btn-primary"/>
                     <button name="action_test_connection" type="object"
                             string="Test connection" class="btn-secondary"
                             invisible="access_mode == 'per_user'"/>
                     <button name="%(action_aski_chat_connect)d" type="action"
-                            string="Reconnect / paste a new token" class="btn-primary"
+                            string="Reconnect / paste a new token" class="btn-secondary"
                             invisible="access_mode == 'per_user'"/>
                     <button name="action_disconnect" type="object"
                             string="Disconnect" class="btn-secondary"
