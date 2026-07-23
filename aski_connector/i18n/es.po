@@ -900,3 +900,13 @@ msgstr "Cuenta de Aski desconectada."
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Save"
 msgstr "Guardar"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "See all plans and pricing at"
+msgstr "Consulta todos los planes y precios en"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ", or buy and top up credits at"
+msgstr ", o compra y recarga créditos en"
