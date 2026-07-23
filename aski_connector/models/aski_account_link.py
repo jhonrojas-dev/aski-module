@@ -56,11 +56,11 @@ class AskiAccountLink(models.Model):
     # Solo se lee del registro GLOBAL. Decide COMO autentica el chat embebido.
     access_mode = fields.Selection(
         selection=[
+            ("per_user", "Per user - each person connects their own Aski account"),
             ("shared_group", "Shared - the Aski Chat group uses my connection"),
             ("shared_admin", "Private - only administrators use my connection"),
-            ("per_user", "Per user - each person connects their own Aski account"),
         ],
-        string="Chat access mode", default="shared_group", required=True,
+        string="Chat access mode", default="per_user", required=True,
         help="How the in-Odoo chat authenticates against Aski:\n"
              "- Shared: everyone in the 'Use the Aski chat' group asks through "
              "this one connection - your account, your data, your credits.\n"
@@ -119,7 +119,7 @@ class AskiAccountLink(models.Model):
 
     @api.model
     def _current_mode(self):
-        return self._get_global().access_mode or "shared_group"
+        return self._get_global().access_mode or "per_user"
 
     @api.model
     def _active_link(self, user):
@@ -248,6 +248,18 @@ class AskiAccountLink(models.Model):
         return {"type": "ir.actions.client", "tag": "display_notification", "params": {
             "title": _("Aski connection") if ok else _("Aski connection issue"),
             "message": message, "type": "success" if ok else "danger", "sticky": not ok}}
+
+    def action_save_settings(self):
+        """Guarda la configuracion del chat (sobre todo el modo de acceso) y
+        recarga. El boton del pie es type=object, asi que el framework PERSISTE
+        el registro antes de entrar aqui — imprescindible en modo 'per_user',
+        donde el resto de botones se ocultan y sin este 'Save' solo quedaba
+        'Close' (special=cancel), que descartaba el cambio: el modo nunca se
+        aplicaba. Se recarga porque cambiar el modo altera QUIEN ve la burbuja
+        del chat y por QUE conexion lee, y el systray ya montado debe
+        reevaluarlo (mismo motivo que action_disconnect)."""
+        self.ensure_one()
+        return {"type": "ir.actions.client", "tag": "reload"}
 
     # ------------------------------------------------------------------
     # Desconectar (cerrar sesion de la cuenta Aski)

@@ -66,11 +66,14 @@
                     </group>
                 </sheet>
                 <footer>
+                    <!-- Save: persiste el modo en per_user (ahi los demas botones se ocultan); type=object guarda el registro antes de llamar. Sin el, cambiar a per_user se descartaba al Close. -->
+                    <button name="action_save_settings" type="object"
+                            string="Save" class="btn-primary"/>
                     <button name="action_test_connection" type="object"
                             string="Test connection" class="btn-secondary"
                             invisible="access_mode == 'per_user'"/>
                     <button name="%(action_aski_chat_connect)d" type="action"
-                            string="Reconnect / paste a new token" class="btn-primary"
+                            string="Reconnect / paste a new token" class="btn-secondary"
                             invisible="access_mode == 'per_user'"/>
                     <button name="action_disconnect" type="object"
                             string="Disconnect" class="btn-secondary"
