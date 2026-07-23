@@ -910,3 +910,13 @@ msgstr "Compte Aski déconnecté."
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Save"
 msgstr "Enregistrer"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "See all plans and pricing at"
+msgstr "Consultez tous les forfaits et tarifs sur"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ", or buy and top up credits at"
+msgstr ", ou achetez et rechargez des crédits sur"
