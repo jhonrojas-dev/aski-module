@@ -43,6 +43,34 @@ def aski_api_base(env):
     return (base or ASKI_API_BASE).rstrip("/")
 
 
+def aski_partner_code(env):
+    """Codigo del socio (reseller) preconfigurado en ESTA instancia, si lo hay.
+
+    Existe porque en la practica quien instala el modulo suele ser el propio
+    socio, montandolo en el Odoo de su cliente. Dejandolo aqui, el codigo viaja
+    solo al darse de alta: el cliente no tiene que teclearlo (ni acordarse), que
+    era justo donde se perdia la atribucion del socio.
+
+    Se lee de `aski_connector_partner_code` en odoo.conf o del parametro de
+    sistema `aski_connector.partner_code`. Vacio = no se preselecciona nada y el
+    campo queda libre, como antes.
+
+    No es un candado: un administrador de la instancia puede cambiarlo o
+    borrarlo. Para blindar de verdad la relacion, el socio debe ASIGNARLE el plan
+    al cliente desde su panel (ahi la cuenta queda gestionada por el socio y no
+    puede comprar directo).
+    """
+    code = (config.get("aski_connector_partner_code") or "").strip()
+    if not code:
+        try:
+            code = (env["ir.config_parameter"].sudo().get_param(
+                "aski_connector.partner_code") or "").strip()
+        except Exception:  # noqa: BLE001
+            code = ""
+    # Mismo alfabeto que `invite_code` del backend: [A-Z0-9], hasta 16.
+    return "".join(c for c in code.upper() if c.isalnum() and c.isascii())[:16]
+
+
 class AskiKeyMixin(models.AbstractModel):
     """Helpers compartidos por los DOS flujos de conexion de Aski: el QR para
     la app movil (`aski.connect.wizard`) y el pairing por token para el chat
