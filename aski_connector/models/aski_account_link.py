@@ -46,6 +46,14 @@ class AskiAccountLink(models.Model):
     wallet_credits = fields.Integer(string="Credits available", readonly=True)
     plan_name = fields.Char(string="Plan", readonly=True)
     last_synced = fields.Datetime(string="Last synced", readonly=True)
+    # La cuenta la gestiona un SOCIO (reseller): el plan y los pagos los ve con el,
+    # no compra directo (el backend ademas rechaza los endpoints de compra para
+    # estas cuentas). Por eso se ocultan los enlaces de precios/compra: mostrarlos
+    # llevaria al usuario a un muro. Lo reporta /billing/me a nivel usuario.
+    partner_managed = fields.Boolean(
+        string="Managed by a partner", readonly=True,
+        help="This Aski account is managed by a partner: your plan and payments "
+             "are handled by them, so the purchase links are hidden.")
 
     # Vacio en el registro GLOBAL/compartido (la conexion del admin); en modo
     # "por usuario" cada usuario tiene su PROPIO registro con este campo puesto.
@@ -238,6 +246,7 @@ class AskiAccountLink(models.Model):
         rec.write({
             "wallet_credits": wallet.get("balance", 0),
             "plan_name": (sub or {}).get("plan_id") or "",
+            "partner_managed": bool(data.get("partner_managed")),
             "last_synced": fields.Datetime.now(),
         })
         return True, _("Connected. %s credits available.") % rec.wallet_credits
@@ -385,6 +394,11 @@ class AskiAccountLink(models.Model):
             rec.write({"pat_enc": False})
             raise UserError(_("Your Aski connection expired. Reconnect in Aski > Chat Settings."))
         if resp.status_code == 402:
+            # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
+            # backend la rechaza igual) — el saldo lo repone su socio.
+            if rec.partner_managed:
+                raise UserError(_(
+                    "You're out of Aski credits. Contact your Aski partner to top up."))
             raise UserError(_("You're out of Aski credits. Top up at %s/billing to keep chatting.")
                             % "https://app.aski.dev")
         if resp.status_code != 200:

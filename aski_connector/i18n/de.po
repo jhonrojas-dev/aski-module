@@ -925,3 +925,21 @@ msgstr "Alle Tarife und Preise unter"
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid ", or buy and top up credits at"
 msgstr ", oder Guthaben kaufen und aufladen unter"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Your Aski plan and credits are managed by your partner - contact them for "
+"plan changes or top-ups."
+msgstr ""
+"Dein Aski-Tarif und deine Credits werden von deinem Partner verwaltet - "
+"wende dich für Tarifwechsel oder Aufladungen an ihn."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You're out of Aski credits. Contact your Aski partner to top up."
+msgstr ""
+"Deine Aski-Credits sind aufgebraucht. Wende dich zum Aufladen an deinen "
+"Aski-Partner."

@@ -915,3 +915,20 @@ msgstr "Consulta tutti i piani e i prezzi su"
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid ", or buy and top up credits at"
 msgstr ", oppure acquista e ricarica crediti su"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Your Aski plan and credits are managed by your partner - contact them for "
+"plan changes or top-ups."
+msgstr ""
+"Il tuo piano e i tuoi crediti Aski sono gestiti dal tuo partner - contattalo"
+" per cambiare piano o ricaricare."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You're out of Aski credits. Contact your Aski partner to top up."
+msgstr ""
+"Hai esaurito i crediti Aski. Contatta il tuo partner Aski per ricaricare."
