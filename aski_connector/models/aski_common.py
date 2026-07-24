@@ -22,6 +22,27 @@ except Exception:  # pragma: no cover
 ASKI_API_BASE = "https://api.aski.dev"
 
 
+def aski_api_base(env):
+    """URL del backend. Es SIEMPRE la de produccion salvo que el administrador
+    del servidor la sobreescriba, cosa que solo hace falta para probar contra un
+    backend local o de staging sin tocar codigo:
+
+      - `aski_connector_api_base` en odoo.conf (server-side), o
+      - el parametro de sistema `aski_connector.api_base`.
+
+    Ambas vias exigen ser administrador del sistema, que es quien ya controla la
+    instancia entera — no abre nada que no estuviera abierto.
+    """
+    base = (config.get("aski_connector_api_base") or "").strip()
+    if not base:
+        try:
+            base = (env["ir.config_parameter"].sudo().get_param(
+                "aski_connector.api_base") or "").strip()
+        except Exception:  # noqa: BLE001
+            base = ""
+    return (base or ASKI_API_BASE).rstrip("/")
+
+
 class AskiKeyMixin(models.AbstractModel):
     """Helpers compartidos por los DOS flujos de conexion de Aski: el QR para
     la app movil (`aski.connect.wizard`) y el pairing por token para el chat

@@ -15,7 +15,7 @@ import requests
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
-from .aski_common import ASKI_API_BASE
+from .aski_common import aski_api_base
 
 _logger = logging.getLogger(__name__)
 
@@ -232,7 +232,7 @@ class AskiAccountLink(models.Model):
         if not rec.pat:
             return False, _("Paste your Aski personal access token first.")
         try:
-            resp = requests.get(ASKI_API_BASE + "/billing/me", headers=rec._headers(), timeout=_TIMEOUT)
+            resp = requests.get(aski_api_base(self.env) + "/billing/me", headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
             return False, _("Could not reach Aski: %s") % e
         if resp.status_code == 401:
@@ -287,7 +287,7 @@ class AskiAccountLink(models.Model):
         if rec.credential_id:
             try:
                 requests.delete(
-                    ASKI_API_BASE + "/users/odoo/%s" % rec.credential_id,
+                    aski_api_base(self.env) + "/users/odoo/%s" % rec.credential_id,
                     headers=rec._headers(), timeout=_TIMEOUT)
             except Exception:  # noqa: BLE001
                 _logger.info("Aski: no se pudo archivar la credencial remota al "
@@ -341,7 +341,7 @@ class AskiAccountLink(models.Model):
                 "api_key": api_key, "erp_type": "odoo"}
         if rec.credential_id:
             try:
-                resp = requests.put(ASKI_API_BASE + "/users/odoo/%s" % rec.credential_id,
+                resp = requests.put(aski_api_base(self.env) + "/users/odoo/%s" % rec.credential_id,
                                     json=body, headers=rec._headers(), timeout=_TIMEOUT)
             except Exception as e:  # noqa: BLE001
                 return False, _("Could not reach Aski: %s") % e
@@ -359,7 +359,7 @@ class AskiAccountLink(models.Model):
             else:
                 return False, rec._error_message(resp)
         try:
-            resp = requests.post(ASKI_API_BASE + "/users/odoo", json=body,
+            resp = requests.post(aski_api_base(self.env) + "/users/odoo", json=body,
                                  headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
             return False, _("Could not reach Aski: %s") % e
@@ -385,7 +385,7 @@ class AskiAccountLink(models.Model):
         if conversation_id:
             body["conversation_id"] = conversation_id
         try:
-            resp = requests.post(ASKI_API_BASE + "/chat", json=body, headers=rec._headers(), timeout=90)
+            resp = requests.post(aski_api_base(self.env) + "/chat", json=body, headers=rec._headers(), timeout=90)
         except requests.exceptions.Timeout:
             raise UserError(_("Aski is taking too long to answer. Try again in a moment."))
         except Exception as e:  # noqa: BLE001
@@ -452,7 +452,7 @@ class AskiAccountLink(models.Model):
         if not rec or not rec.connected or not rec.credential_id:
             return []
         try:
-            resp = requests.get(ASKI_API_BASE + "/chat/conversations", headers=rec._headers(), timeout=_TIMEOUT)
+            resp = requests.get(aski_api_base(self.env) + "/chat/conversations", headers=rec._headers(), timeout=_TIMEOUT)
         except Exception:  # noqa: BLE001
             return []
         if resp.status_code != 200:
@@ -469,7 +469,7 @@ class AskiAccountLink(models.Model):
             return []
         try:
             resp = requests.get(
-                ASKI_API_BASE + "/chat/conversations/%s/messages" % conversation_id,
+                aski_api_base(self.env) + "/chat/conversations/%s/messages" % conversation_id,
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception:  # noqa: BLE001
             return []
@@ -498,7 +498,7 @@ class AskiAccountLink(models.Model):
         lang = self.env.user.lang or ""
         try:
             resp = requests.get(
-                ASKI_API_BASE + "/chat/messages/%s/export-html" % message_id,
+                aski_api_base(self.env) + "/chat/messages/%s/export-html" % message_id,
                 params={"tz_offset_minutes": tz_offset_minutes, "lang": lang},
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
@@ -532,7 +532,7 @@ class AskiAccountLink(models.Model):
             raise UserError(self._not_connected_error())
         try:
             resp = requests.get(
-                ASKI_API_BASE + "/chat/conversations/%s/messages" % conversation_id,
+                aski_api_base(self.env) + "/chat/conversations/%s/messages" % conversation_id,
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
             raise UserError(_("Could not reach Aski: %s") % e)
@@ -553,7 +553,7 @@ class AskiAccountLink(models.Model):
             raise UserError(self._not_connected_error())
         try:
             resp = requests.patch(
-                ASKI_API_BASE + "/chat/messages/%s/feedback" % message_id,
+                aski_api_base(self.env) + "/chat/messages/%s/feedback" % message_id,
                 json={"feedback": feedback}, headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
             raise UserError(_("Could not reach Aski: %s") % e)
