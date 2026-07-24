@@ -932,3 +932,126 @@ msgstr ""
 msgid "You're out of Aski credits. Contact your Aski partner to top up."
 msgstr ""
 "Hai esaurito i crediti Aski. Contatta il tuo partner Aski per ricaricare."
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__signup
+msgid "Create my Aski account"
+msgstr "Crea il mio account Aski"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__token
+msgid "I already have an account"
+msgstr "Ho già un account"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__mode
+msgid "How do you want to connect?"
+msgstr "Come vuoi connetterti?"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_email
+msgid "Email"
+msgstr "E-mail"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_password
+msgid "Password"
+msgstr "Password"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_password_confirm
+msgid "Repeat password"
+msgstr "Ripeti la password"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
+msgid "Partner code (optional)"
+msgstr "Codice partner (facoltativo)"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "At least 8 characters"
+msgstr "Almeno 8 caratteri"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Type it again"
+msgstr "Digitala di nuovo"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "you@company.com"
+msgstr "tu@azienda.com"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Only if a partner gave you one"
+msgstr "Solo se un partner te ne ha dato uno"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__signup_email
+msgid ""
+"Your Aski account will be created with this email. You can use it afterwards"
+" in the Aski mobile app and on the web, with the same credits."
+msgstr ""
+"Il tuo account Aski verrà creato con questa e-mail. Potrai usarlo poi "
+"nell'app mobile Aski e sul web, con gli stessi crediti."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Create my account and connect"
+msgstr "Crea il mio account e connetti"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Enter the email for your new Aski account."
+msgstr "Inserisci l'e-mail per il tuo nuovo account Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "That email doesn't look valid."
+msgstr "Quell'e-mail non sembra valida."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Choose a password with at least 8 characters."
+msgstr "Scegli una password di almeno 8 caratteri."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "The two passwords don't match."
+msgstr "Le due password non coincidono."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Too many attempts. Wait a minute and try again."
+msgstr "Troppi tentativi. Aspetta un minuto e riprova."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Could not create the account: %s"
+msgstr "Impossibile creare l'account: %s"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Aski didn't return an access token. Try again."
+msgstr "Aski non ha restituito un token di accesso. Riprova."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"There's already an Aski account with that email. Pick \"I already have an "
+"account\" above and paste a personal access token from app.aski.dev > "
+"Settings > Personal access tokens."
+msgstr ""
+"Esiste già un account Aski con quell'e-mail. Scegli sopra \"Ho già un "
+"account\" e incolla un token di accesso personale da app.aski.dev > "
+"Impostazioni > Token di accesso personali."
