@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Wizard: pegar el Personal Access Token -->
+    <!-- Wizard: crear la cuenta aqui mismo, o pegar un token existente -->
     <record id="view_aski_chat_connect_wizard" model="ir.ui.view">
         <field name="name">aski.chat.connect.wizard</field>
         <field name="model">aski.chat.connect.wizard</field>
@@ -12,24 +12,55 @@
                         <h1>Connect the Aski chat</h1>
                     </div>
                     <p><b>Aski</b> is an AI assistant that answers questions about your Odoo in plain language - sales, receivables, top products and more. Ask from your phone, from the web, or right here inside Odoo.</p>
-                    <div class="alert alert-warning" role="alert">
-                        <p class="mb-1">No Aski account yet? Create one at <a href="https://app.aski.dev?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_signup" target="_blank">app.aski.dev</a> - it takes about 2 minutes and starts with a 7-day free trial.</p>
-                        <field name="partner_managed" invisible="1"/>
-                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', True)]}">See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
-                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', False)]}">Your Aski plan and credits are managed by your partner - contact them for plan changes or top-ups.</p>
-                    </div>
-                    <p>Already have an account? Generate a <b>Personal access token</b> in the Aski web app (<b>app.aski.dev</b> &gt; Settings &gt; Personal access tokens) and paste it below. This Odoo is then registered as a connection under your Aski account.</p>
-                    <div class="alert alert-info" role="alert"><b>Your data stays private.</b> Who can use the chat - and whose data they see - is set by the administrator in Aski &gt; Chat Settings: share one connection with a group, keep it to administrators only, or let each person connect their own Aski account and see only what their own Odoo user can.</div>
                     <group>
+                        <field name="mode" widget="radio"/>
+                    </group>
+
+                    <!-- Alta sin salir de Odoo -->
+                    <group attrs="{'invisible': [('mode', '!=', 'signup')]}">
+                        <field name="signup_email" placeholder="you@company.com"
+                               attrs="{'required': [('mode', '=', 'signup')]}"/>
+                        <field name="signup_password" password="True"
+                               placeholder="At least 8 characters"
+                               attrs="{'required': [('mode', '=', 'signup')]}"/>
+                        <field name="signup_password_confirm" password="True"
+                               placeholder="Type it again"
+                               attrs="{'required': [('mode', '=', 'signup')]}"/>
+                        <field name="signup_partner_code"
+                               placeholder="Only if a partner gave you one"/>
+                    </group>
+                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('mode', '!=', 'signup')]}">
+                        The account is created with that email and this Odoo is connected right away. It's the <b>same</b> account you'll use in the Aski mobile app and on the web, with the same credits - nothing else to sign up for.
+                    </div>
+
+                    <!-- Token existente -->
+                    <!-- Sin widget CopyClipboardChar: ese widget es para COPIAR
+                         un valor, y aqui el usuario PEGA el suyo. Ademas se
+                         comia el placeholder y el borde del input, dejando el
+                         campo practicamente invisible (no se veia donde pegar). -->
+                    <group attrs="{'invisible': [('mode', '!=', 'token')]}">
                         <field name="pat" placeholder="ask_pat_..."
-                               widget="CopyClipboardChar"/>
+                               attrs="{'required': [('mode', '=', 'token')]}"/>
+                    </group>
+                    <p attrs="{'invisible': [('mode', '!=', 'token')]}">Generate a <b>Personal access token</b> in the Aski web app (<b>app.aski.dev</b> &gt; Settings &gt; Personal access tokens) and paste it above. This Odoo is then registered as a connection under your Aski account.</p>
+
+                    <group>
                         <field name="name" placeholder="e.g. Production - Head office"/>
                     </group>
                     <p>The connection name is how this Odoo shows up in your Aski connections list, on your phone and on the web - so you can tell it apart from your other instances.</p>
-                    <div class="alert alert-info" role="alert">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web.</div>
+
+                    <div class="alert alert-info" role="alert"><b>Your data stays private.</b> Who can use the chat - and whose data they see - is set by the administrator in Aski &gt; Chat Settings: share one connection with a group, keep it to administrators only, or let each person connect their own Aski account and see only what their own Odoo user can.</div>
+                    <div class="alert alert-warning" role="alert">
+                        <field name="partner_managed" invisible="1"/>
+                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', True)]}">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web. See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
+                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', False)]}">Your Aski plan and credits are managed by your partner - contact them for plan changes or top-ups.</p>
+                    </div>
                 </sheet>
                 <footer>
-                    <button name="action_connect" type="object" class="btn-primary">Connect Aski</button>
+                    <button name="action_create_account" type="object" class="btn-primary"
+                            attrs="{'invisible': [('mode', '!=', 'signup')]}">Create my account and connect</button>
+                    <button name="action_connect" type="object" class="btn-primary"
+                            attrs="{'invisible': [('mode', '!=', 'token')]}">Connect Aski</button>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

@@ -7,7 +7,7 @@
     # las ramas iban desincronizadas (16/17/18 en 1.1.0 pero 19.0 en 1.4.10).
     # Por eso se unifico todo en 1.5.0: es mayor que la mas alta publicada, asi
     # que ninguna serie ve un downgrade. Mantenerlas iguales de aqui en adelante.
-    "version": "15.0.1.7.1",
+    "version": "15.0.1.8.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -63,19 +63,10 @@ Get the app and learn more at https://aski.dev
         "views/aski_connect_views.xml",
         "views/aski_chat_views.xml",
     ],
-    # ODOO 15: las plantillas OWL van en el bundle `web.assets_qweb`, SEPARADO
-    # del JS/SCSS (en 16+ todo va junto en assets_backend). Si se dejan en
-    # assets_backend, el XML no se registra y el widget no encuentra su template.
     "assets": {
         "web.assets_backend": [
-            "aski_connector/static/src/chat/*.js",
-            "aski_connector/static/src/chat/*.scss",
-            "aski_connector/static/src/systray/*.js",
-            "aski_connector/static/src/systray/*.scss",
-        ],
-        "web.assets_qweb": [
-            "aski_connector/static/src/chat/*.xml",
-            "aski_connector/static/src/systray/*.xml",
+            "aski_connector/static/src/chat/**/*",
+            "aski_connector/static/src/systray/**/*",
         ],
     },
     "images": [
