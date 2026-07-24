@@ -64,6 +64,9 @@
                         <field name="wallet_credits" readonly="1"/>
                         <field name="last_synced" readonly="1"/>
                     </group>
+                    <div class="text-muted" style="margin-top:8px;">
+                        See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_billing" target="_blank">app.aski.dev/billing</a>.
+                    </div>
                 </sheet>
                 <footer>
                     <!-- Save: persiste el modo en per_user (ahi los demas botones se ocultan); type=object guarda el registro antes de llamar. Sin el, cambiar a per_user se descartaba al Close. -->
