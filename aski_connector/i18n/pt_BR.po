@@ -1098,3 +1098,50 @@ msgstr ""
 "Sua conta Aski foi criada (%(email)s), mas a conexão deste Odoo falhou: %(reason)s\n"
 "\n"
 "Sua conta está bem — nada foi cobrado e você não precisa se cadastrar de novo. Para terminar: entre em app.aski.dev com esse e-mail e a senha que você acabou de escolher, gere um token de acesso pessoal em Configurações, e volte aqui e escolha \"Já tenho uma conta\"."
+
+msgid "Paste an access token"
+msgstr "Colar um token de acesso"
+
+msgid "Aski email"
+msgstr "E-mail da Aski"
+
+msgid "Aski password"
+msgstr "Senha da Aski"
+
+msgid "Your Aski password"
+msgstr "Sua senha da Aski"
+
+msgid "Sign in and connect"
+msgstr "Entrar e conectar"
+
+msgid "Enter the email of your Aski account."
+msgstr "Digite o e-mail da sua conta Aski."
+
+msgid "Enter the password of your Aski account."
+msgstr "Digite a senha da sua conta Aski."
+
+msgid ""
+"Wrong email or password. If you just got the account from your Aski partner,"
+" use the temporary password they gave you."
+msgstr ""
+"E-mail ou senha incorretos. Se o seu parceiro Aski acabou de lhe dar a "
+"conta, use a senha temporária que ele lhe entregou."
+
+msgid "Could not connect: %s"
+msgstr "Não foi possível conectar: %s"
+
+msgid ""
+"There's already an Aski account with that email. Pick \"I already have an "
+"account\" above and sign in with its password — no need to leave Odoo."
+msgstr ""
+"Já existe uma conta Aski com esse e-mail. Escolha \"Já tenho uma conta\" "
+"acima e entre com a senha dela — sem sair do Odoo."
+
+msgid ""
+"Use the same email and password you use in the Aski app or on the web. If "
+"your <b>Aski partner</b> created the account for you, use the temporary "
+"password they gave you — you can change it later from Aski."
+msgstr ""
+"Use o mesmo e-mail e senha que usa no aplicativo da Aski ou na web. Se o seu"
+" <b>parceiro Aski</b> criou a conta para você, use a senha temporária que "
+"ele lhe deu — você pode trocá-la depois na Aski."
