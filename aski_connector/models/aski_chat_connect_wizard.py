@@ -32,7 +32,8 @@ class AskiChatConnectWizard(models.TransientModel):
 
     mode = fields.Selection(
         selection=[("signup", "Create my Aski account"),
-                   ("token", "I already have an account")],
+                   ("login", "I already have an account"),
+                   ("token", "Paste an access token")],
         string="How do you want to connect?", default="signup", required=True)
 
     # --- Alta inline (mode = signup) ---------------------------------------
@@ -53,6 +54,14 @@ class AskiChatConnectWizard(models.TransientModel):
         default=lambda self: aski_partner_code(self.env) or False,
         help="Fills in automatically when your Aski partner preconfigured it in "
              "this instance. Leave it empty if you signed up on your own.")
+
+    # --- Cuenta existente por correo+clave (mode = login) ------------------
+    # Existe para el cliente al que su SOCIO le creo la cuenta: antes tenia que
+    # salir a la web, entrar, generar un token a mano y volver a pegarlo. Aqui el
+    # modulo hace por dentro ese mismo canje.
+    login_email = fields.Char(
+        string="Aski email", default=lambda self: self.env.user.email)
+    login_password = fields.Char(string="Aski password")
 
     pat = fields.Char(string="Aski personal access token")
     # El nombre con el que esta conexion aparece en la lista de conexiones de
@@ -134,9 +143,8 @@ class AskiChatConnectWizard(models.TransientModel):
             # devolverle un error crudo.
             raise UserError(_(
                 "There's already an Aski account with that email. Pick "
-                "\"I already have an account\" above and paste a personal "
-                "access token from app.aski.dev > Settings > Personal access "
-                "tokens."))
+                "\"I already have an account\" above and sign in with its "
+                "password — no need to leave Odoo."))
         if resp.status_code == 429:
             raise UserError(_("Too many attempts. Wait a minute and try again."))
         if resp.status_code not in (200, 201):
@@ -164,6 +172,44 @@ class AskiChatConnectWizard(models.TransientModel):
                 "access token under Settings, then come back here and pick "
                 "\"I already have an account\".",
             ) % {"email": email, "reason": e.args[0] if e.args else ""})
+
+    def action_login_connect(self):
+        """Conecta con la cuenta que ya existe, usando correo y contrasena."""
+        self.ensure_one()
+        email = (self.login_email or "").strip()
+        password = self.login_password or ""
+        if not email or "@" not in email:
+            raise UserError(_("Enter the email of your Aski account."))
+        if not password:
+            raise UserError(_("Enter the password of your Aski account."))
+
+        # El permiso se valida ANTES de mandar credenciales a ningun sitio.
+        link = self._target_link()
+        nickname = (self.name or "").strip() or self.env.company.name or self.env.cr.dbname
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/auth/connector-token",
+                json={"email": email, "password": password, "token_name": nickname},
+                timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 401:
+            raise UserError(_("Wrong email or password. If you just got the account "
+                              "from your Aski partner, use the temporary password "
+                              "they gave you."))
+        if resp.status_code == 403:
+            # Cuenta creada con Google (no tiene clave local) o deshabilitada: el
+            # backend ya manda el texto accionable.
+            raise UserError(self.env["aski.account.link"]._error_message(resp))
+        if resp.status_code == 429:
+            raise UserError(_("Too many attempts. Wait a minute and try again."))
+        if resp.status_code not in (200, 201):
+            raise UserError(_("Could not connect: %s")
+                            % self.env["aski.account.link"]._error_message(resp))
+        token = (resp.json() or {}).get("token") or ""
+        if not token:
+            raise UserError(_("Aski didn't return an access token. Try again."))
+        return self._finish_connection(link, token, nickname)
 
     def action_connect(self):
         self.ensure_one()
