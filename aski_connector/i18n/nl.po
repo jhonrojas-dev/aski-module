@@ -904,10 +904,12 @@ msgstr "Opslaan"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "See all plans and pricing at"
 msgstr "Bekijk alle abonnementen en prijzen op"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid ", or buy and top up credits at"
 msgstr ", of koop en vul je credits aan op"
