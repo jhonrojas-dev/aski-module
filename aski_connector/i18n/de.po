@@ -916,10 +916,12 @@ msgstr "Speichern"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "See all plans and pricing at"
 msgstr "Alle Tarife und Preise unter"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid ", or buy and top up credits at"
 msgstr ", oder Guthaben kaufen und aufladen unter"
