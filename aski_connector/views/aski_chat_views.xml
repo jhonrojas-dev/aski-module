@@ -33,6 +33,18 @@
                         The account is created with that email and this Odoo is connected right away. It's the <b>same</b> account you'll use in the Aski mobile app and on the web, with the same credits - nothing else to sign up for.
                     </div>
 
+                    <!-- Cuenta existente: correo + clave (sin salir de Odoo) -->
+                    <group attrs="{'invisible': [('mode', '!=', 'login')]}">
+                        <field name="login_email" placeholder="you@company.com"
+                               attrs="{'required': [('mode', '=', 'login')]}"/>
+                        <field name="login_password" password="True"
+                               placeholder="Your Aski password"
+                               attrs="{'required': [('mode', '=', 'login')]}"/>
+                    </group>
+                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('mode', '!=', 'login')]}">
+                        Use the same email and password you use in the Aski app or on the web. If your <b>Aski partner</b> created the account for you, use the temporary password they gave you — you can change it later from Aski.
+                    </div>
+
                     <!-- Token existente -->
                     <!-- Sin widget CopyClipboardChar: ese widget es para COPIAR
                          un valor, y aqui el usuario PEGA el suyo. Ademas se
@@ -59,6 +71,8 @@
                 <footer>
                     <button name="action_create_account" type="object" class="btn-primary"
                             attrs="{'invisible': [('mode', '!=', 'signup')]}">Create my account and connect</button>
+                    <button name="action_login_connect" type="object" class="btn-primary"
+                            attrs="{'invisible': [('mode', '!=', 'login')]}">Sign in and connect</button>
                     <button name="action_connect" type="object" class="btn-primary"
                             attrs="{'invisible': [('mode', '!=', 'token')]}">Connect Aski</button>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
