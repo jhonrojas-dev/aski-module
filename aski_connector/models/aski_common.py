@@ -5,7 +5,7 @@ import io
 import json
 import logging
 
-from odoo import api, models, release
+from odoo import api, models
 from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
@@ -36,20 +36,39 @@ class AskiKeyMixin(models.AbstractModel):
     # usuario actual.
     # ------------------------------------------------------------------
     def _aski_generate_api_key(self, name):
-        """Genera una API key de Odoo para el usuario actual (scope 'rpc').
-        La firma de `_generate` cambia entre series (Odoo 17+ agrego
-        expiration_date). Se prueba de forma defensiva."""
-        api_keys = self.env["res.users.apikeys"]
-        major = release.version_info[0]
+        """Genera una API key de Odoo (scope 'rpc') para EL USUARIO ACTUAL, con
+        la que el backend de Aski hace XML-RPC contra esta instancia como ese
+        usuario (sin escalar permisos).
+
+        Se genera bajo `sudo()`, y esto es imprescindible para que funcione con
+        CUALQUIER usuario (no solo un administrador) en CUALQUIER instancia:
+
+        1. Desde Odoo 18, un usuario que NO pertenece al grupo Ajustes solo
+           puede crear una API key CON fecha de expiracion
+           (`res.users.apikeys._check_expiration_date` lanza "The API key must
+           have an expiration date"); unicamente un usuario de sistema puede
+           crear una key PERSISTENTE. Sin `sudo()`, un usuario normal (p.ej. un
+           vendedor conectando su propia cuenta en modo 'per_user') no podia
+           conectar. Y la key TIENE que ser persistente: la usa el backend de
+           forma continua, una que caduque cortaria la conexion sin aviso.
+           `sudo()` pone el entorno en modo superusuario -> `env.is_system()` es
+           True -> se admite la key sin caducidad. Es el patron que la propia
+           doc de `_generate` sanciona ("must be called in sudo to use a
+           duration greater than that allowed by the user's privileges").
+        2. `sudo()` eleva el privilegio PERO NO cambia el `uid`: la key se
+           inserta a nombre de `self.env.user` (el usuario actual), no del
+           superusuario. Asi el RPC de Aski sigue entrando COMO ese usuario y
+           solo ve lo que el ve — nada de escalada de permisos.
+
+        La firma de `_generate` cambio entre series (Odoo 18 agrego
+        `expiration_date`), por eso se prueba de forma defensiva."""
+        api_keys = self.env["res.users.apikeys"].sudo()
         try:
-            if major >= 17:
-                return api_keys._generate("rpc", name, False)
-            return api_keys._generate("rpc", name)
+            # Odoo 18+: (scope, name, expiration_date). False = persistente.
+            return api_keys._generate("rpc", name, False)
         except TypeError:
-            try:
-                return api_keys._generate("rpc", name)
-            except TypeError:
-                return api_keys._generate("rpc", name, False)
+            # Odoo 16/17: (scope, name), sin concepto de expiracion.
+            return api_keys._generate("rpc", name)
 
     def _aski_revoke_previous(self, name):
         """Revoca codigos previos con el mismo nombre del usuario actual para no
