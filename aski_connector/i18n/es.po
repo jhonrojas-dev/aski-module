@@ -1052,3 +1052,49 @@ msgstr ""
 "Ya existe una cuenta Aski con ese correo. Elige arriba \"Ya tengo una "
 "cuenta\" y pega un token de acceso personal desde app.aski.dev > "
 "Configuración > Tokens de acceso personal."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Chat usage spends credits from that Aski account's wallet - the same plan "
+"used by the Aski mobile app and web. See all plans and pricing at"
+msgstr ""
+"El uso del chat gasta créditos del monedero de esa cuenta Aski — el mismo "
+"plan que usan la app móvil de Aski y la web. Consulta todos los planes y "
+"precios en"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Generate a <b>Personal access token</b> in the Aski web app "
+"(<b>app.aski.dev</b> &gt; Settings &gt; Personal access tokens) and paste it"
+" above. This Odoo is then registered as a connection under your Aski "
+"account."
+msgstr ""
+"Genera un <b>token de acceso personal</b> en la web de Aski "
+"(<b>app.aski.dev</b> &gt; Configuración &gt; Tokens de acceso personal) y "
+"pégalo arriba. Este Odoo queda entonces registrado como una conexión de tu "
+"cuenta Aski."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"The account is created with that email and this Odoo is connected right "
+"away. It's the <b>same</b> account you'll use in the Aski mobile app and on "
+"the web, with the same credits - nothing else to sign up for."
+msgstr ""
+"La cuenta se crea con ese correo y este Odoo queda conectado de inmediato. "
+"Es la <b>misma</b> cuenta que usarás en la app móvil de Aski y en la web, "
+"con los mismos créditos — no hay que registrarse en ningún otro lado."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Your Aski account was created (%(email)s), but connecting this Odoo failed: %(reason)s\n"
+"\n"
+"Your account is fine — nothing was charged and you don't need to sign up again. To finish: sign in at app.aski.dev with that email and the password you just chose, generate a personal access token under Settings, then come back here and pick \"I already have an account\"."
+msgstr ""
+"Tu cuenta Aski se creó (%(email)s), pero falló la conexión de este Odoo: %(reason)s\n"
+"\n"
+"Tu cuenta está bien — no se te cobró nada y no hace falta que te registres de nuevo. Para terminar: entra a app.aski.dev con ese correo y la contraseña que acabas de elegir, genera un token de acceso personal en Configuración, y vuelve aquí y elige \"Ya tengo una cuenta\"."
