@@ -7,7 +7,7 @@
     # las ramas iban desincronizadas (16/17/18 en 1.1.0 pero 19.0 en 1.4.10).
     # Por eso se unifico todo en 1.5.0: es mayor que la mas alta publicada, asi
     # que ninguna serie ve un downgrade. Mantenerlas iguales de aqui en adelante.
-    "version": "14.0.1.7.1",
+    "version": "14.0.1.8.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -60,17 +60,15 @@ Get the app and learn more at https://aski.dev
     "data": [
         "security/aski_security.xml",
         "security/ir.model.access.csv",
-        "views/assets.xml",
         "views/aski_connect_views.xml",
         "views/aski_chat_views.xml",
     ],
-    # ODOO 14: la clave `assets` NO existe (llego en la 15; aqui no hay ni tabla
-    # ir_asset) -> el JS/SCSS se declara en views/assets.xml heredando el bundle
-    # web.assets_backend, y las plantillas OWL van por la clave `qweb`.
-    "qweb": [
-        "static/src/chat/aski_chat.xml",
-        "static/src/systray/aski_systray.xml",
-    ],
+    "assets": {
+        "web.assets_backend": [
+            "aski_connector/static/src/chat/**/*",
+            "aski_connector/static/src/systray/**/*",
+        ],
+    },
     "images": [
         "static/description/banner.png",
         "static/description/shot-1.png",
