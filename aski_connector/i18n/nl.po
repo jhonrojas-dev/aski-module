@@ -1102,27 +1102,46 @@ msgstr ""
 "\n"
 "Je account is in orde — er is niets in rekening gebracht en je hoeft je niet opnieuw aan te melden. Om af te ronden: meld je aan op app.aski.dev met dat e-mailadres en het wachtwoord dat je zojuist koos, genereer een persoonlijk toegangstoken bij Instellingen, en kies hier dan \"Ik heb al een account\"."
 
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__token
 msgid "Paste an access token"
 msgstr "Een toegangstoken plakken"
 
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__login_email
 msgid "Aski email"
 msgstr "Aski-e-mail"
 
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__login_password
 msgid "Aski password"
 msgstr "Aski-wachtwoord"
 
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Your Aski password"
 msgstr "Je Aski-wachtwoord"
 
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Sign in and connect"
 msgstr "Aanmelden en verbinden"
 
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid "Enter the email of your Aski account."
 msgstr "Voer het e-mailadres van je Aski-account in."
 
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid "Enter the password of your Aski account."
 msgstr "Voer het wachtwoord van je Aski-account in."
 
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid ""
 "Wrong email or password. If you just got the account from your Aski partner,"
 " use the temporary password they gave you."
@@ -1131,9 +1150,15 @@ msgstr ""
 "partner hebt gekregen, gebruik dan het tijdelijke wachtwoord dat zij je "
 "gaven."
 
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid "Could not connect: %s"
 msgstr "Kon niet verbinden: %s"
 
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid ""
 "There's already an Aski account with that email. Pick \"I already have an "
 "account\" above and sign in with its password — no need to leave Odoo."
@@ -1142,6 +1167,8 @@ msgstr ""
 "al een account\" en meld je aan met het wachtwoord — zonder Odoo te "
 "verlaten."
 
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ""
 "Use the same email and password you use in the Aski app or on the web. If "
 "your <b>Aski partner</b> created the account for you, use the temporary "
