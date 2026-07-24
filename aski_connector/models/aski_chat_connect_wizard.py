@@ -4,7 +4,7 @@ import requests
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
-from .aski_common import aski_api_base
+from .aski_common import aski_api_base, aski_partner_code
 
 _TIMEOUT = 30
 
@@ -43,9 +43,16 @@ class AskiChatConnectWizard(models.TransientModel):
              "credits.")
     signup_password = fields.Char(string="Password")
     signup_password_confirm = fields.Char(string="Repeat password")
-    # Opcional: si este Odoo lo instalo un socio (reseller), su codigo afilia la
-    # cuenta nueva a ese socio, igual que al registrarse desde la app o la web.
-    signup_partner_code = fields.Char(string="Partner code (optional)")
+    # Si este Odoo lo instalo un socio (reseller), su codigo afilia la cuenta
+    # nueva a ese socio, igual que al registrarse desde la app o la web. Viene
+    # PRECARGADO si el socio lo dejo puesto en la instancia (odoo.conf o el
+    # parametro de sistema `aski_connector.partner_code`), para que el cliente no
+    # tenga que teclearlo — que era donde se perdia la atribucion.
+    signup_partner_code = fields.Char(
+        string="Partner code (optional)",
+        default=lambda self: aski_partner_code(self.env) or False,
+        help="Fills in automatically when your Aski partner preconfigured it in "
+             "this instance. Leave it empty if you signed up on your own.")
 
     pat = fields.Char(string="Aski personal access token")
     # El nombre con el que esta conexion aparece en la lista de conexiones de
