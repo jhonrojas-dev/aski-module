@@ -41,6 +41,8 @@ msgid "Click <b>Generate connection code</b> below."
 msgstr "Fai clic su <b>Genera codice di connessione</b> qui sotto."
 
 #. module: aski_connector
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
 msgid "Close"
 msgstr "Chiudi"
@@ -168,8 +170,8 @@ msgstr ""
 
 #. module: aski_connector
 #. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model:ir.module.category,name:aski_connector.module_category_aski
 #: model:ir.ui.menu,name:aski_connector.menu_aski_root
 msgid "Aski"
 msgstr "Aski"
@@ -195,7 +197,8 @@ msgid "Aski chat connection"
 msgstr "Connessione chat Aski"
 
 #. module: aski_connector
-#: model:ir.actions.act_window,name:aski_connector.action_aski_account_link
+#: code:addons/aski_connector/models/aski_account_link.py:0
+#: model:ir.actions.server,name:aski_connector.action_aski_account_link_open
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Aski chat settings"
 msgstr "Impostazioni chat Aski"
@@ -258,6 +261,7 @@ msgid "Aski token (encrypted)"
 msgstr "Token Aski (cifrato)"
 
 #. module: aski_connector
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Cancel"
 msgstr "Annulla"
@@ -325,6 +329,7 @@ msgstr "Connesso. %s crediti disponibili."
 #. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid "Could not reach Aski: %s"
 msgstr "Impossibile raggiungere Aski: %s"
 
@@ -570,25 +575,25 @@ msgstr "Ancora nessuna conversazione."
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "How much did I sell this month?"
 msgstr "Quanto ho venduto questo mese?"
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "My top 10 customers"
 msgstr "I miei 10 migliori clienti"
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Overdue invoices"
 msgstr "Fatture scadute"
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "How many customers do I have?"
 msgstr "Quanti clienti ho?"
 
@@ -646,7 +651,7 @@ msgstr "Assistente IA · sola lettura"
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/systray/aski_systray.xml:0
 msgid "Aski - ask your Odoo"
 msgstr "Aski - chiedi al tuo Odoo"
 
@@ -896,6 +901,7 @@ msgstr "Aski era già disconnesso."
 #. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Aski account disconnected."
 msgstr "Account Aski disconnesso."
 
@@ -905,14 +911,13 @@ msgid "Save"
 msgstr "Salva"
 
 #. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "See all plans and pricing at"
 msgstr "Consulta tutti i piani e i prezzi su"
 
 #. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ", or buy and top up credits at"
 msgstr ", oppure acquista e ricarica crediti su"
 
@@ -939,7 +944,7 @@ msgid "Create my Aski account"
 msgstr "Crea il mio account Aski"
 
 #. module: aski_connector
-#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__token
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__login
 msgid "I already have an account"
 msgstr "Ho già un account"
 
