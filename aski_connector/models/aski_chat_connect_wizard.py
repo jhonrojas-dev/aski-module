@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 
@@ -23,6 +23,16 @@ class AskiChatConnectWizard(models.TransientModel):
         string="Connection name",
         default=lambda self: self.env.company.name,
         help="How this Odoo will appear in your Aski connections list.")
+    # Si la cuenta que YA esta conectada la gestiona un socio, no se muestran los
+    # enlaces de precios/compra (su plan lo ve con el socio). En una PRIMERA
+    # conexion aun no se sabe -> se muestran, que es lo util para darse de alta.
+    partner_managed = fields.Boolean(
+        default=lambda self: self._default_partner_managed())
+
+    @api.model
+    def _default_partner_managed(self):
+        link = self.env["aski.account.link"]._active_link(self.env.user)
+        return bool(link) and link.partner_managed
 
     def action_connect(self):
         self.ensure_one()
