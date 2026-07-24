@@ -1101,3 +1101,52 @@ msgstr ""
 "Je Aski-account is aangemaakt (%(email)s), maar het verbinden van deze Odoo is mislukt: %(reason)s\n"
 "\n"
 "Je account is in orde — er is niets in rekening gebracht en je hoeft je niet opnieuw aan te melden. Om af te ronden: meld je aan op app.aski.dev met dat e-mailadres en het wachtwoord dat je zojuist koos, genereer een persoonlijk toegangstoken bij Instellingen, en kies hier dan \"Ik heb al een account\"."
+
+msgid "Paste an access token"
+msgstr "Een toegangstoken plakken"
+
+msgid "Aski email"
+msgstr "Aski-e-mail"
+
+msgid "Aski password"
+msgstr "Aski-wachtwoord"
+
+msgid "Your Aski password"
+msgstr "Je Aski-wachtwoord"
+
+msgid "Sign in and connect"
+msgstr "Aanmelden en verbinden"
+
+msgid "Enter the email of your Aski account."
+msgstr "Voer het e-mailadres van je Aski-account in."
+
+msgid "Enter the password of your Aski account."
+msgstr "Voer het wachtwoord van je Aski-account in."
+
+msgid ""
+"Wrong email or password. If you just got the account from your Aski partner,"
+" use the temporary password they gave you."
+msgstr ""
+"E-mailadres of wachtwoord is onjuist. Als je het account net van je Aski-"
+"partner hebt gekregen, gebruik dan het tijdelijke wachtwoord dat zij je "
+"gaven."
+
+msgid "Could not connect: %s"
+msgstr "Kon niet verbinden: %s"
+
+msgid ""
+"There's already an Aski account with that email. Pick \"I already have an "
+"account\" above and sign in with its password — no need to leave Odoo."
+msgstr ""
+"Er bestaat al een Aski-account met dat e-mailadres. Kies hierboven \"Ik heb "
+"al een account\" en meld je aan met het wachtwoord — zonder Odoo te "
+"verlaten."
+
+msgid ""
+"Use the same email and password you use in the Aski app or on the web. If "
+"your <b>Aski partner</b> created the account for you, use the temporary "
+"password they gave you — you can change it later from Aski."
+msgstr ""
+"Gebruik hetzelfde e-mailadres en wachtwoord als in de Aski-app of op het "
+"web. Als je <b>Aski-partner</b> het account voor je heeft aangemaakt, "
+"gebruik dan het tijdelijke wachtwoord — je kunt het later in Aski wijzigen."
