@@ -1109,3 +1109,52 @@ msgstr ""
 "Votre compte Aski a été créé (%(email)s), mais la connexion de cet Odoo a échoué : %(reason)s\n"
 "\n"
 "Votre compte va bien — rien ne vous a été facturé et vous n'avez pas besoin de vous réinscrire. Pour terminer : connectez-vous à app.aski.dev avec cet e-mail et le mot de passe que vous venez de choisir, générez un jeton d'accès personnel dans Paramètres, puis revenez ici et choisissez « J'ai déjà un compte »."
+
+msgid "Paste an access token"
+msgstr "Coller un jeton d'accès"
+
+msgid "Aski email"
+msgstr "E-mail Aski"
+
+msgid "Aski password"
+msgstr "Mot de passe Aski"
+
+msgid "Your Aski password"
+msgstr "Votre mot de passe Aski"
+
+msgid "Sign in and connect"
+msgstr "Se connecter et lier"
+
+msgid "Enter the email of your Aski account."
+msgstr "Saisissez l'e-mail de votre compte Aski."
+
+msgid "Enter the password of your Aski account."
+msgstr "Saisissez le mot de passe de votre compte Aski."
+
+msgid ""
+"Wrong email or password. If you just got the account from your Aski partner,"
+" use the temporary password they gave you."
+msgstr ""
+"E-mail ou mot de passe incorrect. Si votre partenaire Aski vient de vous "
+"donner le compte, utilisez le mot de passe temporaire qu'il vous a remis."
+
+msgid "Could not connect: %s"
+msgstr "Impossible de se connecter : %s"
+
+msgid ""
+"There's already an Aski account with that email. Pick \"I already have an "
+"account\" above and sign in with its password — no need to leave Odoo."
+msgstr ""
+"Il existe déjà un compte Aski avec cet e-mail. Choisissez « J'ai déjà un "
+"compte » ci-dessus et connectez-vous avec son mot de passe — sans quitter "
+"Odoo."
+
+msgid ""
+"Use the same email and password you use in the Aski app or on the web. If "
+"your <b>Aski partner</b> created the account for you, use the temporary "
+"password they gave you — you can change it later from Aski."
+msgstr ""
+"Utilisez les mêmes e-mail et mot de passe que dans l'application Aski ou sur"
+" le web. Si votre <b>partenaire Aski</b> a créé le compte pour vous, "
+"utilisez le mot de passe temporaire qu'il vous a remis — vous pourrez le "
+"changer ensuite depuis Aski."
