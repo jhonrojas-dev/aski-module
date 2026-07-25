@@ -39,7 +39,7 @@
                                readonly="1" invisible="not signup_partner_code"/>
                     </group>
                     <div class="alert alert-info" role="alert" invisible="mode != 'signup'">
-                        The account is created with that email and this Odoo is connected right away. It's the <b>same</b> account you'll use in the Aski mobile app and on the web, with the same credits - nothing else to sign up for.
+                        The account is created with that email and this Odoo is connected right away. It's the <b>same</b> account you can also use in the Aski mobile app and on the web, with the same credits - nothing else to sign up for.
                     </div>
 
                     <!-- Cuenta existente: correo + clave (sin salir de Odoo) -->

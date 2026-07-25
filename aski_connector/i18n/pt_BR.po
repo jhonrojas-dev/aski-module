@@ -967,8 +967,8 @@ msgstr "Repita a senha"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
-msgid "Partner code (optional)"
-msgstr "Código de parceiro (opcional)"
+msgid "Partner code"
+msgstr "Código de parceiro"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
@@ -1085,12 +1085,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ""
 "The account is created with that email and this Odoo is connected right "
-"away. It's the <b>same</b> account you'll use in the Aski mobile app and on "
-"the web, with the same credits - nothing else to sign up for."
+"away. It's the <b>same</b> account you can also use in the Aski mobile app "
+"and on the web, with the same credits - nothing else to sign up for."
 msgstr ""
-"A conta é criada com esse e-mail e este Odoo fica conectado na hora. É a "
-"<b>mesma</b> conta que você usará no aplicativo móvel Aski e na web, com os "
-"mesmos créditos — não há mais nada para cadastrar."
 
 #. module: aski_connector
 #. odoo-python

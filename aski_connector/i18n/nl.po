@@ -969,8 +969,8 @@ msgstr "Herhaal het wachtwoord"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
-msgid "Partner code (optional)"
-msgstr "Partnercode (optioneel)"
+msgid "Partner code"
+msgstr "Partnercode"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
@@ -1087,13 +1087,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ""
 "The account is created with that email and this Odoo is connected right "
-"away. It's the <b>same</b> account you'll use in the Aski mobile app and on "
-"the web, with the same credits - nothing else to sign up for."
+"away. It's the <b>same</b> account you can also use in the Aski mobile app "
+"and on the web, with the same credits - nothing else to sign up for."
 msgstr ""
-"Het account wordt met dat e-mailadres aangemaakt en deze Odoo is meteen "
-"verbonden. Het is <b>hetzelfde</b> account dat je in de Aski-app en op het "
-"web gebruikt, met dezelfde credits — verder hoef je je nergens aan te "
-"melden."
 
 #. module: aski_connector
 #. odoo-python

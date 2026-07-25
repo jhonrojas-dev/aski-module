@@ -970,8 +970,8 @@ msgstr "Ripeti la password"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
-msgid "Partner code (optional)"
-msgstr "Codice partner (facoltativo)"
+msgid "Partner code"
+msgstr "Codice partner"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
@@ -1088,12 +1088,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ""
 "The account is created with that email and this Odoo is connected right "
-"away. It's the <b>same</b> account you'll use in the Aski mobile app and on "
-"the web, with the same credits - nothing else to sign up for."
+"away. It's the <b>same</b> account you can also use in the Aski mobile app "
+"and on the web, with the same credits - nothing else to sign up for."
 msgstr ""
-"L'account viene creato con quell'e-mail e questo Odoo si connette subito. È "
-"lo <b>stesso</b> account che userai nell'app mobile Aski e sul web, con gli "
-"stessi crediti — non serve registrarsi altrove."
 
 #. module: aski_connector
 #. odoo-python
