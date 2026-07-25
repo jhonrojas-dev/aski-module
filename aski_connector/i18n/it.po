@@ -1178,6 +1178,8 @@ msgstr ""
 "<b>partner Aski</b> ti ha creato l'account, usa la password temporanea che "
 "ti ha dato — potrai cambiarla poi da Aski."
 
+#. module: aski_connector
 #. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
 msgid "Aski's technology, delivered by your partner."
 msgstr "La tecnologia di Aski, fornita dal tuo partner."
