@@ -15,7 +15,7 @@ import requests
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
-from .aski_common import aski_api_base
+from .aski_common import aski_api_base, aski_partner_code
 
 _logger = logging.getLogger(__name__)
 
@@ -54,6 +54,18 @@ class AskiAccountLink(models.Model):
         string="Managed by a partner", readonly=True,
         help="This Aski account is managed by a partner: your plan and payments "
              "are handled by them, so the purchase links are hidden.")
+
+    # `partner_managed` solo se sabe con la cuenta YA conectada (lo reporta
+    # /billing/me al sincronizar). Antes de eso, la unica señal de que esta
+    # instancia pertenece a un cliente de un socio es el codigo que el socio dejo
+    # configurado al instalar. Sirve para no enseñarle precios de lista a quien
+    # le compra a un socio: ese precio lo pone el socio, no nosotros.
+    has_partner_code = fields.Boolean(compute="_compute_has_partner_code")
+
+    def _compute_has_partner_code(self):
+        configured = bool((aski_partner_code(self.env) or "").strip())
+        for rec in self:
+            rec.has_partner_code = configured
 
     # Vacio en el registro GLOBAL/compartido (la conexion del admin); en modo
     # "por usuario" cada usuario tiene su PROPIO registro con este campo puesto.
@@ -429,7 +441,7 @@ class AskiAccountLink(models.Model):
         if not self._user_can_use_chat(user):
             return {"allowed": False, "mode": mode, "can_connect": False,
                     "connected": False, "email": "", "wallet_credits": 0,
-                    "plan_name": ""}
+                    "plan_name": "", "partner_managed": False}
         rec = self._active_link(user)
         if rec and rec.connected and rec.pat:
             rec._sync_wallet()
@@ -441,6 +453,14 @@ class AskiAccountLink(models.Model):
             "email": (rec.email or "") if rec else "",
             "wallet_credits": rec.wallet_credits if rec else 0,
             "plan_name": (rec.plan_name or "") if rec else "",
+            # Para que el chat NO le ofrezca recargar a un cliente de socio: esa
+            # compra la rechaza el backend y lo dejaria contra un muro. Su saldo
+            # se lo repone su socio. Si aun no hay conexion, vale el codigo que
+            # el socio dejo configurado en la instancia.
+            "partner_managed": bool(
+                (rec.partner_managed if rec else False)
+                or (aski_partner_code(self.env) or "").strip()
+            ),
         }
 
     @api.model

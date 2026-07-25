@@ -45,15 +45,24 @@ class AskiChatConnectWizard(models.TransientModel):
     signup_password = fields.Char(string="Password")
     signup_password_confirm = fields.Char(string="Repeat password")
     # Si este Odoo lo instalo un socio (reseller), su codigo afilia la cuenta
-    # nueva a ese socio, igual que al registrarse desde la app o la web. Viene
-    # PRECARGADO si el socio lo dejo puesto en la instancia (odoo.conf o el
-    # parametro de sistema `aski_connector.partner_code`), para que el cliente no
-    # tenga que teclearlo — que era donde se perdia la atribucion.
+    # nueva a ese socio, igual que al registrarse desde la app o la web.
+    #
+    # Es CONFIGURACION DE LA INSTANCIA, no un dato que el cliente teclee: lo deja
+    # puesto el socio al instalar (odoo.conf o el parametro de sistema
+    # `aski_connector.partner_code`). Por eso aqui va de SOLO LECTURA y
+    # enmascarado como una contraseña: el cliente no tiene por que verlo ni
+    # cambiarlo, y un codigo a la vista invita a copiarlo o borrarlo. Si no hay
+    # ninguno configurado, el campo ni siquiera aparece (ver la vista).
+    #
+    # El valor que se manda al backend NO sale de este campo sino del parametro
+    # (ver action_create_account): el campo es solo para que se vea que la
+    # afiliacion esta puesta.
     signup_partner_code = fields.Char(
-        string="Partner code (optional)",
+        string="Partner code",
+        readonly=True,
         default=lambda self: aski_partner_code(self.env) or False,
-        help="Fills in automatically when your Aski partner preconfigured it in "
-             "this instance. Leave it empty if you signed up on your own.")
+        help="Preconfigured by the Aski partner who set up this instance. Your "
+             "plan and pricing are handled by them.")
 
     # --- Cuenta existente por correo+clave (mode = login) ------------------
     # Existe para el cliente al que su SOCIO le creo la cuenta: antes tenia que
@@ -131,8 +140,13 @@ class AskiChatConnectWizard(models.TransientModel):
             "token_name": nickname,
             "instance": base_url,
         }
-        if (self.signup_partner_code or "").strip():
-            body["partner_code"] = self.signup_partner_code.strip()
+        # La afiliacion sale del PARAMETRO, no del campo del formulario: el campo
+        # es de solo lectura y el cliente no puede introducir un codigo a mano.
+        # Leerlo aqui tambien evita depender de que el cliente web devuelva un
+        # campo readonly al crear el registro.
+        code = (aski_partner_code(self.env) or "").strip()
+        if code:
+            body["partner_code"] = code
         try:
             resp = requests.post(aski_api_base(self.env) + "/auth/connector-signup",
                                  json=body, timeout=_TIMEOUT)
