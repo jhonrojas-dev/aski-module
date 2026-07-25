@@ -4,7 +4,11 @@ import requests
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
-from .aski_common import aski_api_base, aski_partner_code
+from .aski_common import (
+    aski_api_base,
+    aski_cobrand_html_from_code,
+    aski_partner_code,
+)
 
 _TIMEOUT = 30
 
@@ -87,6 +91,20 @@ class AskiChatConnectWizard(models.TransientModel):
     # conexion aun no se sabe -> se muestran, que es lo util para darse de alta.
     partner_managed = fields.Boolean(
         default=lambda self: self._default_partner_managed())
+
+    # Lockup "Aski x <socio>". Con la cuenta ya conectada sale de los datos que
+    # trae /billing/me; en FRIO (dandose de alta, sin sesion) se resuelve por el
+    # codigo que el socio dejo configurado en la instancia. Vacio = no hay socio
+    # que presentar y no se pinta nada.
+    cobrand_html = fields.Html(compute="_compute_cobrand_html", sanitize=False)
+
+    def _compute_cobrand_html(self):
+        link = self.env["aski.account.link"]._active_link(self.env.user)
+        for rec in self:
+            if link and link.partner_managed:
+                rec.cobrand_html = link.cobrand_html
+            else:
+                rec.cobrand_html = aski_cobrand_html_from_code(self.env)
 
     @api.model
     def _default_partner_managed(self):

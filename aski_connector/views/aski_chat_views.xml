@@ -17,6 +17,11 @@
                     </group>
 
                     <!-- Alta sin salir de Odoo -->
+                    <!-- Co-marca "Aski x <socio>": lo primero que ve el cliente
+                         de un socio. Vacio (y por tanto invisible) cuando no hay
+                         socio que presentar. -->
+                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
+                           invisible="not cobrand_html"/>
                     <group invisible="mode != 'signup'">
                         <field name="signup_email" placeholder="you@company.com"
                                required="mode == 'signup'"/>
@@ -110,6 +115,8 @@
                     <div class="oe_title">
                         <h1>Aski chat connection</h1>
                     </div>
+                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
+                           invisible="not cobrand_html"/>
                     <group>
                         <field name="access_mode"/>
                     </group>
