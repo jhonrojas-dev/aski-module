@@ -71,9 +71,9 @@ def aski_cobrand_html(env, name, logo_url="", is_light=False, is_tall=False):
         plate = ("" if is_light
                  else "background:#fff;border-radius:5px;padding:3px 6px;")
         logo = (
-            '<img src="%s" alt="" style="max-height:%dpx;max-width:132px;'
+            '<img src="%s" alt="" style="max-height:%dpx;max-width:170px;'
             'object-fit:contain;margin-left:auto;display:block;%s"/>'
-            % (html_escape(src), 44 if is_tall else 28, plate)
+            % (html_escape(src), 60 if is_tall else 40, plate)
         )
     return Markup(
         '<div style="background:%s;border-radius:10px;padding:9px 12px;">'
