@@ -5,7 +5,7 @@ import io
 import json
 import logging
 
-from odoo import api, models
+from odoo import _, api, models
 from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
@@ -71,20 +71,21 @@ def aski_cobrand_html(env, name, logo_url="", is_light=False, is_tall=False):
         plate = ("" if is_light
                  else "background:#fff;border-radius:5px;padding:3px 6px;")
         logo = (
-            '<img src="%s" alt="" style="max-height:%dpx;max-width:208px;'
+            '<img src="%s" alt="" style="max-height:%dpx;max-width:132px;'
             'object-fit:contain;margin-left:auto;display:block;%s"/>'
-            % (html_escape(src), 68 if is_tall else 44, plate)
+            % (html_escape(src), 44 if is_tall else 28, plate)
         )
     return Markup(
-        '<div style="background:%s;border-radius:14px;padding:13px 16px;">'
-        '<div style="display:flex;align-items:center;gap:8px;">'
-        '<span style="color:%s;font-weight:800;font-size:17px;">Aski</span>'
+        '<div style="background:%s;border-radius:10px;padding:9px 12px;">'
+        '<div style="display:flex;align-items:center;gap:7px;">'
+        '<span style="color:%s;font-weight:800;font-size:15px;">Aski</span>'
         '<span style="color:rgba(255,255,255,.5);font-weight:600;">&#215;</span>'
-        '<span style="color:#fff;font-weight:800;font-size:17px;">%s</span>'
+        '<span style="color:#fff;font-weight:800;font-size:15px;">%s</span>'
         '%s</div>'
-        '<div style="color:rgba(255,255,255,.78);font-size:12px;margin-top:5px;">'
-        "Aski's technology, delivered by your partner.</div></div>"
-        % (_COBRAND_NAVY, _COBRAND_GOLD, html_escape(name), logo)
+        '<div style="color:rgba(255,255,255,.78);font-size:11.5px;margin-top:3px;">'
+        '%s</div></div>'
+        % (_COBRAND_NAVY, _COBRAND_GOLD, html_escape(name), logo,
+           html_escape(_("Aski's technology, delivered by your partner.")))
     )
 
 

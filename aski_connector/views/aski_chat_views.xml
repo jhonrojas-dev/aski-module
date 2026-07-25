@@ -8,6 +8,11 @@
         <field name="arch" type="xml">
             <form string="Connect Aski chat">
                 <sheet>
+                    <!-- Co-marca "Aski x <socio>": arriba del todo, para que lo
+                         primero que vea el cliente de un socio sea quien se lo
+                         entrega. Vacio (y por tanto invisible) si no hay socio. -->
+                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
+                           invisible="not cobrand_html"/>
                     <div class="oe_title">
                         <h1>Connect the Aski chat</h1>
                     </div>
@@ -17,11 +22,6 @@
                     </group>
 
                     <!-- Alta sin salir de Odoo -->
-                    <!-- Co-marca "Aski x <socio>": lo primero que ve el cliente
-                         de un socio. Vacio (y por tanto invisible) cuando no hay
-                         socio que presentar. -->
-                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
-                           invisible="not cobrand_html"/>
                     <group invisible="mode != 'signup'">
                         <field name="signup_email" placeholder="you@company.com"
                                required="mode == 'signup'"/>
@@ -31,12 +31,16 @@
                         <field name="signup_password_confirm" password="True"
                                placeholder="Type it again"
                                required="mode == 'signup'"/>
-                        <!-- Configuracion de la instancia, no un dato a teclear:
-                             lo deja puesto el socio al instalar. Solo lectura y
-                             enmascarado (no hace falta que el cliente lo lea), y
-                             oculto del todo si no hay ninguno configurado. -->
-                        <field name="signup_partner_code" password="True"
-                               readonly="1" invisible="not signup_partner_code"/>
+                        <!-- Si el socio ya lo dejo configurado al instalar, el
+                             campo se OCULTA: el cliente no puede editarlo, no le
+                             sirve verlo, y la co-marca de arriba ya le dice quien
+                             le da el servicio. Si NO hay ninguno configurado si
+                             se muestra, editable, por si el cliente tiene uno que
+                             su socio le dio de palabra. -->
+                        <field name="has_configured_code" invisible="1"/>
+                        <field name="signup_partner_code"
+                               invisible="has_configured_code"
+                               placeholder="Only if a partner gave you one"/>
                     </group>
                     <div class="alert alert-info" role="alert" invisible="mode != 'signup'">
                         The account is created with that email and this Odoo is connected right away. It's the <b>same</b> account you can also use in the Aski mobile app and on the web, with the same credits - nothing else to sign up for.
@@ -112,11 +116,14 @@
         <field name="arch" type="xml">
             <form string="Aski chat settings">
                 <sheet>
+                    <!-- Co-marca "Aski x <socio>": arriba del todo, para que lo
+                         primero que vea el cliente de un socio sea quien se lo
+                         entrega. Vacio (y por tanto invisible) si no hay socio. -->
+                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
+                           invisible="not cobrand_html"/>
                     <div class="oe_title">
                         <h1>Aski chat connection</h1>
                     </div>
-                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
-                           invisible="not cobrand_html"/>
                     <group>
                         <field name="access_mode"/>
                     </group>

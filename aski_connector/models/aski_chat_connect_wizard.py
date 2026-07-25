@@ -62,11 +62,17 @@ class AskiChatConnectWizard(models.TransientModel):
     # (ver action_create_account): el campo es solo para que se vea que la
     # afiliacion esta puesta.
     signup_partner_code = fields.Char(
-        string="Partner code",
-        readonly=True,
+        string="Partner code (optional)",
         default=lambda self: aski_partner_code(self.env) or False,
-        help="Preconfigured by the Aski partner who set up this instance. Your "
-             "plan and pricing are handled by them.")
+        help="Only if an Aski partner gave you one. If the partner set up this "
+             "instance, it is already configured and you don't have to type it.")
+
+    # Verdadero si el codigo YA viene de la configuracion de la instancia. Es
+    # una bandera aparte y no `signup_partner_code` a secas porque el campo se
+    # oculta con ella: si dependiera del propio valor, se escondería solo en
+    # cuanto el cliente escribiera la primera letra.
+    has_configured_code = fields.Boolean(
+        default=lambda self: bool(aski_partner_code(self.env)))
 
     # --- Cuenta existente por correo+clave (mode = login) ------------------
     # Existe para el cliente al que su SOCIO le creo la cuenta: antes tenia que
@@ -162,7 +168,7 @@ class AskiChatConnectWizard(models.TransientModel):
         # es de solo lectura y el cliente no puede introducir un codigo a mano.
         # Leerlo aqui tambien evita depender de que el cliente web devuelva un
         # campo readonly al crear el registro.
-        code = (aski_partner_code(self.env) or "").strip()
+        code = ((aski_partner_code(self.env) or self.signup_partner_code) or "").strip()
         if code:
             body["partner_code"] = code
         try:

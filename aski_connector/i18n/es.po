@@ -967,8 +967,8 @@ msgstr "Repite la contraseña"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
-msgid "Partner code"
-msgstr "Código de socio"
+msgid "Partner code (optional)"
+msgstr "Código de socio (opcional)"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
@@ -1178,3 +1178,7 @@ msgstr ""
 "Usa el mismo correo y contraseña que usas en la app de Aski o en la web. Si "
 "tu <b>socio de Aski</b> te creó la cuenta, usa la contraseña temporal que te"
 " entregó — la puedes cambiar después desde Aski."
+
+#. odoo-python
+msgid "Aski's technology, delivered by your partner."
+msgstr "Tecnología de Aski, entregada por tu socio."

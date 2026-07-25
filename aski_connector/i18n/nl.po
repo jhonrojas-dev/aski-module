@@ -969,8 +969,8 @@ msgstr "Herhaal het wachtwoord"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
-msgid "Partner code"
-msgstr "Partnercode"
+msgid "Partner code (optional)"
+msgstr "Partnercode (optioneel)"
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
@@ -1178,3 +1178,7 @@ msgstr ""
 "Gebruik hetzelfde e-mailadres en wachtwoord als in de Aski-app of op het "
 "web. Als je <b>Aski-partner</b> het account voor je heeft aangemaakt, "
 "gebruik dan het tijdelijke wachtwoord — je kunt het later in Aski wijzigen."
+
+#. odoo-python
+msgid "Aski's technology, delivered by your partner."
+msgstr "Aski-technologie, geleverd door uw partner."
