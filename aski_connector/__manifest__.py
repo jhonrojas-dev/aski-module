@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Aski - AI assistant: ask your Odoo in natural language (chat & voice)",
+    "live_test_url": "https://demo.aski.dev/demo",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
     # OJO al bumpear: la version debe ser MONOTONICA en CADA rama de serie, y
@@ -52,10 +53,10 @@ embedded chat, in-app chat, chat widget, floating chat bubble, export PDF.
 
 Get the app and learn more at https://aski.dev
 """,
-    "author": "Jhon Jairo Rojas Ortiz",
+    "author": "Aski",
     "website": "https://aski.dev",
     "license": "LGPL-3",
-    "support": "jhon@aski.dev",
+    "support": "soporte@aski.dev",
     "depends": ["base", "web"],
     "data": [
         "security/aski_security.xml",
