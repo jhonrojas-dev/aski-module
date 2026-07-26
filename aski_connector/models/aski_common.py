@@ -91,6 +91,22 @@ def aski_cobrand_html(env, name, logo_url="", is_light=False, is_tall=False):
     )
 
 
+def aski_cobrand_html_current(env):
+    """Lockup que toca mostrar AHORA, mirando primero la cuenta conectada.
+
+    Existe para poder guardar el markup en un campo normal en vez de calcularlo
+    al vuelo: un campo Html COMPUTADO y no almacenado no le llega al cliente web
+    en las series viejas (Odoo 16 lo descarta del formulario entero), mientras
+    que un valor por defecto o guardado llega siempre.
+    """
+    link = env["aski.account.link"]._active_link(env.user)
+    if link and link.partner_managed and link.partner_show_cobrand and link.partner_name:
+        return aski_cobrand_html(
+            env, name=link.partner_name, logo_url=link.partner_logo_url,
+            is_light=link.partner_logo_is_light, is_tall=link.partner_logo_is_tall)
+    return aski_cobrand_html_from_code(env)
+
+
 def aski_cobrand_html_from_code(env):
     """Lockup resuelto por el codigo configurado en la instancia (caso FRIO:
     aun no hay cuenta conectada). Vacio si no hay codigo o la API no responde."""
