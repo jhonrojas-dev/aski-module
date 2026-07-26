@@ -72,20 +72,22 @@ def aski_cobrand_html(env, name, logo_url="", is_light=False, is_tall=False):
                  else "background:#fff;border-radius:5px;padding:3px 6px;")
         logo = (
             '<img src="%s" alt="" style="max-height:%dpx;max-width:190px;'
-            'object-fit:contain;margin-left:auto;margin-right:6px;display:block;%s"/>'
+            'object-fit:contain;flex-shrink:0;display:block;%s"/>'
             % (html_escape(src), 68 if is_tall else 46, plate)
         )
     return Markup(
-        '<div style="background:%s;border-radius:10px;padding:9px 12px;">'
+        '<div style="background:%s;border-radius:10px;padding:9px 12px;'
+        'display:flex;align-items:center;gap:12px;">'
+        '<div style="flex:1;min-width:0;">'
         '<div style="display:flex;align-items:center;gap:7px;">'
         '<span style="color:%s;font-weight:800;font-size:15px;">Aski</span>'
         '<span style="color:rgba(255,255,255,.5);font-weight:600;">&#215;</span>'
         '<span style="color:#fff;font-weight:800;font-size:15px;">%s</span>'
-        '%s</div>'
+        '</div>'
         '<div style="color:rgba(255,255,255,.78);font-size:11.5px;margin-top:3px;">'
-        '%s</div></div>'
-        % (_COBRAND_NAVY, _COBRAND_GOLD, html_escape(name), logo,
-           html_escape(_("Aski's technology, delivered by your partner.")))
+        '%s</div></div>%s</div>'
+        % (_COBRAND_NAVY, _COBRAND_GOLD, html_escape(name),
+           html_escape(_("Aski's technology, delivered by your partner.")), logo)
     )
 
 
