@@ -6,7 +6,7 @@ from odoo.exceptions import AccessError, UserError
 
 from .aski_common import (
     aski_api_base,
-    aski_cobrand_html_from_code,
+    aski_cobrand_html_current,
     aski_partner_code,
 )
 
@@ -51,16 +51,12 @@ class AskiChatConnectWizard(models.TransientModel):
     # Si este Odoo lo instalo un socio (reseller), su codigo afilia la cuenta
     # nueva a ese socio, igual que al registrarse desde la app o la web.
     #
-    # Es CONFIGURACION DE LA INSTANCIA, no un dato que el cliente teclee: lo deja
-    # puesto el socio al instalar (odoo.conf o el parametro de sistema
-    # `aski_connector.partner_code`). Por eso aqui va de SOLO LECTURA y
-    # enmascarado como una contraseña: el cliente no tiene por que verlo ni
-    # cambiarlo, y un codigo a la vista invita a copiarlo o borrarlo. Si no hay
-    # ninguno configurado, el campo ni siquiera aparece (ver la vista).
-    #
-    # El valor que se manda al backend NO sale de este campo sino del parametro
-    # (ver action_create_account): el campo es solo para que se vea que la
-    # afiliacion esta puesta.
+    # Normalmente es CONFIGURACION DE LA INSTANCIA: lo deja puesto el socio al
+    # instalar (odoo.conf o el parametro `aski_connector.partner_code`). En ese
+    # caso el campo NI SE MUESTRA (ver la vista): el cliente no puede cambiarlo,
+    # no le sirve verlo, y la co-marca ya le dice quien le da el servicio. Solo
+    # aparece, editable, cuando NO hay ninguno configurado, por si su socio le
+    # dio uno de palabra.
     signup_partner_code = fields.Char(
         string="Partner code (optional)",
         default=lambda self: aski_partner_code(self.env) or False,
@@ -102,15 +98,11 @@ class AskiChatConnectWizard(models.TransientModel):
     # trae /billing/me; en FRIO (dandose de alta, sin sesion) se resuelve por el
     # codigo que el socio dejo configurado en la instancia. Vacio = no hay socio
     # que presentar y no se pinta nada.
-    cobrand_html = fields.Html(compute="_compute_cobrand_html", sanitize=False)
-
-    def _compute_cobrand_html(self):
-        link = self.env["aski.account.link"]._active_link(self.env.user)
-        for rec in self:
-            if link and link.partner_managed:
-                rec.cobrand_html = link.cobrand_html
-            else:
-                rec.cobrand_html = aski_cobrand_html_from_code(self.env)
+    # Por DEFAULT, no computado: ver la nota en aski.account.link.cobrand_html
+    # (un Html computado no almacenado no llega al cliente en Odoo 16).
+    cobrand_html = fields.Html(
+        readonly=True, sanitize=False,
+        default=lambda self: aski_cobrand_html_current(self.env))
 
     @api.model
     def _default_partner_managed(self):

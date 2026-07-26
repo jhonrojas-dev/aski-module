@@ -1197,3 +1197,12 @@ msgstr ""
 #: code:addons/aski_connector/models/aski_common.py:0
 msgid "Aski's technology, delivered by your partner."
 msgstr "Aski-Technologie, bereitgestellt von Ihrem Partner."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard:0
+msgid ""
+"Your Aski plan and credits are handled by your Aski partner - contact them "
+"for plan changes or top-ups."
+msgstr ""
+"Ihr Aski-Tarif und Ihre Credits werden von Ihrem Aski-Partner verwaltet: "
+"Wenden Sie sich an ihn für Tarifwechsel oder Aufladungen."
