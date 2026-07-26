@@ -18,7 +18,7 @@ from odoo.exceptions import AccessError, UserError
 from .aski_common import (
     aski_api_base,
     aski_cobrand_html,
-    aski_cobrand_html_from_code,
+    aski_cobrand_html_current,
     aski_partner_code,
 )
 
@@ -77,24 +77,15 @@ class AskiAccountLink(models.Model):
     partner_logo_is_tall = fields.Boolean(readonly=True)
     partner_show_cobrand = fields.Boolean(readonly=True, default=True)
 
+    # Markup del lockup. Campo NORMAL, no computado: un Html computado y no
+    # almacenado no le llega al cliente web en las series viejas (Odoo 16
+    # descarta el campo del formulario entero, verificado en una instancia real),
+    # mientras que un valor guardado o por defecto llega siempre. Se refresca al
+    # sincronizar, que es cuando pueden cambiar los datos del socio.
     cobrand_html = fields.Html(
-        compute="_compute_cobrand_html", sanitize=False,
+        readonly=True, sanitize=False,
+        default=lambda self: aski_cobrand_html_current(self.env),
         help="Co-brand lockup shown to the partner's clients.")
-
-    def _compute_cobrand_html(self):
-        for rec in self:
-            if rec.partner_managed and rec.partner_show_cobrand and rec.partner_name:
-                rec.cobrand_html = aski_cobrand_html(
-                    self.env,
-                    name=rec.partner_name,
-                    logo_url=rec.partner_logo_url,
-                    is_light=rec.partner_logo_is_light,
-                    is_tall=rec.partner_logo_is_tall,
-                )
-                continue
-            # Sin cuenta conectada (o del socio que apago la co-marca) se cae al
-            # codigo configurado en la instancia, que es la unica señal en frio.
-            rec.cobrand_html = aski_cobrand_html_from_code(self.env)
 
     def _compute_has_partner_code(self):
         configured = bool((aski_partner_code(self.env) or "").strip())
@@ -298,6 +289,14 @@ class AskiAccountLink(models.Model):
             "partner_logo_is_light": bool((sub or {}).get("partner_logo_is_light")),
             "partner_logo_is_tall": bool((sub or {}).get("partner_logo_is_tall")),
             "partner_show_cobrand": bool((sub or {}).get("partner_show_cobrand", True)),
+            "cobrand_html": aski_cobrand_html(
+                self.env,
+                name=(sub or {}).get("partner_name") or "",
+                logo_url=(sub or {}).get("partner_logo_url") or "",
+                is_light=bool((sub or {}).get("partner_logo_is_light")),
+                is_tall=bool((sub or {}).get("partner_logo_is_tall")),
+            ) if (data.get("partner_managed")
+                  and (sub or {}).get("partner_show_cobrand", True)) else "",
             "last_synced": fields.Datetime.now(),
         })
         return True, _("Connected. %s credits available.") % rec.wallet_credits

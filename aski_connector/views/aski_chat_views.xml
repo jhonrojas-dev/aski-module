@@ -43,7 +43,7 @@
                                placeholder="Only if a partner gave you one"/>
                     </group>
                     <div class="alert alert-info" role="alert" attrs="{'invisible': [('mode', '!=', 'signup')]}">
-                        The account is created with that email and this Odoo is connected right away. It's the <b>same</b> account you'll use in the Aski mobile app and on the web, with the same credits - nothing else to sign up for.
+                        The account is created with that email and this Odoo is connected right away. It's the <b>same</b> account you can also use in the Aski mobile app and on the web, with the same credits - nothing else to sign up for.
                     </div>
 
                     <!-- Cuenta existente: correo + clave (sin salir de Odoo) -->
@@ -135,7 +135,7 @@
                         See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_billing" target="_blank">app.aski.dev/billing</a>.
                     </div>
                     <div class="text-muted" style="margin-top:8px;" attrs="{'invisible': [('partner_managed', '=', False)]}">
-                        Your Aski plan and credits are managed by your partner - contact them for plan changes or top-ups.
+                        Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.
                     </div>
                 </sheet>
                 <footer>
