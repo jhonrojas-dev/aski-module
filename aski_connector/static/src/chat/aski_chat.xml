@@ -32,10 +32,16 @@
                 </div>
                 <div class="ac-header-r">
                     <t t-if="state.connected">
-                        <button t-if="state.walletCredits === 0" class="ac-credits ac-credits-empty"
+                        <button t-if="state.walletCredits === 0 and !state.partnerManaged"
+                                class="ac-credits ac-credits-empty"
                                 title="Out of credits - tap to top up" t-on-click.stop="openBilling">
                             <i class="fa fa-exclamation-circle"/> Out of credits
                         </button>
+                        <span t-if="state.walletCredits === 0 and state.partnerManaged"
+                              class="ac-credits ac-credits-empty"
+                              title="Out of credits - your Aski partner tops them up">
+                            <i class="fa fa-exclamation-circle"/> Out of credits
+                        </span>
                         <span class="ac-credits" t-else="">
                             <i class="fa fa-bolt"/> <t t-esc="state.walletCredits"/>
                         </span>
@@ -196,7 +202,8 @@
                                 <button class="ac-btn-link" t-on-click="() => this.retry(m.retryText)">
                                     Retry
                                 </button>
-                                <button class="ac-btn-link" t-on-click="openBilling">
+                                <button t-if="!state.partnerManaged" class="ac-btn-link"
+                                        t-on-click="openBilling">
                                     Top up credits
                                 </button>
                             </div>

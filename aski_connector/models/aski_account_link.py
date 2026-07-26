@@ -15,7 +15,12 @@ import requests
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
-from .aski_common import aski_api_base
+from .aski_common import (
+    aski_api_base,
+    aski_cobrand_html,
+    aski_cobrand_html_from_code,
+    aski_partner_code,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -54,6 +59,47 @@ class AskiAccountLink(models.Model):
         string="Managed by a partner", readonly=True,
         help="This Aski account is managed by a partner: your plan and payments "
              "are handled by them, so the purchase links are hidden.")
+
+    # `partner_managed` solo se sabe con la cuenta YA conectada (lo reporta
+    # /billing/me al sincronizar). Antes de eso, la unica señal de que esta
+    # instancia pertenece a un cliente de un socio es el codigo que el socio dejo
+    # configurado al instalar. Sirve para no enseñarle precios de lista a quien
+    # le compra a un socio: ese precio lo pone el socio, no nosotros.
+    has_partner_code = fields.Boolean(compute="_compute_has_partner_code")
+
+    # Marca del socio tal como la ve el cliente en la app y la web. Llega en
+    # /billing/me junto con partner_managed, asi que no cuesta una peticion
+    # aparte: se guarda al sincronizar para poder pintar el mismo lockup
+    # "Aski x <socio>" dentro de Odoo.
+    partner_name = fields.Char(string="Partner", readonly=True)
+    partner_logo_url = fields.Char(readonly=True)
+    partner_logo_is_light = fields.Boolean(readonly=True)
+    partner_logo_is_tall = fields.Boolean(readonly=True)
+    partner_show_cobrand = fields.Boolean(readonly=True, default=True)
+
+    cobrand_html = fields.Html(
+        compute="_compute_cobrand_html", sanitize=False,
+        help="Co-brand lockup shown to the partner's clients.")
+
+    def _compute_cobrand_html(self):
+        for rec in self:
+            if rec.partner_managed and rec.partner_show_cobrand and rec.partner_name:
+                rec.cobrand_html = aski_cobrand_html(
+                    self.env,
+                    name=rec.partner_name,
+                    logo_url=rec.partner_logo_url,
+                    is_light=rec.partner_logo_is_light,
+                    is_tall=rec.partner_logo_is_tall,
+                )
+                continue
+            # Sin cuenta conectada (o del socio que apago la co-marca) se cae al
+            # codigo configurado en la instancia, que es la unica señal en frio.
+            rec.cobrand_html = aski_cobrand_html_from_code(self.env)
+
+    def _compute_has_partner_code(self):
+        configured = bool((aski_partner_code(self.env) or "").strip())
+        for rec in self:
+            rec.has_partner_code = configured
 
     # Vacio en el registro GLOBAL/compartido (la conexion del admin); en modo
     # "por usuario" cada usuario tiene su PROPIO registro con este campo puesto.
@@ -247,6 +293,11 @@ class AskiAccountLink(models.Model):
             "wallet_credits": wallet.get("balance", 0),
             "plan_name": (sub or {}).get("plan_id") or "",
             "partner_managed": bool(data.get("partner_managed")),
+            "partner_name": (sub or {}).get("partner_name") or "",
+            "partner_logo_url": (sub or {}).get("partner_logo_url") or "",
+            "partner_logo_is_light": bool((sub or {}).get("partner_logo_is_light")),
+            "partner_logo_is_tall": bool((sub or {}).get("partner_logo_is_tall")),
+            "partner_show_cobrand": bool((sub or {}).get("partner_show_cobrand", True)),
             "last_synced": fields.Datetime.now(),
         })
         return True, _("Connected. %s credits available.") % rec.wallet_credits
@@ -429,7 +480,7 @@ class AskiAccountLink(models.Model):
         if not self._user_can_use_chat(user):
             return {"allowed": False, "mode": mode, "can_connect": False,
                     "connected": False, "email": "", "wallet_credits": 0,
-                    "plan_name": ""}
+                    "plan_name": "", "partner_managed": False}
         rec = self._active_link(user)
         if rec and rec.connected and rec.pat:
             rec._sync_wallet()
@@ -441,6 +492,14 @@ class AskiAccountLink(models.Model):
             "email": (rec.email or "") if rec else "",
             "wallet_credits": rec.wallet_credits if rec else 0,
             "plan_name": (rec.plan_name or "") if rec else "",
+            # Para que el chat NO le ofrezca recargar a un cliente de socio: esa
+            # compra la rechaza el backend y lo dejaria contra un muro. Su saldo
+            # se lo repone su socio. Si aun no hay conexion, vale el codigo que
+            # el socio dejo configurado en la instancia.
+            "partner_managed": bool(
+                (rec.partner_managed if rec else False)
+                or (aski_partner_code(self.env) or "").strip()
+            ),
         }
 
     @api.model
