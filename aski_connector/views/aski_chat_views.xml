@@ -76,8 +76,12 @@
                     <div class="alert alert-info" role="alert"><b>Your data stays private.</b> Who can use the chat - and whose data they see - is set by the administrator in Aski &gt; Chat Settings: share one connection with a group, keep it to administrators only, or let each person connect their own Aski account and see only what their own Odoo user can.</div>
                     <div class="alert alert-warning" role="alert">
                         <field name="partner_managed" invisible="1"/>
-                        <p class="mb-0" attrs="{'invisible': ['|', ('partner_managed', '=', True), ('signup_partner_code', '!=', False)]}">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web. See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
-                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', False), ('signup_partner_code', '=', False)]}">Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.</p>
+                        <div attrs="{'invisible': ['|', ('partner_managed', '=', True), ('signup_partner_code', '!=', False)]}">
+                            <p class="mb-0">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web. See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
+                        </div>
+                        <div attrs="{'invisible': [('partner_managed', '=', False), ('signup_partner_code', '=', False)]}">
+                            <p class="mb-0">Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.</p>
+                        </div>
                     </div>
                 </sheet>
                 <footer>
