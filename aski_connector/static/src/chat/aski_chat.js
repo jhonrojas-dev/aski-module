@@ -173,6 +173,10 @@ class AskiChatWidget extends Component {
             connected: false,
             walletCredits: 0,
             planName: "",
+            // Cuenta gestionada por un socio: se le ocultan los accesos a
+            // comprar creditos (el backend rechaza esa compra; su saldo lo
+            // repone su socio).
+            partnerManaged: false,
             messages: [],
             input: "",
             sending: false,
@@ -206,6 +210,7 @@ class AskiChatWidget extends Component {
             this.state.connected = !!st.connected;
             this.state.walletCredits = st.wallet_credits || 0;
             this.state.planName = st.plan_name || "";
+            this.state.partnerManaged = !!st.partner_managed;
             if (this.state.connected) {
                 await this.refreshConversations();
                 // Restaura el hilo MAS RECIENTE al recargar la pantalla — sin esto

@@ -1088,12 +1088,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ""
 "The account is created with that email and this Odoo is connected right "
-"away. It's the <b>same</b> account you'll use in the Aski mobile app and on "
-"the web, with the same credits - nothing else to sign up for."
+"away. It's the <b>same</b> account you can also use in the Aski mobile app "
+"and on the web, with the same credits - nothing else to sign up for."
 msgstr ""
-"L'account viene creato con quell'e-mail e questo Odoo si connette subito. È "
-"lo <b>stesso</b> account che userai nell'app mobile Aski e sul web, con gli "
-"stessi crediti — non serve registrarsi altrove."
 
 #. module: aski_connector
 #. odoo-python
@@ -1180,3 +1177,9 @@ msgstr ""
 "Usa la stessa e-mail e password che usi nell'app Aski o sul web. Se il tuo "
 "<b>partner Aski</b> ti ha creato l'account, usa la password temporanea che "
 "ti ha dato — potrai cambiarla poi da Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Aski's technology, delivered by your partner."
+msgstr "La tecnologia di Aski, fornita dal tuo partner."
