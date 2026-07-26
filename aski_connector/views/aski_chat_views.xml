@@ -144,7 +144,7 @@
                         See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_billing" target="_blank">app.aski.dev/billing</a>.
                     </div>
                     <div class="text-muted" style="margin-top:8px;" invisible="not partner_managed">
-                        Your Aski plan and credits are managed by your partner - contact them for plan changes or top-ups.
+                        Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.
                     </div>
                 </sheet>
                 <footer>
