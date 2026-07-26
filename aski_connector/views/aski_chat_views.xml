@@ -8,6 +8,11 @@
         <field name="arch" type="xml">
             <form string="Connect Aski chat">
                 <sheet>
+                    <!-- Co-marca "Aski x <socio>": arriba del todo, para que lo
+                         primero que vea el cliente de un socio sea quien se lo
+                         entrega. Vacio (y por tanto invisible) si no hay socio. -->
+                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
+                           attrs="{'invisible': [('cobrand_html', '=', False)]}"/>
                     <div class="oe_title">
                         <h1>Connect the Aski chat</h1>
                     </div>
@@ -26,7 +31,15 @@
                         <field name="signup_password_confirm" password="True"
                                placeholder="Type it again"
                                attrs="{'required': [('mode', '=', 'signup')]}"/>
+                        <!-- Si el socio ya lo dejo configurado al instalar, el
+                             campo se OCULTA: el cliente no puede editarlo, no le
+                             sirve verlo, y la co-marca de arriba ya le dice quien
+                             le da el servicio. Si NO hay ninguno configurado si se
+                             muestra, editable, por si el cliente tiene uno que su
+                             socio le dio de palabra. -->
+                        <field name="has_configured_code" invisible="1"/>
                         <field name="signup_partner_code"
+                               attrs="{'invisible': [('has_configured_code', '=', True)]}"
                                placeholder="Only if a partner gave you one"/>
                     </group>
                     <div class="alert alert-info" role="alert" attrs="{'invisible': [('mode', '!=', 'signup')]}">
@@ -64,8 +77,8 @@
                     <div class="alert alert-info" role="alert"><b>Your data stays private.</b> Who can use the chat - and whose data they see - is set by the administrator in Aski &gt; Chat Settings: share one connection with a group, keep it to administrators only, or let each person connect their own Aski account and see only what their own Odoo user can.</div>
                     <div class="alert alert-warning" role="alert">
                         <field name="partner_managed" invisible="1"/>
-                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', True)]}">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web. See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
-                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', False)]}">Your Aski plan and credits are managed by your partner - contact them for plan changes or top-ups.</p>
+                        <p class="mb-0" attrs="{'invisible': ['|', ('partner_managed', '=', True), ('signup_partner_code', '!=', False)]}">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web. See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
+                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', False), ('signup_partner_code', '=', False)]}">Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.</p>
                     </div>
                 </sheet>
                 <footer>
@@ -96,6 +109,11 @@
         <field name="arch" type="xml">
             <form string="Aski chat settings">
                 <sheet>
+                    <!-- Co-marca "Aski x <socio>": arriba del todo, para que lo
+                         primero que vea el cliente de un socio sea quien se lo
+                         entrega. Vacio (y por tanto invisible) si no hay socio. -->
+                    <field name="cobrand_html" widget="html" readonly="1" nolabel="1"
+                           attrs="{'invisible': [('cobrand_html', '=', False)]}"/>
                     <div class="oe_title">
                         <h1>Aski chat connection</h1>
                     </div>
@@ -112,7 +130,8 @@
                         <field name="last_synced" readonly="1"/>
                     </group>
                     <field name="partner_managed" invisible="1"/>
-                    <div class="text-muted" style="margin-top:8px;" attrs="{'invisible': [('partner_managed', '=', True)]}">
+                    <field name="has_partner_code" invisible="1"/>
+                    <div class="text-muted" style="margin-top:8px;" attrs="{'invisible': ['|', ('partner_managed', '=', True), ('has_partner_code', '=', True)]}">
                         See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_billing" target="_blank">app.aski.dev/billing</a>.
                     </div>
                     <div class="text-muted" style="margin-top:8px;" attrs="{'invisible': [('partner_managed', '=', False)]}">
