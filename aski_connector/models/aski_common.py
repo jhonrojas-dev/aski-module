@@ -5,7 +5,7 @@ import io
 import json
 import logging
 
-from odoo import api, models
+from odoo import _, api, models
 from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
@@ -41,6 +41,114 @@ def aski_api_base(env):
         except Exception:  # noqa: BLE001
             base = ""
     return (base or ASKI_API_BASE).rstrip("/")
+
+
+# Lockup "Aski x <socio>". Se genera aqui, en un solo sitio, porque lo pintan
+# tanto el asistente de conexion como la pantalla de ajustes. Los estilos van EN
+# LINEA a proposito: un campo Html de un formulario no arrastra el CSS del
+# modulo de forma fiable, y este bloque tiene que verse igual siempre.
+#
+# Las reglas de pintado (placa detras de un logo oscuro, mas alto si el logo es
+# vertical) las decide el BACKEND y viajan en logo_is_light / logo_is_tall, para
+# que Odoo, la app y la web muestren exactamente lo mismo.
+_COBRAND_NAVY = "#152642"
+_COBRAND_GOLD = "#E8C058"
+
+
+def aski_cobrand_html(env, name, logo_url="", is_light=False, is_tall=False):
+    """Markup del lockup, o cadena vacia si no hay socio que presentar."""
+    from markupsafe import Markup
+    from odoo.tools import html_escape
+
+    name = (name or "").strip()
+    if not name:
+        return ""
+    logo = ""
+    if logo_url:
+        src = logo_url if logo_url.startswith("http") else aski_api_base(env) + logo_url
+        # Logo claro: sin placa (el navy ya le da contraste). Oscuro: con placa,
+        # o desaparece contra el fondo.
+        plate = ("" if is_light
+                 else "background:#fff;border-radius:5px;padding:3px 6px;")
+        logo = (
+            '<img src="%s" alt="" style="max-height:%dpx;max-width:190px;'
+            'object-fit:contain;flex-shrink:0;display:block;%s"/>'
+            % (html_escape(src), 68 if is_tall else 46, plate)
+        )
+    return Markup(
+        '<div style="background:%s;border-radius:10px;padding:9px 12px;'
+        'display:flex;align-items:center;gap:12px;">'
+        '<div style="flex:1;min-width:0;">'
+        '<div style="display:flex;align-items:center;gap:7px;">'
+        '<span style="color:%s;font-weight:800;font-size:15px;">Aski</span>'
+        '<span style="color:rgba(255,255,255,.5);font-weight:600;">&#215;</span>'
+        '<span style="color:#fff;font-weight:800;font-size:15px;">%s</span>'
+        '</div>'
+        '<div style="color:rgba(255,255,255,.78);font-size:11.5px;margin-top:3px;">'
+        '%s</div></div>%s</div>'
+        % (_COBRAND_NAVY, _COBRAND_GOLD, html_escape(name),
+           html_escape(_("Aski's technology, delivered by your partner.")), logo)
+    )
+
+
+def aski_cobrand_html_from_code(env):
+    """Lockup resuelto por el codigo configurado en la instancia (caso FRIO:
+    aun no hay cuenta conectada). Vacio si no hay codigo o la API no responde."""
+    data = aski_partner_branding(env)
+    if not data:
+        return ""
+    return aski_cobrand_html(
+        env, name=data["name"], logo_url=data["logo_url"],
+        is_light=data["logo_is_light"], is_tall=data["logo_is_tall"])
+
+
+# Marca del socio resuelta por su codigo, cacheada en memoria del worker.
+# {codigo: (momento, datos_o_None)}. Se cachea TAMBIEN el fallo para que un
+# codigo mal escrito no dispare una peticion cada vez que alguien abre el
+# dialogo. La marca de un socio cambia muy de vez en cuando -> 15 min sobra.
+_BRANDING_CACHE = {}
+_BRANDING_TTL = 900
+
+
+def aski_partner_branding(env, code=None):
+    """Nombre y logo PUBLICOS del socio dueño del codigo, o None.
+
+    Sirve para presentar la co-marca ANTES de que exista cuenta conectada (con
+    la cuenta ya conectada esto no hace falta: /billing/me trae los mismos
+    datos). Nunca revienta: si la API no responde, el dialogo simplemente sale
+    sin co-marca.
+    """
+    import time
+
+    import requests
+
+    code = (code if code is not None else (aski_partner_code(env) or "")).strip().upper()
+    if not code:
+        return None
+    hit = _BRANDING_CACHE.get(code)
+    if hit and (time.time() - hit[0]) < _BRANDING_TTL:
+        return hit[1]
+    data = None
+    try:
+        resp = requests.get(
+            "%s/partner/by-code/%s" % (aski_api_base(env), code), timeout=6)
+        if resp.status_code == 200:
+            body = resp.json()
+            # Si el socio apago la co-marca presenta el servicio como propio:
+            # no se pinta el lockup "Aski x <socio>".
+            if body.get("show_cobrand", True):
+                data = {
+                    "name": body.get("name") or "",
+                    "logo_url": body.get("logo_url") or "",
+                    "logo_is_light": bool(body.get("logo_is_light")),
+                    "logo_is_tall": bool(body.get("logo_is_tall")),
+                }
+    except Exception as e:  # noqa: BLE001
+        _logger.debug("Aski: no se pudo resolver la marca del socio: %s", e)
+        # El fallo de red NO se cachea: al reintentar puede haber vuelto.
+        return None
+    _BRANDING_CACHE[code] = (time.time(), data)
+    return data
 
 
 def aski_partner_code(env):
