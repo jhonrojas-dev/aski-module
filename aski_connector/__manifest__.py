@@ -69,6 +69,14 @@ Get the app and learn more at https://aski.dev
             "aski_connector/static/src/chat/**/*",
             "aski_connector/static/src/systray/**/*",
         ],
+        # Odoo 15 carga las plantillas OWL desde un bundle APARTE. Sin esto los
+        # .xml de los componentes nunca entran al registro y el widget muere con
+        # "Template aski_connector.Systray does not exist" (visto en una
+        # instancia real). En 16+ basta con assets_backend, por eso no pasaba.
+        "web.assets_qweb": [
+            "aski_connector/static/src/chat/**/*.xml",
+            "aski_connector/static/src/systray/**/*.xml",
+        ],
     },
     "images": [
         "static/description/banner.png",
