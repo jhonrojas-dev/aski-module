@@ -18,7 +18,7 @@ from odoo.exceptions import AccessError, UserError
 from .aski_common import (
     aski_api_base,
     aski_cobrand_html,
-    aski_cobrand_html_current,
+    aski_cobrand_html_from_code,
     aski_partner_code,
 )
 
@@ -84,7 +84,12 @@ class AskiAccountLink(models.Model):
     # sincronizar, que es cuando pueden cambiar los datos del socio.
     cobrand_html = fields.Html(
         readonly=True, sanitize=False,
-        default=lambda self: aski_cobrand_html_current(self.env),
+        # OJO: aqui va la variante por CODIGO, nunca la que mira la conexion
+        # activa. Resolver la conexion CREA el registro global si no existe, y
+        # crearlo vuelve a disparar este default -> recursion infinita al
+        # instalar en una base limpia (visto en Odoo 17). El lockup de la cuenta
+        # conectada no hace falta aqui: lo escribe _sync_wallet.
+        default=lambda self: aski_cobrand_html_from_code(self.env),
         help="Co-brand lockup shown to the partner's clients.")
 
     def _compute_has_partner_code(self):
