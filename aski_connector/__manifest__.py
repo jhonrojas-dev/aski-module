@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "Aski - AI assistant: ask your Odoo in natural language (chat & voice)",
+    "name": "AI Assistant for Odoo | Free AI Agent & Chatbot | Ask Your Data in Natural Language | Voice Queries, Sales & Receivables",
     "live_test_url": "https://demo.aski.dev/demo",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
