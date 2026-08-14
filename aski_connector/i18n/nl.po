@@ -195,6 +195,7 @@ msgid "Aski chat connection"
 msgstr "Aski-chatverbinding"
 
 #. module: aski_connector
+#. odoo-python
 #: model:ir.actions.act_window,name:aski_connector.action_aski_account_link
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Aski chat settings"
@@ -893,6 +894,7 @@ msgstr "Aski was al losgekoppeld."
 
 #. module: aski_connector
 #. odoo-python
+#. odoo-javascript
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "Aski account disconnected."
 msgstr "Aski-account losgekoppeld."
