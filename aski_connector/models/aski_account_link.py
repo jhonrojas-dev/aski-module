@@ -251,6 +251,19 @@ class AskiAccountLink(models.Model):
         return {"Authorization": "Bearer %s" % self.pat, "Content-Type": "application/json"}
 
     @staticmethod
+    def _error_code(resp):
+        """`code` del detail estructurado ({code, message, hint}), o "".
+
+        Es lo que permite reaccionar a un error CONCRETO sin leer su texto: el
+        backend responde en un idioma y esta instancia puede estar en otro.
+        """
+        try:
+            detail = (resp.json() or {}).get("detail")
+            return (detail or {}).get("code") or "" if isinstance(detail, dict) else ""
+        except Exception:  # noqa: BLE001
+            return ""
+
+    @staticmethod
     def _error_message(resp):
         """Aski devuelve `detail` como string simple en la mayoria de errores,
         pero algunos guards (ej. limite de conexiones por plan) usan un detail
@@ -385,11 +398,43 @@ class AskiAccountLink(models.Model):
             "type": "success",
             "next": {"type": "ir.actions.client", "tag": "reload"}}}
 
+    # Errores del backend que significan "esa DIRECCION no sirve, prueba otra".
+    # No son fallos del token ni de la clave: reintentar con la siguiente
+    # candidata es exactamente lo correcto.
+    _URL_ERROR_CODES = ("erp_url_not_public", "erp_unreachable")
+
+    def _register_credential_any(self, nickname, urls, db, login, api_key):
+        """Registra esta base probando las direcciones en orden hasta que una
+        funcione. Devuelve (ok, message, url_usada).
+
+        Existe porque la direccion NO la teclea el cliente: la deduce el modulo
+        (ver `aski_url_candidates`). Si la primera no es alcanzable desde Aski hay
+        que probar la siguiente en vez de dejar la conexion rota, que es lo que
+        pasaba cuando `web.base.url` conservaba el default de Odoo.
+        """
+        self.ensure_one()
+        ultimo = ""
+        for url in (urls or []):
+            ok, message, code = self._register_credential(
+                nickname, url, db, login, api_key)
+            if ok:
+                return True, "", url
+            ultimo = message
+            if code not in self._URL_ERROR_CODES:
+                # Token invalido, limite de plan, credenciales rechazadas: cambiar
+                # de direccion no lo arregla y reintentar solo confunde el mensaje.
+                return False, message, url
+        return False, ultimo, (urls or [""])[-1]
+
     def _register_credential(self, nickname, url, db, login, api_key):
         """Registra esta base Odoo como credential de la cuenta Aski conectada.
         Si YA habia un credential_id de una conexion anterior, actualiza ESE
         registro (PUT) en vez de crear uno nuevo (POST) — antes cada
-        Reconectar creaba una credential "Odoo (in-app chat)" duplicada."""
+        Reconectar creaba una credential "Odoo (in-app chat)" duplicada.
+
+        Devuelve (ok, message, code); `code` es el del detail estructurado y lo
+        usa `_register_credential_any` para saber si vale la pena probar otra
+        direccion."""
         self.ensure_one()
         rec = self.sudo()
         body = {"nickname": nickname, "url": url, "db": db, "login": login,
@@ -399,9 +444,9 @@ class AskiAccountLink(models.Model):
                 resp = requests.put(aski_api_base(self.env) + "/users/odoo/%s" % rec.credential_id,
                                     json=body, headers=rec._headers(), timeout=_TIMEOUT)
             except Exception as e:  # noqa: BLE001
-                return False, _("Could not reach Aski: %s") % e
+                return False, _("Could not reach Aski: %s") % e, ""
             if resp.status_code == 200:
-                return True, ""
+                return True, "", ""
             if resp.status_code in (403, 404):
                 # 404 = esa credential ya no existe (el user la borro desde la
                 # app). 403 = existe pero NO es de la cuenta del token que se
@@ -412,17 +457,17 @@ class AskiAccountLink(models.Model):
                 # viejo y crear una conexion nueva en la cuenta actual.
                 rec.write({"credential_id": False})
             else:
-                return False, rec._error_message(resp)
+                return False, rec._error_message(resp), rec._error_code(resp)
         try:
             resp = requests.post(aski_api_base(self.env) + "/users/odoo", json=body,
                                  headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            return False, _("Could not reach Aski: %s") % e
+            return False, _("Could not reach Aski: %s") % e, ""
         if resp.status_code not in (200, 201):
-            return False, rec._error_message(resp)
+            return False, rec._error_message(resp), rec._error_code(resp)
         data = resp.json()
         rec.write({"credential_id": data.get("id")})
-        return True, ""
+        return True, "", ""
 
     @api.model
     def send_message(self, text, conversation_id=None):

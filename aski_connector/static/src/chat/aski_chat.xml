@@ -197,7 +197,19 @@
                             </div>
                         </div>
                         <div t-else="" class="ac-bubble ac-bubble-error">
-                            <div><i class="fa fa-exclamation-triangle"/> <span t-esc="m.text"/></div>
+                            <!-- Mismo renderizado que la burbuja normal: los
+                                 mensajes de error del backend TAMBIEN vienen en
+                                 markdown, y con t-esc el usuario leia los
+                                 asteriscos crudos ("**Tu ERP no respondio.**") y
+                                 perdia los saltos de parrafo. -->
+                            <!-- El icono va en su PROPIO nodo y el markdown en un
+                                 div hermano: mdToHtml emite bloques (<p>, <ul>)
+                                 y meterlos en un <span> es HTML invalido, el
+                                 navegador los reubica y rompe la burbuja. -->
+                            <div class="d-flex align-items-start">
+                                <i class="fa fa-exclamation-triangle me-2 mt-1"/>
+                                <div class="md flex-grow-1" t-out="renderMd(m.text)"/>
+                            </div>
                             <div class="ac-error-actions">
                                 <button class="ac-btn-link" t-on-click="retry(m.retryText)">
                                     Retry
