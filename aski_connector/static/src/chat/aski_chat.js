@@ -389,7 +389,14 @@ export class AskiChatWidget extends Component {
             }
         } catch (e) {
             const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
-            this.state.messages.push({ id: `e${Date.now()}`, role: "error", text: msg, retryText: text });
+            // "Recargar creditos" solo si el fallo SON los creditos: ante un ERP
+            // caido ese boton manda a pagar por algo que no lo arregla. Se mira
+            // la clase de la excepcion (Odoo la pone en data.name), no el texto,
+            // que viene traducido.
+            const sinCreditos = !!(e && e.data && typeof e.data.name === "string"
+                && e.data.name.indexOf("AskiCreditsError") !== -1);
+            this.state.messages.push({ id: `e${Date.now()}`, role: "error", text: msg,
+                                       retryText: text, sinCreditos });
         } finally {
             this.state.sending = false;
             this._scrollToBottom();
