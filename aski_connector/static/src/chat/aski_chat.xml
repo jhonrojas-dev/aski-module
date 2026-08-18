@@ -208,7 +208,7 @@
                                  navegador los reubica y rompe la burbuja. -->
                             <div class="d-flex align-items-start">
                                 <i class="fa fa-exclamation-triangle me-2 mt-1"/>
-                                <div class="md flex-grow-1" t-out="renderMd(m.text)"/>
+                                <div class="md flex-grow-1" t-raw="renderMd(m.text)"/>
                             </div>
                             <div class="ac-error-actions">
                                 <button class="ac-btn-link" t-on-click="retry(m.retryText)">
