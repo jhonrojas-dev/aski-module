@@ -367,6 +367,11 @@
         border: 1px solid color-mix(in srgb, var(--ac-error) 40%, transparent); color: #8f1d18 !important;
         border-bottom-left-radius: 4px;
         i.fa-exclamation-triangle { color: var(--ac-error) !important; }
+        // Icono y texto en columnas propias. Con las utilidades de
+        // Bootstrap no vale: 14 trae la 4 (mr-*) y de 15 en adelante la
+        // 5 (me-*), asi que la misma clase no sirve en las seis series.
+        .ac-error-body { display: flex; align-items: flex-start; gap: 8px; }
+        .ac-error-body > .md { flex: 1; min-width: 0; }
     }
     .ac-error-actions { margin-top: 8px; display: flex; gap: 16px; }
     .ac-btn-link {
