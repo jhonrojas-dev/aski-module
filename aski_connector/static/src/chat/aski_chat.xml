@@ -206,9 +206,9 @@
                                  div hermano: mdToHtml emite bloques (<p>, <ul>)
                                  y meterlos en un <span> es HTML invalido, el
                                  navegador los reubica y rompe la burbuja. -->
-                            <div class="d-flex align-items-start">
-                                <i class="fa fa-exclamation-triangle me-2 mt-1"/>
-                                <div class="md flex-grow-1" t-out="renderMd(m.text)"/>
+                            <div class="ac-error-body">
+                                <i class="fa fa-exclamation-triangle"/>
+                                <div class="md" t-out="renderMd(m.text)"/>
                             </div>
                             <div class="ac-error-actions">
                                 <button class="ac-btn-link" t-on-click="() => this.retry(m.retryText)">
