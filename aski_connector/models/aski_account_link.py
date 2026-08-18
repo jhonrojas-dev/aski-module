@@ -16,6 +16,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from .aski_common import (
+    AskiCreditsError,
     aski_api_base,
     aski_cobrand_html,
     aski_cobrand_html_from_code,
@@ -497,9 +498,9 @@ class AskiAccountLink(models.Model):
             # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
             # backend la rechaza igual) — el saldo lo repone su socio.
             if rec.partner_managed:
-                raise UserError(_(
+                raise AskiCreditsError(_(
                     "You're out of Aski credits. Contact your Aski partner to top up."))
-            raise UserError(_("You're out of Aski credits. Top up at %s/billing to keep chatting.")
+            raise AskiCreditsError(_("You're out of Aski credits. Top up at %s/billing to keep chatting.")
                             % "https://app.aski.dev")
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))

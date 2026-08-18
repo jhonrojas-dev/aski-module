@@ -6,6 +6,7 @@ import json
 import logging
 
 from odoo import _, api, models
+from odoo.exceptions import UserError
 from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
@@ -20,6 +21,18 @@ except Exception:  # pragma: no cover
 # la app Android) — no es una instancia de cliente, es la infraestructura
 # propia del producto (igual que api.anthropic.com en jjro_ai_engine).
 ASKI_API_BASE = "https://api.aski.dev"
+
+
+class AskiCreditsError(UserError):
+    """Se acabaron los creditos.
+
+    Clase propia y no un UserError normal porque el chat necesita distinguir
+    ESTE fallo: es el unico en el que ofrecer "recargar" ayuda. El resto
+    (ERP caido, token vencido, permisos) no se arregla pagando, y el boton
+    empujaba a gastar dinero en vano. Odoo serializa el nombre de la clase en
+    `data.name` de la respuesta RPC, asi que el widget lo reconoce sin tener que
+    leer el texto del mensaje —que ademas esta traducido a seis idiomas—.
+    """
 
 
 def aski_api_base(env):
