@@ -214,8 +214,8 @@
                                 <button class="ac-btn-link" t-on-click="retry(m.retryText)">
                                     Retry
                                 </button>
-                                <button t-if="!state.partnerManaged" class="ac-btn-link"
-                                        t-on-click="openBilling">
+                                <button t-if="m.sinCreditos and !state.partnerManaged"
+                                        class="ac-btn-link" t-on-click="openBilling">
                                     Top up credits
                                 </button>
                             </div>
