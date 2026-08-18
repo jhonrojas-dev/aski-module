@@ -5,6 +5,8 @@ import logging
 
 from odoo import _, fields, models
 
+from .aski_common import aski_url_candidates
+
 _logger = logging.getLogger(__name__)
 
 
@@ -33,9 +35,12 @@ class AskiConnectWizard(models.TransientModel):
         """Genera la API key + token + QR y abre el paso 2 con el codigo."""
         self.ensure_one()
         user = self.env.user
-        base_url = (
-            self.env["ir.config_parameter"].sudo().get_param("web.base.url") or ""
-        )
+        # MISMA resolucion que el asistente del chat: el QR viaja a la app movil,
+        # que se conecta por el API externo igual que el backend. Si aqui se
+        # empaquetara `web.base.url` a ciegas, un Odoo con el default de fabrica
+        # generaria un codigo que da de alta una conexion inalcanzable.
+        candidatas = aski_url_candidates(self.env)
+        base_url = candidatas[0] if candidatas else ""
         dbname = self.env.cr.dbname
         # Rota: revoca el codigo "Aski Mobile" anterior de este usuario antes de
         # crear el nuevo (evita acumular claves; el QR anterior queda invalidado).

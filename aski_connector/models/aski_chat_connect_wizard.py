@@ -7,7 +7,9 @@ from odoo.exceptions import AccessError, UserError
 from .aski_common import (
     aski_api_base,
     aski_cobrand_html_current,
+    aski_is_private_url,
     aski_partner_code,
+    aski_url_candidates,
 )
 
 _TIMEOUT = 30
@@ -39,6 +41,21 @@ class AskiChatConnectWizard(models.TransientModel):
                    ("login", "I already have an account"),
                    ("token", "Paste an access token")],
         string="How do you want to connect?", default="signup", required=True)
+
+    # Se deja normalmente VACIO: la direccion se deduce sola (ver
+    # aski_url_candidates). Existe para la instalacion en la que ninguna
+    # candidata sirve — Odoo sin modo proxy detras de un reverse proxy, o
+    # `web.base.url` con el default tras restaurar una base. Sin este campo, ese
+    # cliente se quedaba sin forma de conectar desde Odoo.
+    #
+    # Siempre visible en vez de aparecer solo al fallar: el modulo evita `attrs`
+    # para que el MISMO XML sirva de Odoo 14 a 19, y un campo condicional obliga
+    # a escribir la vista dos veces.
+    public_url = fields.Char(
+        string="Address of this Odoo (optional)",
+        help="Leave it empty and Aski will detect it. Fill it in only if Aski "
+             "can't reach this Odoo: type the same address you use to open it "
+             "from outside your office, for example https://odoo.mycompany.com")
 
     # --- Alta inline (mode = signup) ---------------------------------------
     signup_email = fields.Char(
@@ -108,6 +125,23 @@ class AskiChatConnectWizard(models.TransientModel):
     def _default_partner_managed(self):
         link = self.env["aski.account.link"]._active_link(self.env.user)
         return bool(link) and link.partner_managed
+
+    def _aski_url_help(self, url_probada, message):
+        """Mensaje de fallo que dice QUE hacer, no solo que fallo.
+
+        Si lo que no sirvio es la direccion, el usuario no tiene por que saber
+        que existe `web.base.url`: se le pide la direccion con la que el mismo
+        entra a Odoo, en el campo que tiene delante.
+        """
+        if not aski_is_private_url(url_probada) and "://" in (url_probada or ""):
+            return message
+        return _(
+            "Aski queries your Odoo from the internet and could not reach it at "
+            "%(url)s, which is an address of your internal network.\n\n"
+            "Type the address you use to open Odoo from outside your office "
+            "(for example https://odoo.mycompany.com) in the field \"Address of "
+            "this Odoo\" below, then connect again.\n\n%(detail)s"
+        ) % {"url": url_probada or "-", "detail": message or ""}
 
     def _target_link(self):
         """La conexion a la que se pega el token, segun el modo de acceso que
@@ -261,7 +295,9 @@ class AskiChatConnectWizard(models.TransientModel):
         if not ok:
             raise UserError(message)
 
-        base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url") or ""
+        # La direccion NO la teclea el cliente: se deduce (peticion en curso ->
+        # web.base.url -> lo que el haya escrito abajo). Ver aski_url_candidates.
+        urls = aski_url_candidates(self.env, self.public_url)
         dbname = self.env.cr.dbname
         # El nombre de la API KEY de Odoo se mantiene fijo ("Aski Chat") a
         # proposito: la rotacion (revocar la anterior antes de crear la nueva)
@@ -269,12 +305,12 @@ class AskiChatConnectWizard(models.TransientModel):
         # CONEXION del lado de Aski, que es el que se ve en el celular.
         self._aski_revoke_previous("Aski Chat")
         api_key = self._aski_generate_api_key("Aski Chat")
-        ok, message = link._register_credential(
-            nickname=nickname, url=base_url, db=dbname,
+        ok, message, url_usada = link._register_credential_any(
+            nickname=nickname, urls=urls, db=dbname,
             login=self.env.user.login, api_key=api_key,
         )
         if not ok:
-            raise UserError(message)
+            raise UserError(self._aski_url_help(url_usada, message))
 
         # Carga de pagina COMPLETA que ademas ATERRIZA EN EL CHAT.
         #

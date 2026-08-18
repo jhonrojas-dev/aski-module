@@ -70,6 +70,12 @@
 
                     <group>
                         <field name="name" placeholder="e.g. Production - Head office"/>
+                        <!-- Normalmente se deja VACIO: la direccion se detecta
+                             sola. Solo hace falta escribirla cuando ninguna
+                             candidata es alcanzable desde internet (ver
+                             aski_url_candidates en aski_common.py). -->
+                        <field name="public_url"
+                               placeholder="Detected automatically - leave empty"/>
                     </group>
                     <p>The connection name is how this Odoo shows up in your Aski connections list, on your phone and on the web - so you can tell it apart from your other instances.</p>
 

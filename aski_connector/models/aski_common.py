@@ -43,6 +43,102 @@ def aski_api_base(env):
     return (base or ASKI_API_BASE).rstrip("/")
 
 
+# ---------------------------------------------------------------------------
+# Que direccion de ESTE Odoo se le da a Aski
+# ---------------------------------------------------------------------------
+# Aski consulta el Odoo del cliente DESDE INTERNET. Hasta ahora la direccion
+# salia siempre de `web.base.url`, que el cliente nunca teclea y que en muchas
+# instalaciones conserva el default de Odoo (`http://localhost:8069`) o el valor
+# de la instancia de la que se restauro la base — muy comun en bases duplicadas
+# o neutralizadas para pruebas. Con esa direccion el backend se conecta contra si
+# mismo: la conexion se creaba "bien" y TODAS las preguntas fallaban despues
+# (caso 2026-08-18).
+#
+# La senal mas fiable es la peticion en curso: la direccion con la que el usuario
+# esta entrando a Odoo AHORA MISMO le funciona por definicion. Se prueba primero
+# esa, luego `web.base.url`, y solo si ninguna sirve se le pide al usuario. Asi el
+# caso normal sigue siendo cero configuracion.
+
+_HOST_PRIVADO_SUFIJOS = (
+    ".local", ".localhost", ".internal", ".intranet", ".lan",
+    ".home.arpa", ".test", ".invalid", ".example",
+)
+_HOST_PRIVADO_EXACTO = ("localhost", "ip6-localhost", "ip6-loopback")
+
+
+def aski_url_host(url):
+    """Host (sin esquema, puerto ni credenciales) de una URL, en minusculas."""
+    try:
+        from urllib.parse import urlsplit
+        return (urlsplit((url or "").strip()).hostname or "").strip().rstrip(".").lower()
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def aski_is_private_url(url):
+    """True si esa direccion solo existe dentro de la red del cliente y por tanto
+    Aski no puede alcanzarla. Mismo criterio que aplica el backend al guardar la
+    conexion; se repite aqui para avisar ANTES de mandar nada."""
+    raw = (url or "").strip()
+    if not raw.lower().startswith(("http://", "https://")):
+        return True
+    host = aski_url_host(raw)
+    if not host:
+        return True
+    if host in _HOST_PRIVADO_EXACTO or host.endswith(_HOST_PRIVADO_SUFIJOS):
+        return True
+    try:
+        import ipaddress
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        # No es una IP: una etiqueta unica (`odoo`, `servidor`) no existe en el
+        # DNS publico, solo en el interno de esa red.
+        return "." not in host
+    except Exception:  # noqa: BLE001
+        return False
+    return bool(ip.is_loopback or ip.is_private or ip.is_link_local
+                or ip.is_reserved or ip.is_unspecified or ip.is_multicast)
+
+
+def aski_request_base_url():
+    """Direccion con la que el navegador esta llegando a este Odoo, o "".
+
+    `request` no existe fuera de una peticion web (cron, `odoo shell`, tests), y
+    detras de un proxy inverso solo refleja el host externo si Odoo corre en
+    modo proxy — por eso es una CANDIDATA, nunca la verdad absoluta.
+    """
+    try:
+        from odoo.http import request
+        return (request.httprequest.host_url or "").strip()
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def aski_url_candidates(env, override=""):
+    """Direcciones a probar, de mas a menos fiable y sin repetir.
+
+    Lo que el usuario escribe manda: si lo tecleo, es porque las automaticas no
+    servian. La ultima es `web.base.url` aunque parezca privada, para que el caso
+    raro en que el backend SI puede alcanzarla (Aski desplegado dentro de la
+    misma red) siga funcionando y sea el backend quien decida.
+    """
+    base_url = ""
+    try:
+        base_url = (env["ir.config_parameter"].sudo().get_param("web.base.url") or "").strip()
+    except Exception:  # noqa: BLE001
+        base_url = ""
+    crudas = [(override or "").strip(), aski_request_base_url(), base_url]
+    fuera = [u.rstrip("/") for u in crudas if u and not aski_is_private_url(u)]
+    if base_url:
+        fuera.append(base_url.rstrip("/"))
+    vistas, orden = set(), []
+    for u in fuera:
+        if u.lower() not in vistas:
+            vistas.add(u.lower())
+            orden.append(u)
+    return orden
+
+
 # Lockup "Aski x <socio>". Se genera aqui, en un solo sitio, porque lo pintan
 # tanto el asistente de conexion como la pantalla de ajustes. Los estilos van EN
 # LINEA a proposito: un campo Html de un formulario no arrastra el CSS del
