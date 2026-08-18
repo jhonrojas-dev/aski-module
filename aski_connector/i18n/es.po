@@ -1195,3 +1195,39 @@ msgid ""
 msgstr ""
 "Tu plan y tus créditos de Aski los gestiona tu socio de Aski: contáctalo "
 "para cambiar de plan o recargar."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__public_url
+msgid "Address of this Odoo (optional)"
+msgstr "Dirección de este Odoo (opcional)"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__public_url
+msgid ""
+"Leave it empty and Aski will detect it. Fill it in only if Aski can't reach "
+"this Odoo: type the same address you use to open it from outside your "
+"office, for example https://odoo.mycompany.com"
+msgstr ""
+"Déjalo vacío y Aski la detectará. Complétalo solo si Aski no puede alcanzar "
+"este Odoo: escribe la misma dirección que usas para abrirlo desde fuera de "
+"tu oficina, por ejemplo https://odoo.miempresa.com"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Detected automatically - leave empty"
+msgstr "Se detecta automáticamente: déjalo vacío"
+
+#. module: aski_connector
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
+"\n"
+"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
+"\n"
+"%(detail)s"
+msgstr ""
+"Aski consulta tu Odoo desde internet y no pudo alcanzarlo en %(url)s, que es una dirección de tu red interna.\n"
+"\n"
+"Escribe abajo, en «Dirección de este Odoo», la misma dirección que usas para abrir Odoo desde fuera de tu oficina (por ejemplo https://odoo.miempresa.com) y vuelve a conectar.\n"
+"\n"
+"%(detail)s"
