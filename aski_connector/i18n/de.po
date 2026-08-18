@@ -1105,6 +1105,10 @@ msgid ""
 "away. It's the <b>same</b> account you can also use in the Aski mobile app "
 "and on the web, with the same credits - nothing else to sign up for."
 msgstr ""
+"Das Konto wird mit dieser E-Mail-Adresse erstellt und dieses Odoo ist sofort"
+" verbunden. Es ist <b>dasselbe</b> Konto, das Sie auch in der Aski-App und "
+"im Web nutzen können, mit denselben Credits – Sie müssen sich nirgends sonst"
+" registrieren."
 
 #. module: aski_connector
 #. odoo-python
@@ -1208,3 +1212,39 @@ msgid ""
 msgstr ""
 "Ihr Aski-Tarif und Ihre Credits werden von Ihrem Aski-Partner verwaltet: "
 "Wenden Sie sich an ihn für Tarifwechsel oder Aufladungen."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__public_url
+msgid "Address of this Odoo (optional)"
+msgstr "Adresse dieses Odoo (optional)"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__public_url
+msgid ""
+"Leave it empty and Aski will detect it. Fill it in only if Aski can't reach "
+"this Odoo: type the same address you use to open it from outside your "
+"office, for example https://odoo.mycompany.com"
+msgstr ""
+"Leer lassen, dann erkennt Aski sie selbst. Nur ausfüllen, wenn Aski dieses "
+"Odoo nicht erreichen kann: geben Sie dieselbe Adresse ein, mit der Sie es "
+"von außerhalb Ihres Büros öffnen, zum Beispiel https://odoo.meinefirma.com"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Detected automatically - leave empty"
+msgstr "Wird automatisch erkannt – leer lassen"
+
+#. module: aski_connector
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
+"\n"
+"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
+"\n"
+"%(detail)s"
+msgstr ""
+"Aski fragt Ihr Odoo über das Internet ab und konnte es unter %(url)s nicht erreichen – das ist eine Adresse Ihres internen Netzwerks.\n"
+"\n"
+"Tragen Sie unten unter „Adresse dieses Odoo“ die Adresse ein, mit der Sie Odoo von außerhalb Ihres Büros öffnen (zum Beispiel https://odoo.meinefirma.com), und verbinden Sie sich erneut.\n"
+"\n"
+"%(detail)s"
