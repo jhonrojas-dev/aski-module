@@ -111,9 +111,15 @@
             color: var(--ac-on-variant) !important; flex: none; opacity: .75;
         }
         &:hover { background: var(--ac-surface-variant); }
+        // La conversacion ABIERTA tiene que distinguirse aunque el raton este
+        // encima de otra: con solo un fondo suave, el hover la tapaba y no se
+        // sabia cual se estaba leyendo. Acento navy a la izquierda + texto en
+        // navy: se ve de un vistazo y no depende del color de fondo.
         &.active {
             background: color-mix(in srgb, var(--ac-navy) 10%, transparent);
             color: var(--ac-navy) !important;
+            font-weight: 700;
+            box-shadow: inset 3px 0 0 var(--ac-navy);
             &:before { color: var(--ac-navy) !important; opacity: 1; }
         }
         // El recorte vive en el TITULO, no en la fila: si estuviera en la fila,
@@ -124,10 +130,32 @@
         }
         // Los dos botones aparecen al pasar por encima. En pantalla tactil no
         // hay hover: ahi se dejan siempre visibles, o serian inalcanzables.
+        //
+        // OJO: `.ac-icon-btn` vive anidado bajo `.ac-header`, asi que aqui NO
+        // heredaba nada y los botones salian como controles NATIVOS del
+        // navegador — dos cuadrados grises con borde encima del titulo. Llevan
+        // su propio estilo, en la linea del resto del panel.
         .ac-drawer-item-actions {
-            flex: none; display: flex; align-items: center; gap: 2px;
+            flex: none; display: flex; align-items: center; gap: 1px;
             opacity: 0; transition: opacity .12s ease;
-            .ac-icon-btn { width: 26px; height: 26px; font-size: 12px; }
+            button {
+                border: 0; background: transparent; cursor: pointer;
+                width: 26px; height: 26px; border-radius: 8px; padding: 0;
+                display: flex; align-items: center; justify-content: center;
+                color: var(--ac-on-variant) !important; font-size: 12px;
+                transition: background .12s ease, color .12s ease;
+                i { color: inherit !important; font-size: 12px; }
+                &:hover {
+                    background: color-mix(in srgb, var(--ac-navy) 12%, transparent);
+                    color: var(--ac-navy) !important;
+                }
+            }
+            // Quitar es lo unico irreversible del cajon: se tinta en rojo al
+            // apuntarlo, como el resto de acciones destructivas del panel.
+            button:last-child:hover {
+                background: color-mix(in srgb, var(--ac-error) 14%, transparent);
+                color: var(--ac-error) !important;
+            }
         }
         &:hover .ac-drawer-item-actions,
         &.active .ac-drawer-item-actions { opacity: 1; }
@@ -167,14 +195,21 @@
         margin-top: auto; padding-top: 10px;
         border-top: 1px solid var(--ac-outline-soft);
     }
+    // Desconectar es lo que MENOS se usa del cajon. En rojo permanente era lo
+    // primero que saltaba a la vista, por encima de las conversaciones, que es
+    // a lo que se viene. Se queda en gris y solo se tiñe de rojo al apuntarlo:
+    // sigue avisando de que es destructivo, pero cuando toca.
     .ac-drawer-disconnect {
         width: 100%; border: 0; background: transparent; cursor: pointer;
         padding: 10px 12px; border-radius: 10px; text-align: left;
         display: flex; align-items: center; gap: 9px;
-        font-size: 14px; font-weight: 700; color: var(--ac-error) !important;
-        i { color: var(--ac-error) !important; flex: none; }
-        transition: background .12s ease;
-        &:hover { background: color-mix(in srgb, var(--ac-error) 10%, transparent); }
+        font-size: 13.5px; font-weight: 600; color: var(--ac-on-variant) !important;
+        i { color: inherit !important; flex: none; }
+        transition: background .12s ease, color .12s ease;
+        &:hover {
+            background: color-mix(in srgb, var(--ac-error) 10%, transparent);
+            color: var(--ac-error) !important;
+        }
     }
     .ac-confirm {
         padding: 10px 12px; border-radius: 12px;
