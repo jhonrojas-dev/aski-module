@@ -104,7 +104,6 @@
     .ac-drawer-empty { color: var(--ac-on-variant) !important; font-size: 13px; padding: 8px 6px; }
     .ac-drawer-item {
         padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         display: flex; align-items: center; gap: 9px; color: var(--ac-on-surface) !important;
         transition: background .12s ease;
         &:before {
@@ -117,6 +116,49 @@
             color: var(--ac-navy) !important;
             &:before { color: var(--ac-navy) !important; opacity: 1; }
         }
+        // El recorte vive en el TITULO, no en la fila: si estuviera en la fila,
+        // los botones de renombrar/borrar se recortarian con el.
+        .ac-drawer-title {
+            flex: 1; min-width: 0;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        // Los dos botones aparecen al pasar por encima. En pantalla tactil no
+        // hay hover: ahi se dejan siempre visibles, o serian inalcanzables.
+        .ac-drawer-item-actions {
+            flex: none; display: flex; align-items: center; gap: 2px;
+            opacity: 0; transition: opacity .12s ease;
+            .ac-icon-btn { width: 26px; height: 26px; font-size: 12px; }
+        }
+        &:hover .ac-drawer-item-actions,
+        &.active .ac-drawer-item-actions { opacity: 1; }
+        @media (hover: none) {
+            .ac-drawer-item-actions { opacity: 1; }
+        }
+    }
+
+    // Renombrar un hilo, en su propia fila (sin el icono ni el recorte del item).
+    .ac-drawer-rename {
+        padding: 10px 12px; border-radius: 10px;
+        background: var(--ac-surface-variant);
+        input {
+            width: 100%; border: 1.5px solid var(--ac-outline-soft); border-radius: 9px;
+            padding: 8px 10px; font-size: 13.5px; font-weight: 600; outline: none;
+            background: var(--ac-surface); color: var(--ac-on-surface);
+            margin-bottom: 8px;
+            &:focus { border-color: var(--ac-navy); }
+        }
+    }
+
+    // Confirmacion dentro de la lista: la misma tarjeta roja, algo mas compacta.
+    .ac-confirm-inline { margin: 2px 0; }
+
+    // Con QUE cuenta Aski esta hablando este Odoo.
+    .ac-drawer-account {
+        display: flex; align-items: center; gap: 7px;
+        padding: 6px 12px 8px; font-size: 12.5px; font-weight: 600;
+        color: var(--ac-on-variant) !important;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        i { color: var(--ac-on-variant) !important; flex: none; }
     }
 
     // Pie del drawer: desconectar la cuenta Aski. `margin-top: auto` lo ancla
@@ -273,6 +315,21 @@
         align-self: flex-end; max-width: 82%;
         background: var(--ac-navy); color: #fff !important;
         border-bottom-right-radius: 4px;
+        // El texto respeta los saltos de linea que ahora se pueden escribir con
+        // Shift+Enter: sin esto, una pregunta de tres lineas se veia como un
+        // parrafo corrido y no coincidia con lo que el usuario tecleo.
+        white-space: pre-wrap;
+    }
+    // El chip base es navy, y la burbuja del usuario tambien: sobre ella queda
+    // navy sobre navy, ilegible. Se invierte a blanco translucido.
+    // Va anidado bajo .ac-bubble-user A PROPOSITO: con un selector suelto de la
+    // misma especificidad ganaba la regla base por ir despues en el archivo, y
+    // el chip volvia a desaparecer (visto en el render real, no en el codigo).
+    .ac-bubble-user .ac-deep-chip {
+        margin-left: 8px; vertical-align: middle;
+        background: rgba(255, 255, 255, .2);
+        color: #fff !important;
+        i { color: #fff !important; }
     }
     .ac-bubble-bot {
         align-self: flex-start; max-width: 92%;
@@ -287,6 +344,15 @@
         .ac-credits-chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; opacity: .85;
             i { color: var(--ac-gold-deep) !important; }
         }
+    }
+    // Esta respuesta salio del analisis profundo. Navy tenue: informa sin robarle
+    // el sitio al dato de creditos, que es el que se mira.
+    .ac-deep-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 11px;
+        background: color-mix(in srgb, var(--ac-navy) 12%, transparent);
+        color: var(--ac-navy) !important;
+        i { color: var(--ac-navy) !important; font-size: 10px; }
     }
     .ac-detail-btn {
         border: 0; background: transparent; color: var(--ac-on-variant) !important; cursor: pointer;
@@ -352,7 +418,22 @@
     .md tbody tr:last-child td { border-bottom: 0; }
 
     // ---- indicador "pensando" (replica de .typing) ----
-    .ac-thinking { color: var(--ac-on-variant) !important; }
+    .ac-thinking {
+        color: var(--ac-on-variant) !important;
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    // Tiempo REAL de espera. Aparece a los 3 s (lo decide la plantilla) para no
+    // parpadear en las respuestas rapidas.
+    .ac-thinking-note {
+        display: inline-flex; align-items: center; gap: 7px;
+        font-size: 12.5px; font-weight: 600; color: var(--ac-on-variant) !important;
+        animation: ac-fade .2s ease;
+    }
+    .ac-thinking-secs {
+        font-variant-numeric: tabular-nums; font-weight: 800; opacity: .75;
+        padding: 1px 7px; border-radius: 999px;
+        background: color-mix(in srgb, var(--ac-on-surface) 8%, transparent);
+    }
     .ac-typing { display: inline-flex; align-items: center; gap: 5px; padding: 4px 2px; }
     .ac-typing i {
         width: 7px; height: 7px; border-radius: 50%; background: var(--ac-on-variant);
@@ -386,13 +467,59 @@
         flex: none; padding: 10px 12px 12px;
         background: var(--ac-bg); border-top: 1px solid var(--ac-outline-soft);
     }
+
+    // Fila de herramientas sobre el composer (hoy: analisis profundo).
+    .ac-composer-tools {
+        width: 100%; max-width: 860px; margin: 0 auto 8px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .ac-deep-toggle {
+        display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+        border: 1.5px solid var(--ac-outline-soft); background: var(--ac-surface);
+        border-radius: 999px; padding: 6px 13px;
+        font-size: 12.5px; font-weight: 700; color: var(--ac-on-variant) !important;
+        transition: background .12s ease, border-color .12s ease, color .12s ease;
+        i { color: inherit !important; font-size: 12px; }
+        &:hover:not(:disabled) { border-color: var(--ac-navy); color: var(--ac-navy) !important; }
+        // Encendido: se ve de un vistazo que la siguiente pregunta cuesta mas.
+        &.on {
+            background: var(--ac-navy); border-color: var(--ac-navy);
+            color: #fff !important;
+            box-shadow: 0 2px 6px rgba(10, 18, 36, .18);
+        }
+        &:disabled { opacity: .5; cursor: not-allowed; }
+    }
+
+    // El agente avisa de que la consulta es pesada y espera el visto bueno.
+    .ac-heavy {
+        width: 100%; max-width: 860px; margin: 0 auto 9px;
+        padding: 10px 12px; border-radius: 12px;
+        background: color-mix(in srgb, var(--ac-navy) 7%, transparent);
+        border: 1px solid color-mix(in srgb, var(--ac-navy) 22%, transparent);
+    }
+    .ac-heavy-txt {
+        font-size: 13px; font-weight: 600; line-height: 1.35;
+        color: var(--ac-on-surface) !important; margin-bottom: 9px;
+    }
+    .ac-heavy-actions {
+        display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+        // Aqui el "aceptar" no es destructivo: navy, no rojo.
+        .ac-confirm-ok { background: var(--ac-navy); }
+    }
     .ac-composer-inner {
-        display: flex; gap: 8px; align-items: center;
+        // `flex-end` y no `center`: el composer crece hacia arriba con el texto,
+        // y los botones redondos deben quedarse alineados con la ULTIMA linea,
+        // no flotando en mitad del bloque.
+        display: flex; gap: 8px; align-items: flex-end;
         width: 100%; max-width: 860px; margin: 0 auto;
-        input {
+        textarea {
             flex: 1; min-width: 0; border: 1.5px solid var(--ac-outline-soft); border-radius: 22px;
             padding: 11px 16px; font-size: 14px; outline: none; color: var(--ac-on-surface);
             background: var(--ac-surface); transition: border-color .14s ease, box-shadow .14s ease;
+            // Crece por JS (_autoGrow) hasta este tope y luego hace scroll. El
+            // tirador nativo de redimension sobraria: descuadra el redondeo.
+            resize: none; overflow-y: auto; max-height: 132px;
+            line-height: 1.45; font-family: inherit;
             &::placeholder { color: var(--ac-on-variant); opacity: .7; }
             &:focus { border-color: var(--ac-navy); box-shadow: 0 0 0 3px rgba(21, 38, 66, .1); }
             &:disabled { background: var(--ac-surface-2); }

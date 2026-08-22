@@ -47,9 +47,18 @@ export class AskiSystray extends Component {
     }
 
     _persist() {
-        browser.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            open: this.state.open, minimized: this.state.minimized,
-        }));
+        // Con el almacenamiento bloqueado (ventana privada, politica del
+        // navegador, cuota llena) `setItem` LANZA. Como se llama desde los
+        // handlers de abrir/minimizar/cerrar, esa excepcion se llevaba por
+        // delante el clic entero: la burbuja no abria. Recordar el estado es un
+        // extra; que el chat funcione, no.
+        try {
+            browser.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                open: this.state.open, minimized: this.state.minimized,
+            }));
+        } catch (e) {
+            // Sin memoria entre recargas, pero el chat sigue usable.
+        }
     }
 
     toggle() {

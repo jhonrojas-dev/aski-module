@@ -225,7 +225,7 @@ class AskiChatConnectWizard(models.TransientModel):
         # le saldria "ese correo ya tiene cuenta" sin saber por que ni con que
         # token seguir. Se le dice exactamente como continuar.
         try:
-            return self._finish_connection(link, token, nickname)
+            return self._finish_connection(link, token, nickname, email=email)
         except UserError as e:
             raise UserError(_(
                 "Your Aski account was created (%(email)s), but connecting this "
@@ -273,7 +273,7 @@ class AskiChatConnectWizard(models.TransientModel):
         token = (resp.json() or {}).get("token") or ""
         if not token:
             raise UserError(_("Aski didn't return an access token. Try again."))
-        return self._finish_connection(link, token, nickname)
+        return self._finish_connection(link, token, nickname, email=email)
 
     def action_connect(self):
         self.ensure_one()
@@ -284,12 +284,23 @@ class AskiChatConnectWizard(models.TransientModel):
         nickname = (self.name or "").strip() or self.env.company.name or self.env.cr.dbname
         return self._finish_connection(link, pat, nickname)
 
-    def _finish_connection(self, link, pat, nickname):
+    def _finish_connection(self, link, pat, nickname, email=""):
         """Cierre COMPARTIDO por las dos vias: guarda el token, verifica contra
         Aski, rota la API key de Odoo, registra esta base como conexion y
         aterriza en el chat. Vive en un solo sitio para que el alta inline no se
-        quede atras cuando cambie algo de la conexion."""
-        link.write({"pat": pat})
+        quede atras cuando cambie algo de la conexion.
+
+        `email` es el correo de la cuenta Aski cuando lo sabemos de primera mano
+        (el usuario lo acaba de teclear para darse de alta o iniciar sesion). Se
+        guarda para poder DECIR con que cuenta esta hablando este Odoo: en modo
+        'por usuario' cada quien conecta la suya y, sin este dato, no habia forma
+        de saber cual quedo conectada. Por la via de pegar un token suelto no se
+        conoce aqui — lo rellena `_sync_wallet` si el backend lo reporta.
+        """
+        vals = {"pat": pat}
+        if email:
+            vals["email"] = email
+        link.write(vals)
 
         ok, message = link._sync_wallet()
         if not ok:
