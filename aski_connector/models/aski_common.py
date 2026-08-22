@@ -2,7 +2,6 @@
 import base64
 import hashlib
 import io
-import json
 import logging
 
 from odoo import _, api, models
@@ -32,6 +31,16 @@ class AskiCreditsError(UserError):
     empujaba a gastar dinero en vano. Odoo serializa el nombre de la clase en
     `data.name` de la respuesta RPC, asi que el widget lo reconoce sin tener que
     leer el texto del mensaje —que ademas esta traducido a seis idiomas—.
+    """
+
+
+class AskiAgentNotInPlanError(UserError):
+    """El plan de esta cuenta no incluye el analisis profundo.
+
+    Misma razon de ser que AskiCreditsError: el widget tiene que distinguirlo
+    para APAGAR el interruptor de modo profundo y volver al modo normal en vez
+    de dejar al usuario pulsando algo que siempre falla. Se reconoce por el
+    nombre de la clase, no por el texto (que viaja traducido).
     """
 
 
