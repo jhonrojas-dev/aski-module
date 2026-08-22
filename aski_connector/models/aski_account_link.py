@@ -329,7 +329,7 @@ class AskiAccountLink(models.Model):
         except Exception as e:  # noqa: BLE001
             return False, _("Could not reach Aski: %s") % e
         if resp.status_code == 401:
-            rec.write({"pat_enc": False})
+            rec._olvidar_token()
             return False, _("That token is invalid or was revoked. Generate a new one in Aski.")
         if resp.status_code != 200:
             return False, rec._error_message(resp)
@@ -515,6 +515,28 @@ class AskiAccountLink(models.Model):
         rec.write({"credential_id": data.get("id")})
         return True, "", ""
 
+    def _olvidar_token(self):
+        """El token ya no vale (revocado desde la cuenta, o caducado).
+
+        Ademas de borrarlo hay que tirar el saldo y el plan que quedaron
+        cacheados: son de una conexion que ya no existe. Sin esto, `Chat
+        Settings` seguia enseñando "enterprise" y miles de creditos junto a un
+        "Conectado: no", que es una cifra que ya no significa nada (visto en el
+        demo tras revocar un token de verdad).
+
+        El correo y el id de credencial SI se conservan: no han dejado de ser
+        ciertos y dicen QUE cuenta hay que volver a conectar. Al desconectar a
+        mano se limpian tambien, porque ahi la intencion es soltar la conexion
+        entera.
+        """
+        self.ensure_one()
+        self.sudo().write({
+            "pat_enc": False,
+            "wallet_credits": 0,
+            "plan_name": False,
+            "agent_enabled": False,
+        })
+
     def _raise_for_chat_error(self, resp):
         """Traduce la respuesta del backend a la excepcion que toca.
 
@@ -527,7 +549,7 @@ class AskiAccountLink(models.Model):
         if resp.status_code == 200:
             return
         if resp.status_code == 401:
-            rec.write({"pat_enc": False})
+            rec._olvidar_token()
             raise UserError(_("Your Aski connection expired. Reconnect in Aski > Chat Settings."))
         if resp.status_code == 402:
             # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
