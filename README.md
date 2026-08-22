@@ -1,30 +1,71 @@
 # Aski — Odoo connector module (`aski_connector`)
 
-Módulo puente **ligero** para publicar en el **Odoo App Store** (apps.odoo.com).
-Su único trabajo: que un admin conecte su Odoo con la app **Aski** en 1 paso
-(escanear un QR), sin teclear URL / base de datos / API key a mano.
+Módulo puente para publicar en el **Odoo App Store** (apps.odoo.com). Hace dos
+cosas, y las dos van de lo mismo: acercar Aski al Odoo del cliente sin que tenga
+que teclear URL / base de datos / API key a mano.
+
+1. **Conectar la app móvil** — un asistente genera un código (QR) que la app Aski
+   escanea. Cero configuración manual.
+2. **Chatear dentro de Odoo** — un panel de chat (OWL) bajo *Aski → Chat* y una
+   burbuja en la barra superior. Misma cuenta, mismo monedero y **mismo motor**
+   que la app y la web: no es un producto aparte, es otro canal. Incluye
+   historial, exportar a PDF, análisis profundo (si el plan lo incluye) y alta de
+   cuenta sin salir de Odoo.
 
 - Compatible **Odoo 14 → 19** (Community y Enterprise).
-- **Un solo código** para todas las series: sin `attrs`, sin `res.config.settings`
-  (esas son las dos cosas que cambian de sintaxis entre 14–16 y 17–19).
-- No saca datos de Odoo: solo muestra el código. La app Aski se conecta por el
-  **API externo estándar** (XML-RPC) con una **API key** de Odoo (`res.users.apikeys`,
-  estándar desde la 14) generada para el usuario actual; revocable cuando quieras.
+- **Una rama por serie** (`14.0` … `19.0`). El Python es idéntico en las seis; lo
+  que cambia por serie es la capa web: `attrs` en las vistas (14–16), OWL 1 en el
+  widget (14–15) y el modelo de seguridad de la 19 (`res.groups.privilege`).
+  ⚠️ Todo arreglo se porta a las **seis** ramas, no solo a la más nueva.
+- El módulo **no saca datos de Odoo por su cuenta**: el chat habla con el backend
+  de Aski usando el token personal del propio usuario, igual que la app. La
+  lectura del ERP la hace Aski por el **API externo estándar** (XML-RPC) con una
+  **API key** de Odoo (`res.users.apikeys`, estándar desde la 14) generada para el
+  usuario actual y revocable cuando quieras.
 
 ## Estructura
 
 ```
 aski_connector/
-  __manifest__.py            # version "1.0.0" (build_releases la estampa por serie)
-  models/aski_connect_wizard.py
-  views/aski_connect_views.xml   # wizard 2 pasos (intro -> QR)
-  security/ir.model.access.csv   # solo base.group_system (admin)
-  static/description/
-    index.html               # ficha de la tienda
-    icon.png                 # ícono del módulo/app
-    banner.png               # imagen principal de la ficha
-build_releases.py            # empaqueta 1 .zip por serie (14.0 ... 19.0)
+  __manifest__.py                    # build_releases estampa la version por serie
+  models/
+    aski_common.py                   # base de la API, co-marca, cifrado, API keys
+    aski_connect_wizard.py           # asistente del QR (app movil)
+    aski_chat_connect_wizard.py      # alta / inicio de sesion / token (chat)
+    aski_account_link.py             # cuenta conectada + todas las llamadas al chat
+  views/
+    aski_connect_views.xml           # asistente 2 pasos (intro -> QR)
+    aski_chat_views.xml              # ajustes del chat + accion del widget + menus
+  security/
+    aski_security.xml                # grupo "Use the Aski chat"
+    ir.model.access.csv
+  static/src/chat/                   # widget OWL: js + xml + scss
+  static/src/systray/                # burbuja flotante de la barra superior
+  static/description/                # ficha de la tienda (index.html, icono, capturas)
+  i18n/                              # de, es, fr, it, nl, pt_BR
+build_releases.py                    # empaqueta 1 .zip por serie (14.0 ... 19.0)
 ```
+
+## Verificar los cambios (las 6 versiones)
+
+Instancias QA locales en `aski-app/infra/odoo-qa` (puertos 8514–8519, `admin` /
+`aski-qa`). Se levantan **de una en una**:
+
+```bash
+docker compose -f aski-app/infra/odoo-qa/docker-compose.yml up -d odoo19
+docker exec aski-qa-odoo19 odoo -u aski_connector -d aski19 --stop-after-init --no-http
+```
+
+Y se comprueba en el navegador de verdad, no leyendo el código
+(`~/Documents/aski-pw`, requiere Playwright):
+
+```bash
+node aski_connector_ui_check.mjs 19    # bundle vivo, widget montado, consola limpia
+node aski_connector_states.mjs 19      # los 4 estados + XSS + cajon + modo profundo
+```
+
+`aski_connector_states.mjs` intercepta las llamadas ORM, así que fuerza cada
+estado (incluido el de error) **sin** backend y sin gastar créditos.
 
 ## Probarlo en un Odoo local (dev)
 

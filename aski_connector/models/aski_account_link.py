@@ -16,6 +16,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from .aski_common import (
+    AskiAgentNotInPlanError,
     AskiCreditsError,
     aski_api_base,
     aski_cobrand_html,
@@ -25,7 +26,24 @@ from .aski_common import (
 
 _logger = logging.getLogger(__name__)
 
+# Estas peticiones ocurren mientras el usuario mira la pantalla y, sobre todo,
+# ocupan un worker de Odoo mientras esperan. `/billing/me` se llama en CADA
+# apertura del widget: con 30 s, un backend lento dejaba el chat en "Cargando..."
+# medio minuto y un worker bloqueado con el. 10 s es de sobra para un GET que
+# normalmente tarda decimas, y el saldo cacheado sirve de red si falla.
+_TIMEOUT_FAST = 10
+# Conectar/registrar la instancia si puede tardar (el backend valida la conexion
+# XML-RPC contra este Odoo antes de responder) y ocurre una sola vez.
 _TIMEOUT = 30
+# Una pregunta normal.
+_TIMEOUT_CHAT = 90
+# El analisis profundo encadena varias consultas y tarda decenas de segundos,
+# pero NO puede pasar de lo que aguanta Odoo: el worker mata la peticion a los
+# `limit_time_real` (120 s por defecto en modo multi-worker) y el usuario veria
+# un error de gateway sin explicacion, con el turno ya cobrado. Cortando ANTES
+# se le puede decir que hacer. Quien tenga el limite de Odoo mas bajo vera el
+# corte de Odoo igual: es su configuracion, no algo que el modulo pueda evitar.
+_TIMEOUT_AGENT = 110
 
 
 class AskiAccountLink(models.Model):
@@ -52,6 +70,11 @@ class AskiAccountLink(models.Model):
     wallet_credits = fields.Integer(string="Credits available", readonly=True)
     plan_name = fields.Char(string="Plan", readonly=True)
     last_synced = fields.Datetime(string="Last synced", readonly=True)
+    # El plan de esta cuenta incluye el analisis profundo (modo agente). Lo
+    # reporta /billing/me; sirve para NO ofrecer dentro de Odoo un interruptor
+    # que el backend va a rechazar con un 403. Si el backend no lo reporta
+    # (version anterior), queda en False y el chat se comporta como antes.
+    agent_enabled = fields.Boolean(string="Deep analysis included", readonly=True)
     # La cuenta la gestiona un SOCIO (reseller): el plan y los pagos los ve con el,
     # no compra directo (el backend ademas rechaza los endpoints de compra para
     # estas cuentas). Por eso se ocultan los enlaces de precios/compra: mostrarlos
@@ -275,6 +298,19 @@ class AskiAccountLink(models.Model):
             detail = data.get("detail")
             if isinstance(detail, dict):
                 return detail.get("message") or resp.text
+            if isinstance(detail, list):
+                # 422 de validacion: FastAPI manda una LISTA de errores de campo
+                # ([{'type': 'string_too_long', 'loc': [...]}, ...]). Devolverla
+                # tal cual le pintaba al usuario ese JSON crudo en la burbuja del
+                # chat. Se traduce a algo accionable; el detalle va al log, que es
+                # donde sirve.
+                _logger.info("Aski: respuesta 422 del backend: %s", detail)
+                if any((e or {}).get("type") == "string_too_long"
+                       for e in detail if isinstance(e, dict)):
+                    return _("That question is too long. Make it shorter and "
+                             "ask again.")
+                return _("Aski couldn't process that request. Check what you "
+                         "typed and try again.")
             return detail or resp.text
         except Exception:
             return resp.text or ("HTTP %s" % resp.status_code)
@@ -288,7 +324,8 @@ class AskiAccountLink(models.Model):
         if not rec.pat:
             return False, _("Paste your Aski personal access token first.")
         try:
-            resp = requests.get(aski_api_base(self.env) + "/billing/me", headers=rec._headers(), timeout=_TIMEOUT)
+            resp = requests.get(aski_api_base(self.env) + "/billing/me",
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
             return False, _("Could not reach Aski: %s") % e
         if resp.status_code == 401:
@@ -299,9 +336,10 @@ class AskiAccountLink(models.Model):
         data = resp.json()
         wallet = data.get("wallet") or {}
         sub = data.get("subscription") or {}
-        rec.write({
+        vals = {
             "wallet_credits": wallet.get("balance", 0),
             "plan_name": (sub or {}).get("plan_id") or "",
+            "agent_enabled": bool(data.get("agent_enabled")),
             "partner_managed": bool(data.get("partner_managed")),
             "partner_name": (sub or {}).get("partner_name") or "",
             "partner_logo_url": (sub or {}).get("partner_logo_url") or "",
@@ -317,7 +355,14 @@ class AskiAccountLink(models.Model):
             ) if (data.get("partner_managed")
                   and (sub or {}).get("partner_show_cobrand", True)) else "",
             "last_synced": fields.Datetime.now(),
-        })
+        }
+        # Solo se pisa el correo si el backend lo reporta: por la via de pegar un
+        # token suelto es la UNICA forma de saberlo, pero un backend que todavia
+        # no lo manda no debe borrar el que guardo el asistente de conexion.
+        correo = (data.get("email") or "").strip()
+        if correo:
+            vals["email"] = correo
+        rec.write(vals)
         return True, _("Connected. %s credits available.") % rec.wallet_credits
 
     def action_test_connection(self):
@@ -470,6 +515,76 @@ class AskiAccountLink(models.Model):
         rec.write({"credential_id": data.get("id")})
         return True, "", ""
 
+    def _raise_for_chat_error(self, resp):
+        """Traduce la respuesta del backend a la excepcion que toca.
+
+        Compartido por el modo normal y el profundo: son el MISMO motor y el
+        MISMO monedero, asi que un fallo debe contarse igual en los dos. Cuando
+        estaba escrito dos veces, cualquier arreglo se quedaba en uno solo.
+        """
+        self.ensure_one()
+        rec = self.sudo()
+        if resp.status_code == 200:
+            return
+        if resp.status_code == 401:
+            rec.write({"pat_enc": False})
+            raise UserError(_("Your Aski connection expired. Reconnect in Aski > Chat Settings."))
+        if resp.status_code == 402:
+            # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
+            # backend la rechaza igual) — el saldo lo repone su socio.
+            if rec.partner_managed:
+                raise AskiCreditsError(_(
+                    "You're out of Aski credits. Contact your Aski partner to top up."))
+            raise AskiCreditsError(_("You're out of Aski credits. Top up at %s/billing to keep chatting.")
+                            % "https://app.aski.dev")
+        if resp.status_code == 403 and rec._error_code(resp) == "feature_not_in_plan":
+            # El plan no incluye el analisis profundo. Se distingue con clase
+            # propia para que el chat apague el interruptor en vez de dejar al
+            # usuario reintentando algo que nunca va a funcionar.
+            raise AskiAgentNotInPlanError(rec._error_message(resp))
+        raise UserError(_("Aski error: %s") % rec._error_message(resp))
+
+    @api.model
+    def send_message_agent(self, text, conversation_id=None, confirm_heavy=False):
+        """Analisis profundo: MISMO motor que el interruptor de la app y la web.
+
+        Existe porque el cliente con plan Pro/Enterprise ya paga el modo profundo
+        y, hasta ahora, dentro de Odoo no podia usarlo: el chat embebido solo
+        hablaba con /chat. Misma cuenta, mismo monedero, mismo agente.
+
+        `confirm_heavy` lo manda el chat cuando el usuario acepta seguir con una
+        consulta que el backend marco como pesada.
+        """
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            raise UserError(self._not_connected_error())
+        body = {"credential_id": rec.credential_id, "prompt": text}
+        if conversation_id:
+            body["conversation_id"] = conversation_id
+        if confirm_heavy:
+            body["confirm_heavy"] = True
+        try:
+            resp = requests.post(aski_api_base(self.env) + "/chat/agent", json=body,
+                                 headers=rec._headers(), timeout=_TIMEOUT_AGENT)
+        except requests.exceptions.Timeout:
+            raise UserError(_(
+                "The deep analysis took longer than this Odoo allows. Try a more "
+                "specific question, or ask it in normal mode."))
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        rec._raise_for_chat_error(resp)
+        data = resp.json()
+        return {
+            "answer": data.get("answer", ""),
+            "conversation_id": data.get("conversation_id"),
+            "credits": data.get("credits"),
+            # El agente puede pedir confirmacion antes de una consulta pesada, o
+            # declinar. El chat lo refleja en vez de tragarselo.
+            "confirmation_required": bool(data.get("confirmation_required")),
+            "refused": bool(data.get("refused")),
+        }
+
     @api.model
     def send_message(self, text, conversation_id=None):
         """Envia una pregunta al motor real de Aski (mismo determinista +
@@ -486,24 +601,13 @@ class AskiAccountLink(models.Model):
         if conversation_id:
             body["conversation_id"] = conversation_id
         try:
-            resp = requests.post(aski_api_base(self.env) + "/chat", json=body, headers=rec._headers(), timeout=90)
+            resp = requests.post(aski_api_base(self.env) + "/chat", json=body,
+                                 headers=rec._headers(), timeout=_TIMEOUT_CHAT)
         except requests.exceptions.Timeout:
             raise UserError(_("Aski is taking too long to answer. Try again in a moment."))
         except Exception as e:  # noqa: BLE001
             raise UserError(_("Could not reach Aski: %s") % e)
-        if resp.status_code == 401:
-            rec.write({"pat_enc": False})
-            raise UserError(_("Your Aski connection expired. Reconnect in Aski > Chat Settings."))
-        if resp.status_code == 402:
-            # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
-            # backend la rechaza igual) — el saldo lo repone su socio.
-            if rec.partner_managed:
-                raise AskiCreditsError(_(
-                    "You're out of Aski credits. Contact your Aski partner to top up."))
-            raise AskiCreditsError(_("You're out of Aski credits. Top up at %s/billing to keep chatting.")
-                            % "https://app.aski.dev")
-        if resp.status_code != 200:
-            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        rec._raise_for_chat_error(resp)
         data = resp.json()
         return {
             "answer": data.get("answer", ""),
@@ -530,7 +634,8 @@ class AskiAccountLink(models.Model):
         if not self._user_can_use_chat(user):
             return {"allowed": False, "mode": mode, "can_connect": False,
                     "connected": False, "email": "", "wallet_credits": 0,
-                    "plan_name": "", "partner_managed": False}
+                    "plan_name": "", "partner_managed": False,
+                    "agent_enabled": False}
         rec = self._active_link(user)
         if rec and rec.connected and rec.pat:
             rec._sync_wallet()
@@ -542,6 +647,10 @@ class AskiAccountLink(models.Model):
             "email": (rec.email or "") if rec else "",
             "wallet_credits": rec.wallet_credits if rec else 0,
             "plan_name": (rec.plan_name or "") if rec else "",
+            # El interruptor de analisis profundo solo se ofrece si el plan lo
+            # incluye: mostrarlo siempre seria prometer algo que el backend
+            # rechaza con un 403 en cuanto lo pulsan.
+            "agent_enabled": bool(rec.agent_enabled) if rec else False,
             # Para que el chat NO le ofrezca recargar a un cliente de socio: esa
             # compra la rechaza el backend y lo dejaria contra un muro. Su saldo
             # se lo repone su socio. Si aun no hay conexion, vale el codigo que
@@ -561,12 +670,58 @@ class AskiAccountLink(models.Model):
         if not rec or not rec.connected or not rec.credential_id:
             return []
         try:
-            resp = requests.get(aski_api_base(self.env) + "/chat/conversations", headers=rec._headers(), timeout=_TIMEOUT)
+            resp = requests.get(aski_api_base(self.env) + "/chat/conversations",
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception:  # noqa: BLE001
             return []
         if resp.status_code != 200:
             return []
         return [c for c in resp.json() if c.get("odoo_credential_id") == rec.credential_id]
+
+    @api.model
+    def delete_conversation(self, conversation_id):
+        """Archiva un hilo, igual que el gesto de borrar de la app.
+
+        Del lado de Aski es un archivado, no un borrado fisico: desaparece de los
+        listados y se resetea el contexto del modelo. Se dice asi en la UI para
+        no prometer una eliminacion que no ocurre.
+        """
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.delete(
+                aski_api_base(self.env) + "/chat/conversations/%s" % conversation_id,
+                headers=rec.sudo()._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        # 404 = ya no existe (borrada desde la app): para el usuario el resultado
+        # es el mismo, no tiene sentido darle un error.
+        if resp.status_code not in (200, 204, 404):
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return True
+
+    @api.model
+    def rename_conversation(self, conversation_id, title):
+        """Renombra un hilo desde el cajon del historial (como en la app)."""
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        nombre = (title or "").strip()
+        if not nombre:
+            raise UserError(_("Type a name for the conversation."))
+        try:
+            resp = requests.patch(
+                aski_api_base(self.env) + "/chat/conversations/%s" % conversation_id,
+                json={"title": nombre[:200]},
+                headers=rec.sudo()._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return True
 
     @api.model
     def load_conversation(self, conversation_id):
@@ -579,7 +734,7 @@ class AskiAccountLink(models.Model):
         try:
             resp = requests.get(
                 aski_api_base(self.env) + "/chat/conversations/%s/messages" % conversation_id,
-                headers=rec._headers(), timeout=_TIMEOUT)
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception:  # noqa: BLE001
             return []
         if resp.status_code != 200:
@@ -592,6 +747,11 @@ class AskiAccountLink(models.Model):
             out.append({
                 "id": "h%s" % m["id"], "backendId": m["id"], "role": role,
                 "text": m.get("content", ""),
+                # `is_agent` viaja en la PREGUNTA (asi lo guarda el backend, y
+                # asi lo leen la app y la web). Sin mapearlo aqui, el distintivo
+                # de "analisis profundo" desaparecia en cuanto se recargaba el
+                # hilo — que ocurre justo despues de cada respuesta.
+                "deep": bool(m.get("is_agent")) if role == "user" else False,
                 "credits": m.get("credits") if role == "assistant" else None,
                 "rows": m.get("odoo_result_count") if role == "assistant" else None,
                 "feedback": m.get("feedback") if role == "assistant" else None,
@@ -663,7 +823,7 @@ class AskiAccountLink(models.Model):
         try:
             resp = requests.patch(
                 aski_api_base(self.env) + "/chat/messages/%s/feedback" % message_id,
-                json={"feedback": feedback}, headers=rec._headers(), timeout=_TIMEOUT)
+                json={"feedback": feedback}, headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
             raise UserError(_("Could not reach Aski: %s") % e)
         if resp.status_code not in (200, 204):
