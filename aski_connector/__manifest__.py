@@ -61,15 +61,22 @@ Get the app and learn more at https://aski.dev
     "data": [
         "security/aski_security.xml",
         "security/ir.model.access.csv",
+        # OJO (serie 14): sin esta linea, `views/assets.xml` no se carga NUNCA y
+        # el js/scss del chat no entra en el bundle. Estaba escrito pero fuera de
+        # `data`, asi que el chat embebido no existia en esta serie.
+        "views/assets.xml",
         "views/aski_connect_views.xml",
         "views/aski_chat_views.xml",
     ],
-    "assets": {
-        "web.assets_backend": [
-            "aski_connector/static/src/chat/**/*",
-            "aski_connector/static/src/systray/**/*",
-        ],
-    },
+    # OJO (serie 14): la clave `assets` del manifest NO existe aqui (llego en la
+    # 15) y se ignora en silencio. En esta serie los js/scss se declaran
+    # heredando el bundle en views/assets.xml, y las plantillas OWL van por
+    # `qweb`. Sin esta clave, el componente monta contra una plantilla que no
+    # existe ("Template aski_connector.ChatWidget does not exist").
+    "qweb": [
+        "static/src/chat/aski_chat.xml",
+        "static/src/systray/aski_systray.xml",
+    ],
     "images": [
         "static/description/banner.png",
         "static/description/shot-1.png",
