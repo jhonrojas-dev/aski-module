@@ -305,8 +305,7 @@ export class AskiChatWidget extends Component {
             const sinRed = typeof navigator !== "undefined" && navigator.onLine === false;
             this.state.loadError = sinRed
                 ? _t("You appear to be offline. Check your connection and try again.")
-                : ((e && e.data && e.data.message) || (e && e.message)
-                   || _t("Couldn't load the Aski chat. Try again."));
+                : this._msgDe(e);
         } finally {
             this.state.loading = false;
         }
@@ -413,9 +412,43 @@ export class AskiChatWidget extends Component {
 
     // Mensaje legible de un error de RPC, sin repetir la misma cadena en cada
     // handler.
+    // Nombre de la clase de la excepcion, que es lo que permite reaccionar a un
+    // fallo CONCRETO sin leer el texto (que viaja traducido a seis idiomas).
+    // La ruta cambia segun la serie: en unas esta en `e.data.name` y en otras un
+    // nivel mas adentro. Cuando no se encontraba, el chat no ofrecia recargar
+    // creditos al quedarse sin saldo ni apagaba el interruptor de analisis
+    // profundo (visto en la QA de la 14).
+    _claseDe(e) {
+        const cand = [
+            e && e.data && e.data.name,
+            e && e.message && e.message.data && e.message.data.name,
+        ];
+        for (const c of cand) {
+            if (typeof c === "string" && c) {
+                return c;
+            }
+        }
+        return "";
+    }
+
     _msgDe(e) {
-        return (e && e.data && e.data.message) || (e && e.message)
-            || _t("Something went wrong. Try again.");
+        // El error llega con formas distintas segun la serie: en unas el texto
+        // esta en `e.data.message`, en otras `e.message` ES OTRO OBJETO (con su
+        // propio .data.message dentro). Sin comprobar que lo devuelto es TEXTO,
+        // al usuario le salia un "[object Object]" como mensaje de error (visto
+        // en la QA de la 14).
+        const cand = [
+            e && e.data && e.data.message,
+            e && e.message && e.message.data && e.message.data.message,
+            e && e.message,
+            e && e.data && e.data.arguments && e.data.arguments[0],
+        ];
+        for (const c of cand) {
+            if (typeof c === "string" && c.trim()) {
+                return c;
+            }
+        }
+        return _t("Something went wrong. Try again.");
     }
 
     toggleDrawer() {
@@ -476,7 +509,7 @@ export class AskiChatWidget extends Component {
                 [this.state.conversationId, tzOffset]);
             printHtml(r.content_html);
         } catch (e) {
-            const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
+            const msg = this._msgDe(e);
             this.notification.add(msg, { type: "danger", sticky: true });
         } finally {
             this.state.exporting = false;
@@ -507,7 +540,7 @@ export class AskiChatWidget extends Component {
                 [m.backendId, tzOffset]);
             printHtml(r.content_html);
         } catch (e) {
-            const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
+            const msg = this._msgDe(e);
             this.notification.add(msg, { type: "danger", sticky: true });
         } finally {
             this.state.exporting = false;
@@ -555,7 +588,7 @@ export class AskiChatWidget extends Component {
             // la pagina se va.
             browser.setTimeout(() => browser.location.reload(), DISCONNECT_RELOAD_DELAY_MS);
         } catch (e) {
-            const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
+            const msg = this._msgDe(e);
             this.notification.add(msg, { type: "danger", sticky: true });
             this.state.disconnecting = false;
         }
@@ -727,12 +760,12 @@ export class AskiChatWidget extends Component {
                 } catch (e2) { /* la burbuja optimista ya quedo visible, no molestar */ }
             }
         } catch (e) {
-            const msg = (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong. Try again.");
+            const msg = this._msgDe(e);
             // "Recargar creditos" solo si el fallo SON los creditos: ante un ERP
             // caido ese boton manda a pagar por algo que no lo arregla. Se mira
             // la clase de la excepcion (Odoo la pone en data.name), no el texto,
             // que viene traducido.
-            const clase = (e && e.data && typeof e.data.name === "string") ? e.data.name : "";
+            const clase = this._claseDe(e);
             const sinCreditos = clase.indexOf("AskiCreditsError") !== -1;
             // El plan no incluye el analisis profundo: se APAGA el interruptor
             // en vez de dejarlo encendido reintentando algo que siempre falla, y
