@@ -131,8 +131,15 @@
                     </div>
                     <group attrs="{'invisible': [('access_mode', '=', 'per_user')]}">
                         <field name="connected" widget="boolean_toggle" readonly="1"/>
+                        <!-- QUE cuenta Aski esta conectada. Es el dato que faltaba
+                             para saber cual paga las preguntas de todo el equipo.
+                             Vacio hasta la primera sincronizacion. -->
+                        <field name="email" readonly="1"
+                               attrs="{'invisible': [('email', '=', False)]}"/>
                         <field name="plan_name" readonly="1"/>
                         <field name="wallet_credits" readonly="1"/>
+                        <field name="agent_enabled" widget="boolean_toggle" readonly="1"
+                               attrs="{'invisible': [('connected', '=', False)]}"/>
                         <field name="last_synced" readonly="1"/>
                     </group>
                     <field name="partner_managed" invisible="1"/>

@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, useState, useRef, onWillStart, markup } from "@odoo/owl";
+import { Component, useState, useRef, onWillStart, onWillUnmount, markup } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { browser } from "@web/core/browser/browser";
@@ -9,6 +9,15 @@ import { _t } from "@web/core/l10n/translation";
 // que la recarga completa se lo lleve por delante.
 const DISCONNECT_RELOAD_DELAY_MS = 1200;
 
+// Tope de caracteres de una pregunta. Es el MISMO que valida el backend: por
+// encima responde un 422 cuyo detalle es una lista de errores de campo, que en
+// la burbuja se leia como un volcado de JSON. Se corta aqui, con el texto aun
+// en el composer.
+const MAX_PROMPT = 4000;
+
+// Alto maximo del composer antes de hacer scroll dentro de el (unas 5 lineas).
+const COMPOSER_MAX_PX = 132;
+
 // Markdown -> HTML minimo (bold, italic, code, listas, tablas GFM, blockquote,
 // links). Misma cobertura que web/src/chat/MarkdownMessage.tsx (react-markdown
 // + remark-gfm) y MISMAS clases CSS (.md, .md-table-wrap) para que Odoo se vea
@@ -17,11 +26,66 @@ const DISCONNECT_RELOAD_DELAY_MS = 1200;
 function _escapeHtml(s) {
     return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
+
+// Los links del markdown NO son texto de confianza: el backend narra sobre datos
+// del Odoo del cliente, asi que el nombre de un producto o de un contacto acaba
+// dentro de la respuesta. Interpolar la URL cruda en el href abria dos puertas
+// que `_escapeHtml` no cierra (solo toca &, < y >):
+//   [x](javascript:...)      -> link ejecutable EN EL DOMINIO del propio Odoo.
+//   [x](a" onmouseover="...) -> la comilla cierra el atributo y cuelga un handler.
+// La web no lo sufre porque react-markdown transforma la URL por su cuenta; aqui
+// hay que hacerlo a mano.
+const _ESQUEMAS_OK = ["http:", "https:", "mailto:", "tel:"];
+
+function _escapeAttr(s) {
+    // El texto ya paso por _escapeHtml (&, <, >). Falta lo que rompe un atributo.
+    return (s || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function _safeUrl(u) {
+    const raw = (u || "").trim();
+    if (!raw) {
+        return "";
+    }
+    // Un `<` o `>` aqui dentro no puede venir del texto original (ya paso
+    // por _escapeHtml): solo lo mete el propio renderizador al unir un
+    // parrafo con <br/>, o sea que la "URL" venia partida en dos lineas.
+    // Pintarla dejaria markup dentro del href; mejor conservar el texto.
+    if (raw.indexOf("<") !== -1 || raw.indexOf(">") !== -1) {
+        return "";
+    }
+    // Empieza por / # o ?: es relativa a este Odoo, no puede ejecutar nada.
+    if (/^[/#?]/.test(raw)) {
+        return _escapeAttr(raw);
+    }
+    // Para DECIDIR el esquema se miran los caracteres visibles: el navegador
+    // ignora tabuladores y saltos dentro del esquema, asi que "java\tscript:"
+    // le vale y a una regex ingenua no. La URL que se devuelve es la original.
+    const limpio = raw.replace(/[\u0000-\u0020]/g, "");
+    const esquema = limpio.match(/^[a-zA-Z][a-zA-Z0-9+.-]*:/);
+    if (!esquema) {
+        // Sin esquema y sin barra ("aski.dev/precios"): se asume https, que es
+        // lo que el usuario espera — dejarlo crudo lo resolveria contra Odoo.
+        return _escapeAttr("https://" + raw);
+    }
+    if (_ESQUEMAS_OK.indexOf(esquema[0].toLowerCase()) === -1) {
+        return "";  // javascript:, data:, vbscript:, file:... -> no se pinta link
+    }
+    return _escapeAttr(raw);
+}
+
 function _inline(s) {
     s = s.replace(/`([^`]+)`/g, (_m, c) => `<code>${c}</code>`);
     s = s.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (_m, a, b) => `<strong>${a || b}</strong>`);
     s = s.replace(/\*([^*]+)\*/g, (_m, a) => `<em>${a}</em>`);
-    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, t, u) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${t}</a>`);
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, t, u) => {
+        const href = _safeUrl(u);
+        // Esquema no permitido: se conserva el TEXTO (la frase sigue leyendose)
+        // y se tira el enlace. Mejor que borrar la linea entera.
+        return href
+            ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${t}</a>`
+            : t;
+    });
     return s;
 }
 function _isTableStart(lines, idx) {
@@ -122,6 +186,14 @@ export class AskiChatWidget extends Component {
         this.action = useService("action");
         this.notification = useService("notification");
         this.messagesRef = useRef("messages");
+        // El composer es un <textarea> NO controlado: atarlo al estado con un
+        // atributo `value` reposiciona el cursor al final en cada tecla. Se lee
+        // por el evento y se limpia por la referencia.
+        this.composerRef = useRef("composer");
+        // La plantilla solo ve el componente, no las constantes del modulo: el
+        // maxlength del composer sale de aqui para no repetir el numero (y que
+        // no se desincronice del guard de send()).
+        this.MAX_PROMPT = MAX_PROMPT;
         this.state = useState({
             loading: true,
             allowed: true,
@@ -134,6 +206,10 @@ export class AskiChatWidget extends Component {
             // comprar creditos (el backend rechaza esa compra; su saldo lo
             // repone su socio).
             partnerManaged: false,
+            // El correo de la cuenta Aski conectada. Importa sobre todo en modo
+            // "por usuario": sin esto no habia forma de saber CUAL de las cuentas
+            // quedo conectada en este Odoo.
+            email: "",
             messages: [],
             input: "",
             sending: false,
@@ -145,12 +221,35 @@ export class AskiChatWidget extends Component {
             // Confirmacion IN-APP de desconectar (nunca window.confirm).
             confirmDisconnect: false,
             disconnecting: false,
+            // El estado NO se pudo cargar (backend caido, sin red, RPC roto).
+            // Es distinto de "no conectado": antes se pintaban igual y el chat
+            // le pedia conectar su cuenta a quien YA la tenia conectada.
+            loadError: "",
+            // Analisis profundo: `agentEnabled` dice si el PLAN lo incluye,
+            // `deepMode` si el usuario lo tiene encendido ahora.
+            agentEnabled: false,
+            deepMode: false,
+            // Segundos que lleva esperando la respuesta en curso, y si esa
+            // espera es de analisis profundo (que tarda mucho mas).
+            elapsed: 0,
+            sendingDeep: false,
+            // Hilo pendiente de confirmar por ser una consulta pesada.
+            pendingHeavy: null,
+            // Renombrar/borrar un hilo desde el cajon, siempre in-app.
+            renamingId: null,
+            renameText: "",
+            confirmDeleteId: null,
         });
         onWillStart(async () => { await this.loadStatus(); });
+        // El chat se cierra (o se cambia de pantalla) con una respuesta en
+        // vuelo: el cronometro seguiria latiendo sobre un componente que ya no
+        // existe.
+        onWillUnmount(() => this._stopClock());
     }
 
     async loadStatus() {
         this.state.loading = true;
+        this.state.loadError = "";
         try {
             const st = await this.orm.call("aski.account.link", "get_status", []);
             // El estado depende del modo (compartida/solo-admin/por-usuario):
@@ -168,6 +267,11 @@ export class AskiChatWidget extends Component {
             this.state.walletCredits = st.wallet_credits || 0;
             this.state.planName = st.plan_name || "";
             this.state.partnerManaged = !!st.partner_managed;
+            this.state.email = st.email || "";
+            this.state.agentEnabled = !!st.agent_enabled;
+            if (!this.state.agentEnabled) {
+                this.state.deepMode = false;  // el plan ya no lo incluye
+            }
             if (this.state.connected) {
                 await this.refreshConversations();
                 // Restaura el hilo MAS RECIENTE al recargar la pantalla — sin esto
@@ -176,10 +280,25 @@ export class AskiChatWidget extends Component {
                 if (latest) await this.openConversation(latest.id);
             }
         } catch (e) {
-            this.state.connected = false;
+            // NO se toca `connected`: que el estado no se pueda leer no
+            // significa que la cuenta este desconectada. Marcarla como tal
+            // pintaba "Conecta Aski para empezar" a alguien que ya la tenia
+            // conectada, y lo empujaba a reconectar sin motivo.
+            // `navigator` directo y no `browser.navigator`: lo que expone el
+            // envoltorio `browser` cambia entre series (14 a 19) y esto tiene
+            // que funcionar en todas.
+            const sinRed = typeof navigator !== "undefined" && navigator.onLine === false;
+            this.state.loadError = sinRed
+                ? _t("You appear to be offline. Check your connection and try again.")
+                : ((e && e.data && e.data.message) || (e && e.message)
+                   || _t("Couldn't load the Aski chat. Try again."));
         } finally {
             this.state.loading = false;
         }
+    }
+
+    async retryLoad() {
+        await this.loadStatus();
     }
 
     async refreshConversations() {
@@ -197,6 +316,91 @@ export class AskiChatWidget extends Component {
         this.state.drawerOpen = false;
         this.state.conversationId = null;
         this.state.messages = [];
+    }
+
+    // ------------------------------------------------------------------
+    // Gestion de hilos desde el cajon (renombrar / borrar), como en la app.
+    // Toda confirmacion es IN-APP: nada de window.confirm.
+    // ------------------------------------------------------------------
+    askRename(c) {
+        this.state.confirmDeleteId = null;
+        this.state.renamingId = c.id;
+        this.state.renameText = c.title || "";
+    }
+
+    cancelRename() {
+        this.state.renamingId = null;
+        this.state.renameText = "";
+    }
+
+    onRenameInput(ev) {
+        this.state.renameText = ev.target.value;
+    }
+
+    onRenameKeydown(ev) {
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            this.doRename();
+        } else if (ev.key === "Escape") {
+            this.cancelRename();
+        }
+    }
+
+    async doRename() {
+        const id = this.state.renamingId;
+        const titulo = (this.state.renameText || "").trim();
+        if (!id || !titulo) {
+            return;
+        }
+        try {
+            await this.orm.call("aski.account.link", "rename_conversation", [id, titulo]);
+            const c = this.state.conversations.find((x) => x.id === id);
+            if (c) {
+                c.title = titulo;
+            }
+            this.cancelRename();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        }
+    }
+
+    askDelete(c) {
+        this.state.renamingId = null;
+        this.state.confirmDeleteId = c.id;
+    }
+
+    cancelDelete() {
+        this.state.confirmDeleteId = null;
+    }
+
+    async doDelete() {
+        const id = this.state.confirmDeleteId;
+        if (!id) {
+            return;
+        }
+        try {
+            await this.orm.call("aski.account.link", "delete_conversation", [id]);
+            this.state.conversations = this.state.conversations.filter((x) => x.id !== id);
+            this.state.confirmDeleteId = null;
+            // Si el hilo borrado era el que estaba abierto, se limpia la
+            // pantalla: dejar sus mensajes a la vista, con el hilo ya archivado,
+            // haria creer que se sigue conversando ahi.
+            if (this.state.conversationId === id) {
+                this.state.conversationId = null;
+                this.state.messages = [];
+                this.state.detailFor = null;
+            }
+            this.notification.add(_t("Conversation removed."), { type: "success" });
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        }
+    }
+
+    // Mensaje legible de un error de RPC, sin repetir la misma cadena en cada
+    // handler.
+    _msgDe(e) {
+        return (e && e.data && e.data.message) || (e && e.message)
+            || _t("Something went wrong. Try again.");
     }
 
     toggleDrawer() {
@@ -332,13 +536,44 @@ export class AskiChatWidget extends Component {
 
     onInput(ev) {
         this.state.input = ev.target.value;
+        this._autoGrow(ev.target);
+    }
+
+    // El composer crece con el texto hasta un tope y a partir de ahi hace
+    // scroll: una pregunta de varias lineas se escribe entera sin taparle el
+    // chat al usuario.
+    _autoGrow(el) {
+        if (!el) {
+            return;
+        }
+        el.style.height = "auto";
+        el.style.height = Math.min(el.scrollHeight, COMPOSER_MAX_PX) + "px";
+    }
+
+    _resetComposer() {
+        this.state.input = "";
+        const el = this.composerRef.el;
+        if (el) {
+            el.value = "";
+            el.style.height = "auto";
+        }
     }
 
     onKeydown(ev) {
+        // Enter envia; Shift+Enter parte la linea. Antes esto era un <input>, en
+        // el que Shift+Enter no puede insertar salto: la promesa del handler no
+        // se cumplia y solo se podian hacer preguntas de una linea.
         if (ev.key === "Enter" && !ev.shiftKey) {
             ev.preventDefault();
             this.send();
         }
+    }
+
+    toggleDeepMode() {
+        if (!this.state.agentEnabled) {
+            return;
+        }
+        this.state.deepMode = !this.state.deepMode;
     }
 
     async send() {
@@ -346,25 +581,93 @@ export class AskiChatWidget extends Component {
         if (!text || this.state.sending) {
             return; // guarda contra doble tap / doble envio
         }
-        this.state.input = "";
-        this.state.messages.push({ id: `u${Date.now()}`, role: "user", text });
+        if (text.length > MAX_PROMPT) {
+            // El backend rechaza por encima de este limite con un 422. Se avisa
+            // AQUI, con el texto todavia en el composer, en vez de mandarlo para
+            // que vuelva convertido en un error.
+            // Sin argumentos en _t(): la 14 y la 15 no los admiten y este
+            // fichero tiene que servir en las seis series.
+            this.notification.add(
+                _t("That question is too long. Make it shorter and ask again.")
+                    + " (" + text.length + "/" + MAX_PROMPT + ")",
+                { type: "warning" });
+            return;
+        }
+        this._resetComposer();
+        // El distintivo de "profundo" va en la PREGUNTA, no en la respuesta: es
+        // donde lo guarda el backend (is_agent) y donde lo pintan la app y la
+        // web. Asi sobrevive a la recarga del hilo y al historial.
+        this.state.messages.push({
+            id: `u${Date.now()}`, role: "user", text,
+            deep: this.state.deepMode && this.state.agentEnabled,
+        });
         await this._ask(text);
     }
 
-    async retry(text) {
+    async retry(errorMsg) {
         if (this.state.sending) {
             return;
         }
-        await this._ask(text);
+        // La burbuja de error se RETIRA antes de reintentar: dejarla apilaba un
+        // error tras otro y el hilo acababa siendo una lista de fallos.
+        const i = this.state.messages.indexOf(errorMsg);
+        if (i !== -1) {
+            this.state.messages.splice(i, 1);
+        }
+        await this._ask(errorMsg.retryText);
     }
 
-    async _ask(text) {
+    // El agente pidio confirmacion antes de una consulta pesada y el usuario
+    // acepta: se repite la MISMA pregunta con el visto bueno.
+    async confirmHeavy() {
+        const text = this.state.pendingHeavy;
+        if (!text || this.state.sending) {
+            return;
+        }
+        await this._ask(text, { confirmHeavy: true });
+    }
+
+    cancelHeavy() {
+        this.state.pendingHeavy = null;
+    }
+
+    // Cronometro de la espera. Una respuesta normal tarda segundos, pero el
+    // analisis profundo puede irse a mas de un minuto: tres puntitos sin mas
+    // hacen dudar de si la cosa sigue viva. No se inventan fases que el backend
+    // no reporta — se enseña el tiempo real, que si es cierto.
+    _startClock() {
+        this._stopClock();
+        this.state.elapsed = 0;
+        this._clock = browser.setInterval(() => {
+            this.state.elapsed += 1;
+        }, 1000);
+    }
+
+    _stopClock() {
+        if (this._clock) {
+            browser.clearInterval(this._clock);
+            this._clock = null;
+        }
+        this.state.elapsed = 0;
+    }
+
+    async _ask(text, opciones) {
+        const confirmarPesada = !!(opciones && opciones.confirmHeavy);
+        // El modo profundo solo se usa si el plan lo incluye: `agentEnabled` lo
+        // dice el backend, y sin el la llamada volveria con un 403.
+        const profundo = this.state.deepMode && this.state.agentEnabled;
         this.state.sending = true;
+        this.state.pendingHeavy = null;
+        this.state.sendingDeep = profundo;
+        this._startClock();
         this._scrollToBottom();
         try {
             const isNewThread = !this.state.conversationId;
-            const r = await this.orm.call("aski.account.link", "send_message",
-                [text, this.state.conversationId]);
+            const r = profundo
+                ? await this.orm.call("aski.account.link", "send_message_agent",
+                    [text, this.state.conversationId, confirmarPesada])
+                : await this.orm.call("aski.account.link", "send_message",
+                    [text, this.state.conversationId]);
             if (r.conversation_id) {
                 this.state.conversationId = r.conversation_id;
             }
@@ -374,6 +677,11 @@ export class AskiChatWidget extends Component {
                 credits: typeof r.credits === "number" ? r.credits : null,
                 backendId: null, rows: null, feedback: null,
             });
+            if (r.confirmation_required) {
+                // El agente avisa de que la consulta es pesada y espera el visto
+                // bueno. Se guarda la pregunta para poder repetirla tal cual.
+                this.state.pendingHeavy = text;
+            }
             if (typeof r.credits === "number") {
                 this.state.walletCredits = Math.max(0, this.state.walletCredits - r.credits);
             }
@@ -393,12 +701,22 @@ export class AskiChatWidget extends Component {
             // caido ese boton manda a pagar por algo que no lo arregla. Se mira
             // la clase de la excepcion (Odoo la pone en data.name), no el texto,
             // que viene traducido.
-            const sinCreditos = !!(e && e.data && typeof e.data.name === "string"
-                && e.data.name.indexOf("AskiCreditsError") !== -1);
+            const clase = (e && e.data && typeof e.data.name === "string") ? e.data.name : "";
+            const sinCreditos = clase.indexOf("AskiCreditsError") !== -1;
+            // El plan no incluye el analisis profundo: se APAGA el interruptor
+            // en vez de dejarlo encendido reintentando algo que siempre falla, y
+            // se reintenta en modo normal, que si esta disponible.
+            const sinAgente = clase.indexOf("AskiAgentNotInPlanError") !== -1;
+            if (sinAgente) {
+                this.state.deepMode = false;
+                this.state.agentEnabled = false;
+            }
             this.state.messages.push({ id: `e${Date.now()}`, role: "error", text: msg,
-                                       retryText: text, sinCreditos });
+                                       retryText: text, sinCreditos, sinAgente });
         } finally {
             this.state.sending = false;
+            this.state.sendingDeep = false;
+            this._stopClock();
             this._scrollToBottom();
         }
     }
