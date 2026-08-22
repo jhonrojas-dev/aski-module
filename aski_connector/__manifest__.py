@@ -66,8 +66,20 @@ Get the app and learn more at https://aski.dev
     ],
     "assets": {
         "web.assets_backend": [
-            "aski_connector/static/src/chat/**/*",
-            "aski_connector/static/src/systray/**/*",
+            "aski_connector/static/src/chat/*.js",
+            "aski_connector/static/src/chat/*.scss",
+            "aski_connector/static/src/systray/*.js",
+            "aski_connector/static/src/systray/*.scss",
+        ],
+        # OJO (esta serie): las plantillas OWL van en su PROPIO bundle. Con el
+        # `**/*` de antes, los .xml entraban en assets_backend, donde esta serie
+        # NO los procesa: los modulos JS cargaban bien pero el widget moria con
+        # "Template aski_connector.ChatWidget does not exist" y el chat embebido
+        # sencillamente no existia en 14/15. En 16+ los .xml si van dentro de
+        # assets_backend, por eso alli nunca se noto.
+        "web.assets_qweb": [
+            "aski_connector/static/src/chat/*.xml",
+            "aski_connector/static/src/systray/*.xml",
         ],
     },
     "images": [

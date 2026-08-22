@@ -6,7 +6,7 @@
                 <span class="ac-mark--systray"><t t-call="aski_connector.AskiMark"/></span>
             </button>
             <div t-if="state.open" class="ac-floating-panel" t-att-class="state.minimized ? 'minimized' : ''">
-                <AskiChatWidget minimized="state.minimized" onMinimize="onMinimize" onClose="onClose"/>
+                <AskiChatWidget minimized="state.minimized" onMinimize="() => this.minimize()" onClose="() => this.close()"/>
             </div>
         </div>
     </t>

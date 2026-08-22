@@ -1,6 +1,6 @@
 /** @odoo-module **/
-// VARIANTE ODOO 15 — OWL 1.4: no existe "@odoo/owl" (ver la nota larga en
-// chat/aski_chat.js). OWL va por el global; los hooks bajo owl.hooks.
+// VARIANTE OWL 1 (ramas 14 y 15) — ver la nota larga en
+// chat/aski_chat.js. OWL va por el global; los hooks bajo owl.hooks.
 const { Component } = owl;
 const { useState, onWillStart } = owl.hooks;
 import { registry } from "@web/core/registry";
@@ -34,9 +34,15 @@ export class AskiSystray extends Component {
         this.orm = useService("orm");
         // Recuerda si el usuario la dejo abierta/minimizada — al recargar la
         // pantalla (F5) antes se perdia y volvia a cerrarse siempre.
-        // `canUse` decide si la burbuja se muestra: depende del MODO de acceso
-        // (compartida al grupo / solo admin / por usuario). Arranca en false
-        // para NO parpadear la burbuja antes de resolver el permiso.
+        // `canUse` decide si la burbuja se muestra: solo a los miembros del
+        // grupo del chat (el chat lee via la conexion compartida del admin, asi
+        // que no debe estar al alcance de todo usuario interno). Arranca en
+        // false para NO parpadear la burbuja antes de resolver el permiso.
+        // OWL 1: en las plantillas `this` NO es el componente, asi que una
+        // prop como `onMinimize="() => this.minimize()"` se evaluaria con un
+        // `this` equivocado al invocarse. Se pasan callbacks YA atados.
+        this.onMinimize = () => this.minimize();
+        this.onClose = () => this.close();
         this.state = useState({ ...loadBubbleState(), canUse: false });
         onWillStart(async () => {
             try {
@@ -46,17 +52,21 @@ export class AskiSystray extends Component {
                 this.state.canUse = false;
             }
         });
-        // OWL 1: en las plantillas `this` NO es el componente, asi que una prop
-        // como `onMinimize="() => this.minimize()"` se evaluaria con un `this`
-        // equivocado al invocarse. Se pasan callbacks YA atados desde aqui.
-        this.onMinimize = () => this.minimize();
-        this.onClose = () => this.close();
     }
 
     _persist() {
-        browser.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            open: this.state.open, minimized: this.state.minimized,
-        }));
+        // Con el almacenamiento bloqueado (ventana privada, politica del
+        // navegador, cuota llena) `setItem` LANZA. Como se llama desde los
+        // handlers de abrir/minimizar/cerrar, esa excepcion se llevaba por
+        // delante el clic entero: la burbuja no abria. Recordar el estado es un
+        // extra; que el chat funcione, no.
+        try {
+            browser.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                open: this.state.open, minimized: this.state.minimized,
+            }));
+        } catch (e) {
+            // Sin memoria entre recargas, pero el chat sigue usable.
+        }
     }
 
     toggle() {
