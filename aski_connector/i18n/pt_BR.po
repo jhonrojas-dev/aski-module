@@ -533,12 +533,6 @@ msgstr "linhas"
 #. module: aski_connector
 #. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Helpful?"
-msgstr "Útil?"
-
-#. module: aski_connector
-#. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Export this answer"
 msgstr "Exportar esta resposta"
 
@@ -1159,12 +1153,6 @@ msgstr "Conversa removida."
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Couldn't load the Aski chat. Try again."
-msgstr "Não foi possível carregar o chat da Aski. Tente novamente."
-
-#. module: aski_connector
-#. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Deep"
 msgstr "Profunda"
@@ -1394,3 +1382,63 @@ msgstr "aski.dev/#pricing"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "s"
 msgstr "s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Couldn't send your note. Please try again."
+msgstr "Não foi possível enviar sua observação. Tente novamente."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "E.g.: the total doesn't match what I see in my ERP"
+msgstr "Ex.: o total não corresponde ao que vejo no meu ERP"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Helpful answer"
+msgstr "Resposta útil"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Send"
+msgstr "Enviar"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Sending…"
+msgstr "Enviando…"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Thanks. Now we know what to fix."
+msgstr "Obrigado. Agora sabemos o que corrigir."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Unhelpful answer"
+msgstr "Resposta não útil"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What went wrong? (optional)"
+msgstr "O que deu errado? (opcional)"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Helpful?"
+msgstr "Útil?"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Response details"
+msgstr "Detalhes da resposta"

@@ -774,9 +774,18 @@ class AskiAccountLink(models.Model):
                 # de "analisis profundo" desaparecia en cuanto se recargaba el
                 # hilo — que ocurre justo despues de cada respuesta.
                 "deep": bool(m.get("is_agent")) if role == "user" else False,
+                # La hora de la burbuja va en los DOS roles, como en la app y en
+                # la web. Llega en UTC y SIN marca de zona; quien la convierte a
+                # hora local es bubbleTime() en el widget.
+                "createdAt": m.get("created_at"),
                 "credits": m.get("credits") if role == "assistant" else None,
                 "rows": m.get("odoo_result_count") if role == "assistant" else None,
                 "feedback": m.get("feedback") if role == "assistant" else None,
+                # El motivo que escribio al marcar 'dislike'. Vuelve para que al
+                # recargar el hilo lo siga viendo: un comentario que desaparece
+                # se siente como que no se guardo.
+                "feedbackComment": (
+                    m.get("feedback_comment") if role == "assistant" else None),
             })
         return out
 
@@ -836,16 +845,27 @@ class AskiAccountLink(models.Model):
         return rec._fetch_export_html(assistant_msgs[-1]["id"], tz_offset_minutes)
 
     @api.model
-    def set_feedback(self, message_id, feedback):
-        """Like/dislike de una respuesta (boton del panel de detalle)."""
+    def set_feedback(self, message_id, feedback, comment=None):
+        """Like/dislike de una respuesta (pulgares de la burbuja y del panel de
+        detalle), con el motivo opcional que se escribe al marcar 'dislike'.
+
+        `comment` solo viaja SI lo hay: el backend no borra a proposito el motivo
+        ya guardado cuando el PATCH no lo trae (el cliente puede estar solo
+        cambiando el pulgar), asi que mandar una cadena vacia pisaria lo que el
+        usuario escribio. El recorte a 500 y el "solo espacios = vacio" los hace
+        el backend; no se duplican aqui.
+        """
         self._ensure_chat_access()
         rec = self._active_link(self.env.user)
         if not rec:
             raise UserError(self._not_connected_error())
+        payload = {"feedback": feedback}
+        if comment:
+            payload["comment"] = comment
         try:
             resp = requests.patch(
                 aski_api_base(self.env) + "/chat/messages/%s/feedback" % message_id,
-                json={"feedback": feedback}, headers=rec._headers(), timeout=_TIMEOUT_FAST)
+                json=payload, headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
             raise UserError(_("Could not reach Aski: %s") % e)
         if resp.status_code not in (200, 204):
