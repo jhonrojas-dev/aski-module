@@ -375,9 +375,46 @@
     // meta (creditos + detalle + export), como el .ts de la app
     .ac-meta {
         margin-top: 6px; font-size: 11px; color: var(--ac-on-variant) !important;
-        display: flex; align-items: center; gap: 8px;
+        // Pegada a la DERECHA en las dos burbujas, como en la app y en la web:
+        // es el borde por el que se cierra la burbuja y donde el ojo espera la
+        // hora. A la izquierda, en una respuesta ancha (una tabla), la fila
+        // quedaba flotando lejos del final del contenido.
+        display: flex; align-items: center; justify-content: flex-end; gap: 8px;
         .ac-credits-chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; opacity: .85;
             i { color: var(--ac-gold-deep) !important; }
+        }
+        // La hora, como en la app y en la web. Cifras de ancho fijo para que no
+        // baile el resto de la fila al pasar de "9:05" a "11:48".
+        .ac-time { opacity: .7; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    }
+    // La misma fila sobre la burbuja del usuario, que es navy solido: el gris de
+    // --ac-on-variant encima no se lee. Va anidada bajo .ac-bubble-user A
+    // PROPOSITO, por lo mismo que el chip Deep de mas arriba — un selector suelto
+    // de la misma especificidad pierde contra la regla base.
+    .ac-bubble-user .ac-meta {
+        color: rgba(255, 255, 255, .75) !important;
+    }
+    // Pulgares en la burbuja. Muy discretos por defecto: comparten la linea con
+    // la hora y no deben competir con la respuesta. Al elegir uno toma el navy de
+    // marca para que se vea que quedo guardado (nada de dorado: ese es color de
+    // marca y se usa con moderacion).
+    .ac-fb-quick {
+        border: 0; background: transparent; color: var(--ac-on-variant) !important; cursor: pointer;
+        padding: 3px; font-size: 12px; border-radius: 6px; line-height: 1; opacity: .55;
+        transition: opacity .12s ease, color .12s ease;
+        i { color: inherit !important; }
+        &:hover { opacity: 1; background: color-mix(in srgb, var(--ac-on-surface) 9%, transparent); }
+        &.on { opacity: 1; color: var(--ac-navy) !important; }
+        // El par se lee como UNA unidad: con el gap de 8px de .ac-meta por igual
+        // en todo, los cuatro iconos parecian cuatro acciones sueltas.
+        & + & { margin-left: -4px; }
+        // El backend de la 14/15 pinta un aro NEGRO en :focus, asi que tras
+        // votar con el raton el pulgar se quedaba enmarcado en negro (en la 19
+        // no pasa). Se apaga el de raton y se deja uno propio para el teclado,
+        // que ahi si hace falta: el pulgar es un boton y se navega con Tab.
+        &:focus { outline: none; }
+        &:focus-visible {
+            outline: 2px solid var(--ac-navy); outline-offset: 1px; opacity: 1;
         }
     }
     // Esta respuesta salio del analisis profundo. Navy tenue: informa sin robarle
@@ -395,10 +432,63 @@
         i { color: inherit !important; }
         &:hover { opacity: 1; background: color-mix(in srgb, var(--ac-on-surface) 9%, transparent); }
     }
-    .ac-detail {
-        margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--ac-outline-soft);
-        animation: ac-in .16s ease;
+    // Hoja de detalle: va ENCIMA del chat, no colgando de la burbuja. Replica de
+    // la hoja inferior de Android y de la web. Se ancla a .aski-chat (relative +
+    // overflow hidden), asi cubre lo mismo en pantalla completa que en la
+    // burbuja estrecha del systray, sin escaparse del widget.
+    .ac-sheet-wrap {
+        position: absolute; inset: 0; z-index: 40;
+        // `align-items: center` centra la hoja en horizontal; sin el se estiraba
+        // a todo el ancho del chat y las fichas de creditos/filas salian
+        // enormes en pantalla completa.
+        display: flex; flex-direction: column; justify-content: flex-end;
+        align-items: center;
     }
+    // z-index EXPLICITO en los dos: sin el, el velo se pintaba ENCIMA de la hoja
+    // y se comia todos los clics de dentro (Enviar, los pulgares, el aspa) —
+    // parecia que la hoja no respondia. Verificado con elementFromPoint sobre el
+    // boton: devolvia .ac-scrim, no el boton.
+    .ac-scrim {
+        position: absolute; inset: 0; z-index: 0; cursor: pointer;
+        background: rgba(21, 38, 66, .38);
+        animation: ac-fade .16s ease;
+    }
+    .ac-sheet {
+        // Ancho acotado y centrada, como la hoja de la app: a todo el ancho de
+        // una pantalla grande el contenido queda ridiculamente estirado.
+        position: relative; z-index: 1; width: 100%; max-width: 560px;
+        // min-height:0 es lo que deja que `max-height` y el scroll interno
+        // funcionen de verdad siendo item de un flex: sin el, el contenido se
+        // desbordaba por abajo y el boton Enviar quedaba fuera del area visible
+        // del widget (que es `overflow: hidden`) — no se podia ni pulsar.
+        min-height: 0; max-height: 82%; overflow-y: auto;
+        padding: 10px 16px 16px;
+        background: var(--ac-surface); color: var(--ac-on-surface) !important;
+        border-top-left-radius: 20px; border-top-right-radius: 20px;
+        box-shadow: 0 -8px 28px rgba(21, 38, 66, .22);
+        animation: ac-sheet-up .18s ease;
+    }
+    // El asidero de la hoja, como en la app: dice "esto se arrastra/se cierra".
+    .ac-sheet-grip {
+        width: 38px; height: 4px; margin: 0 auto 10px; border-radius: 999px;
+        background: var(--ac-outline-soft);
+    }
+    .ac-sheet-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; margin-bottom: 12px;
+    }
+    .ac-sheet-title { font-size: 15px; font-weight: 800; }
+    .ac-sheet-close {
+        border: 0; background: transparent; cursor: pointer; line-height: 1;
+        padding: 6px; border-radius: 8px; font-size: 14px;
+        color: var(--ac-on-variant) !important; opacity: .7;
+        i { color: inherit !important; }
+        &:hover { opacity: 1; background: color-mix(in srgb, var(--ac-on-surface) 9%, transparent); }
+        &:focus { outline: none; }
+        &:focus-visible { outline: 2px solid var(--ac-navy); outline-offset: 1px; opacity: 1; }
+    }
+    @keyframes ac-sheet-up { from { transform: translateY(14px); opacity: .6; } to { transform: none; opacity: 1; } }
+    .ac-detail { animation: ac-in .16s ease; }
     .ac-detail-stats {
         display: flex; gap: 10px; margin-bottom: 10px;
         .ac-stat { flex: 1; display: flex; align-items: center; gap: 9px;
@@ -408,17 +498,55 @@
             .ac-stat-k { font-size: 11px; color: var(--ac-on-variant) !important; }
         }
     }
+    // El voto dentro de la hoja: con ella abierta, los pulgares pequenos de la
+    // burbuja quedan detras del scrim. Botones grandes, como en la app.
     .ac-detail-fb {
         display: flex; align-items: center; gap: 8px; font-size: 13px;
-        color: var(--ac-on-variant) !important; margin-bottom: 10px;
+        color: var(--ac-on-variant) !important; margin-bottom: 12px;
     }
     .ac-fb-btn {
         border: 1.5px solid var(--ac-outline-soft); background: var(--ac-surface); border-radius: 10px;
-        width: 40px; height: 32px; cursor: pointer; color: var(--ac-on-variant) !important;
+        width: 44px; height: 34px; cursor: pointer; color: var(--ac-on-variant) !important;
         transition: all .12s ease;
         i { color: inherit !important; }
         &:hover { background: var(--ac-surface-variant); }
-        &.on, &.on-bad { background: var(--ac-navy); border-color: var(--ac-navy); color: #fff !important; }
+        &.on { background: var(--ac-navy); border-color: var(--ac-navy); color: #fff !important; }
+        &:focus { outline: none; }
+        &:focus-visible { outline: 2px solid var(--ac-navy); outline-offset: 2px; }
+    }
+    // "¿Que estuvo mal?" — solo asoma tras un 👎. box-sizing explicito: un ancho
+    // del 100% con padding y sin el desborda el panel en la burbuja del systray,
+    // que es estrecha.
+    .ac-fb-why {
+        display: block; margin-bottom: 8px;
+        .ac-fb-why-label {
+            display: block; margin-bottom: 5px; font-size: 12px;
+            color: var(--ac-on-variant) !important;
+        }
+    }
+    .ac-fb-why-input {
+        display: block; width: 100%; box-sizing: border-box; resize: vertical;
+        min-height: 62px; padding: 8px 10px; font-size: 13px; line-height: 1.45;
+        font-family: inherit;
+        border: 1.5px solid var(--ac-outline-soft); border-radius: 12px;
+        background: var(--ac-surface); color: var(--ac-on-surface) !important;
+        &:focus { outline: none; border-color: var(--ac-navy); }
+    }
+    .ac-fb-why-actions {
+        display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+    }
+    .ac-fb-send {
+        border: 0; background: var(--ac-navy); color: #fff !important;
+        border-radius: 12px; padding: 8px 16px; font-size: 13px; font-weight: 700;
+        cursor: pointer; transition: opacity .12s ease;
+        &:hover:not(:disabled) { opacity: .9; }
+        &:disabled { opacity: .5; cursor: not-allowed; }
+    }
+    .ac-fb-note {
+        display: inline-flex; align-items: center; gap: 5px; font-size: 12px;
+        i { color: inherit !important; font-size: 11px; }
+        &.ac-fb-ok { color: var(--ac-navy) !important; }
+        &.ac-fb-bad { color: var(--ac-error) !important; }
     }
     .ac-detail-export {
         border: 1.5px solid var(--ac-outline-soft); background: var(--ac-surface); color: var(--ac-on-surface) !important;

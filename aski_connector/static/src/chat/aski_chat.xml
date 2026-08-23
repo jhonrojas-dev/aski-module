@@ -215,14 +215,45 @@
                             <span t-if="m.deep" class="ac-deep-chip">
                                 <i class="fa fa-flask"/> Deep
                             </span>
+                            <!-- La hora va en las DOS burbujas, como en la app y
+                                 en la web. -->
+                            <div class="ac-meta">
+                                <span class="ac-time" t-esc="bubbleTime(m.createdAt)"/>
+                            </div>
                         </div>
                         <div t-elif="m.role === 'assistant'" class="ac-bubble ac-bubble-bot">
                             <div class="md" t-raw="renderMd(m.text)"/>
-                            <div t-if="m.credits !== null" class="ac-meta">
+                            <!-- La fila se pinta SIEMPRE; lo condicional es el chip
+                                 de creditos. Cuando el t-if colgaba de la fila, una
+                                 respuesta sin cobro (historicos, turnos sin cargo) se
+                                 quedaba sin hora, sin detalle, sin PDF y sin pulgares.
+                                 La web ya lo tenia asi. -->
+                            <div class="ac-meta">
+                                <span class="ac-time" t-esc="bubbleTime(m.createdAt)"/>
                                 <!-- Que esta respuesta salio del analisis profundo:
                                      cuesta mas creditos y conviene que se vea. -->
                                 <span t-if="m.deep" class="ac-deep-chip"><i class="fa fa-flask"/> Deep</span>
-                                <span class="ac-credits-chip"><i class="fa fa-bolt"/> <t t-esc="m.credits"/> credits</span>
+                                <span t-if="m.credits !== null" class="ac-credits-chip"><i class="fa fa-bolt"/> <t t-esc="m.credits"/> credits</span>
+                                <!-- Pulgares PULSABLES aqui mismo. Antes el control
+                                     vivia dentro de "Details": nadie abre detalles
+                                     cuando una respuesta le sirve, y menos cuando NO
+                                     le sirve — reformula y sigue. Medido en produccion:
+                                     2 dislikes y 0 likes en 10.389 turnos, con quejas
+                                     escritas en el chat que nunca llegaron al panel.
+                                     Sin backendId no hay a quien mandarle el voto (la
+                                     burbuja recien enviada aun no se ha reconciliado). -->
+                                <button t-if="m.backendId" title="Helpful answer"
+                                        t-attf-class="ac-fb-quick {{ m.feedback === 'like' ? 'on' : '' }}"
+                                        t-att-aria-pressed="m.feedback === 'like' ? 'true' : 'false'"
+                                        t-on-click="setFeedback(m, 'like')">
+                                    <i class="fa fa-thumbs-o-up"/>
+                                </button>
+                                <button t-if="m.backendId" title="Unhelpful answer"
+                                        t-attf-class="ac-fb-quick {{ m.feedback === 'dislike' ? 'on' : '' }}"
+                                        t-att-aria-pressed="m.feedback === 'dislike' ? 'true' : 'false'"
+                                        t-on-click="setFeedback(m, 'dislike')">
+                                    <i class="fa fa-thumbs-o-down"/>
+                                </button>
                                 <button t-if="m.backendId" class="ac-detail-btn" title="Details"
                                         t-on-click="toggleDetail(m)">
                                     <i class="fa fa-info-circle"/>
@@ -230,33 +261,6 @@
                                 <button t-if="m.backendId" class="ac-detail-btn" title="Export this answer to PDF"
                                         t-on-click="exportMessageDetail(m)" t-att-disabled="state.exporting">
                                     <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
-                                </button>
-                            </div>
-                            <div t-if="state.detailFor === m.id" class="ac-detail">
-                                <div class="ac-detail-stats">
-                                    <div class="ac-stat">
-                                        <i class="fa fa-bolt"/>
-                                        <div><div class="ac-stat-v" t-esc="m.credits ?? 0"/><div class="ac-stat-k">credits</div></div>
-                                    </div>
-                                    <div t-if="m.rows !== null" class="ac-stat">
-                                        <i class="fa fa-table"/>
-                                        <div><div class="ac-stat-v" t-esc="m.rows"/><div class="ac-stat-k">rows</div></div>
-                                    </div>
-                                </div>
-                                <div class="ac-detail-fb">
-                                    <span>Helpful?</span>
-                                    <button t-attf-class="ac-fb-btn {{ m.feedback === 'like' ? 'on' : '' }}"
-                                            t-on-click="setFeedback(m, 'like')">
-                                        <i class="fa fa-thumbs-o-up"/>
-                                    </button>
-                                    <button t-attf-class="ac-fb-btn {{ m.feedback === 'dislike' ? 'on-bad' : '' }}"
-                                            t-on-click="setFeedback(m, 'dislike')">
-                                        <i class="fa fa-thumbs-o-down"/>
-                                    </button>
-                                </div>
-                                <button class="ac-detail-export" t-on-click="exportMessageDetail(m)"
-                                        t-att-disabled="state.exporting">
-                                    <i class="fa fa-file-pdf-o"/> Export this answer
                                 </button>
                             </div>
                         </div>
@@ -350,6 +354,103 @@
             </t>
 
             </t>
+
+            <!-- Detalle de UNA respuesta. Va ENCIMA del chat (scrim + hoja), como
+                 la hoja de Android y la de la web. Colgado bajo la burbuja se abria
+                 DEBAJO del contenido: con una respuesta larga (una tabla) no se veia
+                 y habia que adivinar que algo se habia desplegado.
+                 Se monta al final de .aski-chat, que ya es `position: relative` con
+                 `overflow: hidden`, asi queda contenido igual en pantalla completa
+                 que en la burbuja estrecha del systray. -->
+            <div t-if="detailMsg" class="ac-sheet-wrap">
+                <div class="ac-scrim" t-on-click="closeDetail"/>
+                <div class="ac-sheet" role="dialog" aria-modal="true">
+                    <t t-set="m" t-value="detailMsg"/>
+                    <div class="ac-sheet-grip"/>
+                    <div class="ac-sheet-head">
+                        <span class="ac-sheet-title">Response details</span>
+                        <button class="ac-sheet-close" title="Close" t-on-click="closeDetail">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+                        <div class="ac-detail">
+                            <div class="ac-detail-stats">
+                                <div class="ac-stat">
+                                    <i class="fa fa-bolt"/>
+                                    <div><div class="ac-stat-v" t-esc="m.credits ?? 0"/><div class="ac-stat-k">credits</div></div>
+                                </div>
+                                <div t-if="m.rows !== null" class="ac-stat">
+                                    <i class="fa fa-table"/>
+                                    <div><div class="ac-stat-v" t-esc="m.rows"/><div class="ac-stat-k">rows</div></div>
+                                </div>
+                            </div>
+                            <!-- Aqui vivia un segundo "Helpful? 👍👎", que se quito
+                                 al subir los pulgares a la fila de la burbuja: este
+                                 panel es INLINE (en la app y en la web el detalle es
+                                 una hoja que TAPA el chat, y por eso alli si
+                                 conviven), asi que los dos controles quedaban a la
+                                 vista en la misma tarjeta, a 40 px uno del otro, y
+                                 parecian un descuido. Lo que SI vive aqui es el POR
+                                 QUE, lo unico que convierte un pulgar en algo
+                                 accionable: la unica queja real de un cliente llego
+                                 ESCRITA en el chat, nunca por el pulgar, asi que el
+                                 panel de calidad no la veia. Solo se pide tras un 👎.
+                                 La etiqueta ENVUELVE al textarea en vez de usar
+                                 for/id: el widget puede estar montado dos veces a
+                                 la vez (pantalla completa + burbuja del systray) y
+                                 dos ids iguales dejarian la etiqueta ambigua.
+                                 El contenido se pinta desde `fbInitial`, que NO
+                                 cambia mientras el panel esta abierto: enlazarlo a
+                                 `fbComment` haria que OWL reescribiera el texto en
+                                 cada pulsacion y el cursor saltaria al final al
+                                 corregir algo en mitad de la frase. -->
+                            <!-- El voto TAMBIEN aqui, como en la hoja de Android y la
+                                 de la web. No es un duplicado ocioso: la hoja TAPA el
+                                 chat, asi que con ella abierta los pulgares pequenos de
+                                 la burbuja quedan detras del scrim y no se pueden
+                                 pulsar; sin estos habria que cerrar para cambiar el voto. -->
+                            <div class="ac-detail-fb">
+                                <span>Helpful?</span>
+                                <button t-attf-class="ac-fb-btn {{ m.feedback === 'like' ? 'on' : '' }}"
+                                        title="Helpful answer"
+                                        t-att-aria-pressed="m.feedback === 'like' ? 'true' : 'false'"
+                                        t-on-click="setFeedback(m, 'like')">
+                                    <i class="fa fa-thumbs-o-up"/>
+                                </button>
+                                <button t-attf-class="ac-fb-btn {{ m.feedback === 'dislike' ? 'on' : '' }}"
+                                        title="Unhelpful answer"
+                                        t-att-aria-pressed="m.feedback === 'dislike' ? 'true' : 'false'"
+                                        t-on-click="setFeedback(m, 'dislike')">
+                                    <i class="fa fa-thumbs-o-down"/>
+                                </button>
+                            </div>
+                            <label t-if="m.feedback === 'dislike'" class="ac-fb-why">
+                                <span class="ac-fb-why-label">What went wrong? (optional)</span>
+                                <textarea class="ac-fb-why-input" rows="3" maxlength="500"
+                                          placeholder="E.g.: the total doesn't match what I see in my ERP"
+                                          t-on-input="onFbCommentInput"
+                                          t-esc="state.fbInitial"/>
+                            </label>
+                            <div t-if="m.feedback === 'dislike'" class="ac-fb-why-actions">
+                                <button class="ac-fb-send" t-on-click="sendFeedbackComment(m)"
+                                        t-att-disabled="state.fbSending || !state.fbComment.trim()">
+                                    <t t-if="state.fbSending">Sending…</t>
+                                    <t t-else="">Send</t>
+                                </button>
+                                <span t-if="state.fbSent" class="ac-fb-note ac-fb-ok">
+                                    <i class="fa fa-check"/> Thanks. Now we know what to fix.
+                                </span>
+                                <span t-if="state.fbError" class="ac-fb-note ac-fb-bad">
+                                    <i class="fa fa-exclamation-circle"/> Couldn't send your note. Please try again.
+                                </span>
+                            </div>
+                            <button class="ac-detail-export" t-on-click="exportMessageDetail(m)"
+                                    t-att-disabled="state.exporting">
+                                <i class="fa fa-file-pdf-o"/> Export this answer
+                            </button>
+                        </div>
+                </div>
+            </div>
         </div>
     </t>
 </templates>

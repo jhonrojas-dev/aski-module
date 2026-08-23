@@ -277,6 +277,20 @@ class AskiChatWidget extends Component {
             conversations: [],
             drawerOpen: false,
             detailFor: null,
+            // Motivo del 'dislike' (campo "¿Que estuvo mal?" del panel de
+            // detalle). Vive en el estado del chat y NO en el mensaje porque
+            // solo hay un panel abierto a la vez; se reinicia en _openDetail
+            // para que lo escrito en una respuesta no reaparezca en la de al
+            // lado.
+            fbComment: "",
+            // Lo que se PINTA dentro del textarea. Se fija al abrir el panel y
+            // no se vuelve a tocar: si el contenido colgara de `fbComment`, OWL
+            // reescribiria el texto en cada pulsacion y el cursor saltaria al
+            // final al corregir algo en mitad de la frase.
+            fbInitial: "",
+            fbSending: false,
+            fbSent: false,
+            fbError: false,
             // Confirmacion IN-APP de desconectar (nunca window.confirm).
             confirmDisconnect: false,
             disconnecting: false,
@@ -304,6 +318,18 @@ class AskiChatWidget extends Component {
         // vuelo: el cronometro seguiria latiendo sobre un componente que ya no
         // existe.
         onWillUnmount(() => this._stopClock());
+        // Esc cierra la hoja de detalle, como cualquier dialogo de Odoo. Va en
+        // el documento porque la hoja no tiene el foco por si sola, y se retira
+        // al desmontar: el widget se monta DOS veces (pantalla completa y
+        // burbuja del systray) y dejar el listener colgado haria que la hoja de
+        // una cerrase por la otra.
+        this._onEsc = (ev) => {
+            if (ev.key === "Escape" && this.state.detailFor) {
+                this.state.detailFor = null;
+            }
+        };
+        document.addEventListener("keydown", this._onEsc);
+        onWillUnmount(() => document.removeEventListener("keydown", this._onEsc));
     }
 
     async loadStatus() {
@@ -560,19 +586,127 @@ class AskiChatWidget extends Component {
         }
     }
 
-    toggleDetail(m) {
-        this.state.detailFor = this.state.detailFor === m.id ? null : m.id;
+    // El mensaje cuya hoja de detalle esta abierta. La hoja se monta UNA vez al
+    // final del chat (no dentro de cada burbuja), asi que necesita resolverlo.
+    get detailMsg() {
+        if (!this.state.detailFor) {
+            return null;
+        }
+        return this.state.messages.find((x) => x.id === this.state.detailFor) || null;
     }
 
+    closeDetail() {
+        this.state.detailFor = null;
+    }
+
+    toggleDetail(m) {
+        if (this.state.detailFor === m.id) {
+            this.state.detailFor = null;
+            return;
+        }
+        this._openDetail(m);
+    }
+
+    // Abre el detalle de UN mensaje dejando el campo de motivo en su sitio: con
+    // lo que ese mensaje ya tenga escrito, y sin el acuse ni el error del
+    // anterior. Sin este reinicio, el motivo tecleado en una respuesta aparecia
+    // en la de al lado en cuanto se abria su panel.
+    _openDetail(m) {
+        this.state.detailFor = m.id;
+        this.state.fbComment = m.feedbackComment || "";
+        this.state.fbInitial = m.feedbackComment || "";
+        this.state.fbSending = false;
+        this.state.fbSent = false;
+        this.state.fbError = false;
+    }
+
+    // Pulgar, tanto el de la burbuja como el grande del panel de detalle.
+    //
+    // Optimista y SILENCIOSO a proposito: valorar es un gesto de un toque, no
+    // una tarea. Si el envio falla se revierte la marca y no se molesta con un
+    // error — la respuesta sigue ahi y el usuario no ha perdido nada. (El motivo
+    // escrito si avisa: ver sendFeedbackComment.)
     async setFeedback(m, value) {
+        // Sin id del backend no hay a quien mandarle el voto: el mensaje aun no
+        // se ha reconciliado con load_conversation. La plantilla ya oculta los
+        // pulgares en ese caso; esto es la red por si se llama desde otro sitio.
+        if (!m.backendId) {
+            return;
+        }
         const previous = m.feedback;
         const next = previous === value ? null : value;
         m.feedback = next; // optimista
         try {
             await this.orm.call("aski.account.link", "set_feedback", [m.backendId, next]);
+            if (next === "dislike") {
+                // Al marcar 👎 se abre el detalle: es donde se puede decir POR
+                // QUE, lo unico que convierte un pulgar en algo accionable.
+                this._openDetail(m);
+            } else if (next === null) {
+                // Quitar la valoracion se lleva su motivo — el backend tambien
+                // lo borra, y un comentario huerfano se contaria como queja
+                // vigente.
+                m.feedbackComment = null;
+                if (this.state.detailFor === m.id) {
+                    this.state.fbComment = "";
+                    this.state.fbSent = false;
+                }
+            }
         } catch (e) {
-            m.feedback = previous; // revertir si el backend rechazo el cambio
+            // Revertir si el backend rechazo el cambio — pero SOLO si nadie ha
+            // vuelto a pulsar mientras tanto: con dos clics seguidos, el fallo
+            // del primero borraba el voto del segundo.
+            if (m.feedback === next) {
+                m.feedback = previous;
+            }
         }
+    }
+
+    onFbCommentInput(ev) {
+        this.state.fbComment = ev.target.value;
+        // Volver a escribir retira el acuse y el error: si no, el "Gracias" se
+        // queda colgado sobre un texto que ya cambio y parece guardado.
+        this.state.fbSent = false;
+        this.state.fbError = false;
+    }
+
+    // El motivo SI informa del resultado, al reves que el pulgar: escribir unas
+    // lineas es una tarea, y perderla en silencio seria peor que no haberla
+    // pedido.
+    async sendFeedbackComment(m) {
+        const texto = (this.state.fbComment || "").trim();
+        if (this.state.fbSending || !texto) {
+            return;
+        }
+        this.state.fbSending = true;
+        this.state.fbError = false;
+        try {
+            await this.orm.call("aski.account.link", "set_feedback",
+                [m.backendId, "dislike", texto]);
+            m.feedbackComment = texto;
+            this.state.fbSent = true;
+        } catch (e) {
+            // El texto NO se borra: se queda en el campo para reintentar.
+            this.state.fbError = true;
+        } finally {
+            this.state.fbSending = false;
+        }
+    }
+
+    // La hora de la burbuja, como en la app y en la web. El backend guarda
+    // `created_at` en UTC pero SIN marca de zona ("2026-08-22T19:04:00"), y un
+    // ISO sin offset lo interpreta `new Date()` como hora LOCAL: en Lima saldria
+    // cinco horas adelantada. Se le pone la Z cuando no la trae, igual que hace
+    // ChatRepository en la app (parseCreatedAtMillis).
+    bubbleTime(iso) {
+        if (!iso) {
+            return "";
+        }
+        const d = new Date(/(?:Z|[+-]\d{2}:?\d{2})$/.test(iso) ? iso : iso + "Z");
+        if (isNaN(d.getTime())) {
+            return "";
+        }
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
 
     async exportMessageDetail(m) {
@@ -708,6 +842,10 @@ class AskiChatWidget extends Component {
         this.state.messages.push({
             id: `u${Date.now()}`, role: "user", text,
             deep: this.state.deepMode && this.state.agentEnabled,
+            // La hora se pinta YA, sin esperar a la recarga del hilo: una
+            // burbuja que aparece sin hora y la estrena un segundo despues da
+            // un salto feo justo donde el usuario esta mirando.
+            createdAt: new Date().toISOString(),
         });
         await this._ask(text);
     }
@@ -784,6 +922,7 @@ class AskiChatWidget extends Component {
                 id: `a${Date.now()}`, role: "assistant", text: r.answer || "",
                 credits: typeof r.credits === "number" ? r.credits : null,
                 backendId: null, rows: null, feedback: null,
+                feedbackComment: null, createdAt: new Date().toISOString(),
             });
             if (r.confirmation_required) {
                 // El agente avisa de que la consulta es pesada y espera el visto

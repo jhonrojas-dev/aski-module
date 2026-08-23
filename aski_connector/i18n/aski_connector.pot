@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0-20260619\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 16:29+0000\n"
-"PO-Revision-Date: 2026-08-22 16:29+0000\n"
+"POT-Creation-Date: 2026-08-23 02:00+0000\n"
+"PO-Revision-Date: 2026-08-23 02:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -461,8 +461,8 @@ msgstr ""
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Couldn't load the Aski chat. Try again."
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Couldn't send your note. Please try again."
 msgstr ""
 
 #. module: aski_connector
@@ -574,6 +574,12 @@ msgid "Done"
 msgstr ""
 
 #. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "E.g.: the total doesn't match what I see in my ERP"
+msgstr ""
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_email
 msgid "Email"
 msgstr ""
@@ -655,6 +661,12 @@ msgstr ""
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__has_partner_code
 msgid "Has Partner Code"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Helpful answer"
 msgstr ""
 
 #. module: aski_connector
@@ -958,6 +970,12 @@ msgstr ""
 #. module: aski_connector
 #. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Response details"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Retry"
 msgstr ""
 
@@ -985,6 +1003,18 @@ msgid "See all plans and pricing at"
 msgstr ""
 
 #. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Send"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Sending…"
+msgstr ""
+
+#. module: aski_connector
 #: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__shared_group
 msgid "Shared - the Aski Chat group uses my connection"
 msgstr ""
@@ -1003,6 +1033,12 @@ msgstr ""
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Test connection"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Thanks. Now we know what to fix."
 msgstr ""
 
 #. module: aski_connector
@@ -1122,6 +1158,12 @@ msgstr ""
 
 #. module: aski_connector
 #. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Unhelpful answer"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Untitled"
 msgstr ""
@@ -1142,6 +1184,12 @@ msgstr ""
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__user_id
 msgid "User"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What went wrong? (optional)"
 msgstr ""
 
 #. module: aski_connector
