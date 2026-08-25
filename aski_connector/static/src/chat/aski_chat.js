@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, useState, useRef, onWillStart, onWillUnmount, markup } from "@odoo/owl";
+import { Component, useState, useRef, onWillStart, onWillUnmount, onMounted, markup } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { browser } from "@web/core/browser/browser";
@@ -281,6 +281,13 @@ export class AskiChatWidget extends Component {
         });
         onWillUnmount(_bajaRecord);
         onWillStart(async () => { await this.loadStatus(); });
+        // ⛔ El chat abria por ARRIBA, ensenando el mensaje mas viejo del hilo.
+        // Causa: `loadStatus` corre en `onWillStart` —antes del montaje— y su
+        // `openConversation` llama a `_scrollToBottom`, que lee `messagesRef.el`.
+        // Ese elemento AUN NO EXISTE, asi que el scroll se perdia en silencio.
+        // Aqui el DOM ya esta, y `onWillStart` termino, asi que los mensajes
+        // estan puestos: es el primer instante en el que se puede bajar de verdad.
+        onMounted(() => this._scrollToBottom());
         // El chat se cierra (o se cambia de pantalla) con una respuesta en
         // vuelo: el cronometro seguiria latiendo sobre un componente que ya no
         // existe.
