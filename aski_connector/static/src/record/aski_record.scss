@@ -12,6 +12,15 @@
 // exactamente el detalle por el que un anadido se nota anadido.
 
 .o-aski-chatterBtn {
+    // ⛔ SEPARACION POR LA IZQUIERDA. Los botones de esta barra se separan con
+    // margen a la DERECHA (`me-1`), pero el ULTIMO antes del espaciador no lo
+    // lleva — no lo necesitaba, porque no tenia a nadie detras. Al insertarse
+    // ahi, este boton queda PEGADO a el mientras el resto respira: se ve como un
+    // anadido mal encajado. Se resuelve por el lado que nadie cubre.
+    // El valor es el mismo `.25rem` de `me-1`, para que la fila quede pareja.
+    // Reportado dos veces sobre la instancia real antes de que lo viera: a 1600px
+    // el hueco existe por otras razones y el fallo NO se reproduce.
+    margin-left: .25rem;
     .o-aski-chatterBtn-mark {
         // Al alto de la letra, no al del boton: una marca mas grande que el texto
         // que la acompana desequilibra la fila entera.
