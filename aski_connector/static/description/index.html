@@ -53,7 +53,7 @@
     <div style="max-width:1060px;margin:0 auto;padding:34px 16px;">
       <p style="text-align:center;margin:0 0 6px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#875A7B;">Odoo 14 &ndash; 19</p>
       <h3 style="font-family:'Caveat','Segoe Script',cursive;font-weight:700;text-align:center;font-size:36px;margin:0 0 8px;color:#2b2b33;">Chat with Aski right inside Odoo</h3>
-      <p style="text-align:center;color:#666;margin:0 auto 24px;max-width:660px;">A floating chat bubble on every Odoo screen &mdash; ask in plain language, get a real answer with data tables, and export it to PDF. No switching apps, no picking up your phone.</p>
+      <p style="text-align:center;color:#666;margin:0 auto 24px;max-width:660px;">A floating chat bubble on every Odoo screen &mdash; ask in plain language, get a real answer with data tables, and export it to PDF. No switching apps, no picking up your phone. And from any document with a chatter, an <b>Aski</b> button asks about <b>that</b> record: &ldquo;why is this invoice overdue?&rdquo; &mdash; no need to type which one.</p>
 
       <div style="text-align:center;">
         <div style="display:inline-block;width:660px;max-width:calc(100% - 18px);margin:0 8px 18px;vertical-align:top;">
@@ -67,6 +67,10 @@
         <div style="display:inline-block;width:920px;max-width:calc(100% - 18px);margin:6px 8px 0;vertical-align:top;">
           <img style="width:100%;height:auto;border-radius:12px;border:1px solid #e6e6ec;box-shadow:0 8px 26px rgba(20,20,40,0.10);display:block;" src="shot-11.png" alt="Aski full-screen chat in Odoo showing the welcome screen with suggested questions"/>
           <p style="color:#666;font-size:13px;margin:9px 0 0;">Nothing to learn: suggested questions get your team started on day one.</p>
+        </div>
+        <div style="display:inline-block;width:920px;max-width:calc(100% - 18px);margin:6px 8px 0;vertical-align:top;">
+          <img style="width:100%;height:auto;border-radius:12px;border:1px solid #e6e6ec;box-shadow:0 8px 26px rgba(20,20,40,0.10);display:block;" src="shot-12.png" alt="An Aski button in the chatter of an overdue customer invoice; the chat panel is open, pinned to that invoice, and explains that it is 91 days past its due date with the balance still unpaid"/>
+          <p style="color:#666;font-size:13px;margin:9px 0 0;">Ask about the record you are looking at: the <b>Aski</b> button in the chatter opens the chat already pinned to that document &mdash; &ldquo;why is this invoice overdue?&rdquo; is answered with its own dates and balance, no need to type the number.</p>
         </div>
       </div>
 
@@ -162,11 +166,15 @@
 
   <div style="width:100%;background-color:#f6f6f8;">
     <div style="max-width:960px;margin:0 auto;padding:26px 16px;">
-      <h3 style="font-family:'Caveat','Segoe Script',cursive;font-weight:700;text-align:center;font-size:34px;margin:0 0 12px;">Read-only &amp; safe by design</h3>
+      <h3 style="font-family:'Caveat','Segoe Script',cursive;font-weight:700;text-align:center;font-size:34px;margin:0 0 12px;">Read-only by default, and safe by design</h3>
       <p style="margin:12px 0;">
-        <b>Aski only reads your data.</b> It answers questions and builds reports
-        &mdash; it never creates, edits or deletes records in your Odoo. Ask with
-        confidence: nothing in your database can be changed from the app.
+        <b>By default, Aski only reads your data.</b> It answers questions and
+        builds reports, and it does not create, edit or delete records in your
+        Odoo unless <b>actions with confirmation</b> are switched on &mdash; a
+        capability limited to the top plans and to a closed catalogue of four
+        operations (payment reminder, follow-up activity, approving or rejecting
+        a document). Even then, nothing runs until you are shown exactly what is
+        about to happen and on which record, and you confirm it.
       </p>
       <p style="margin:12px 0;">
         The module only shows you a connection code. The Aski app connects

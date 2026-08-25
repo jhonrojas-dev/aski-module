@@ -12,7 +12,7 @@
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
-               "right inside Odoo. Read-only & safe. Free.",
+               "right inside Odoo. Read-only by default. Free.",
     "description": """
 Aski - Ask your ERP in natural language
 =======================================
@@ -30,8 +30,11 @@ New: chat with Aski right inside Odoo - paste a personal access token
 generated once in the Aski web app, and a chat panel appears under Aski > Chat.
 Same account, same wallet as the mobile app - just another way to ask.
 
-* Read-only by design: Aski only reads and reports - it never creates, edits or
-  deletes records in your Odoo.
+* Read-only by default: Aski reads and reports. It does not create, edit or
+  delete anything in your Odoo unless you switch on **actions with confirmation**
+  - a top-plan capability limited to a closed list of four operations (payment
+  reminder, follow-up activity, approve or reject a document). Even then nothing
+  runs until you are shown what will happen, on which record, and you confirm.
 * Works with Odoo Community and Enterprise (14 to 19) - BOTH the in-Odoo chat
   and the QR connector for the mobile app work on EVERY version, 14 included.
 * Generates a standard Odoo API key for your user (you can revoke it anytime in
@@ -102,6 +105,7 @@ Get the app and learn more at https://aski.dev
         "static/description/shot-9.png",
         "static/description/shot-10.png",
         "static/description/shot-11.png",
+        "static/description/shot-12.png",
     ],
     "installable": True,
     "application": True,
