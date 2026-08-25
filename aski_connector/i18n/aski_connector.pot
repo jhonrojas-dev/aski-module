@@ -1555,3 +1555,27 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "you@company.com"
 msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asking about"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
+msgid "Ask Aski about this record"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask about everything again, not just this record"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Remove record scope"
+msgstr ""
