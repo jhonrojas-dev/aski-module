@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        El boton "Aski" en la barra del chatter — VARIANTE ODOO 15 (OWL 1).
+
+        Tres cosas que en esta serie NO son como en 16+:
+
+        * Se accede a `chatter` DIRECTO, sin el prefijo `chatterTopbar.` que usa
+          la 16. Lo expone el getter del componente.
+        * `t-on-click` lleva el NOMBRE del manejador, no una funcion flecha: en
+          OWL 1 `this` dentro de la plantilla no es el componente, por eso
+          `askiAsk` va ya atado desde el `setup`.
+        * El ancla es `.o-autogrow` —el hueco elastico que empuja los iconos a la
+          derecha—, no el `o_ChatterTopbar_borderLeft` de la 16. Insertar antes de
+          el deja el boton pegado a "Schedule activity", con sus hermanos.
+
+        Estilo: `btn btn-link o_ChatterTopbar_button`, que es el de los botones de
+        esta barra en la 15 (en la 16 es `btn-light`, en 17+ `btn-secondary`).
+    -->
+    <t t-name="aski_connector.ChatterAski" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o-autogrow')]" position="before">
+            <button t-if="askiVisible"
+                    class="btn btn-link o_ChatterTopbar_button o-aski-chatterBtn"
+                    type="button"
+                    title="Ask Aski about this record"
+                    t-on-click="askiAsk">
+                <img class="o-aski-chatterBtn-mark"
+                     src="/aski_connector/static/src/img/aski_mark.png"
+                     alt="" aria-hidden="true"/>
+                <span>Aski</span>
+            </button>
+        </xpath>
+    </t>
+
+</templates>

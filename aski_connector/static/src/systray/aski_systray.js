@@ -2,11 +2,16 @@
 // VARIANTE OWL 1 (ramas 14 y 15) — ver la nota larga en
 // chat/aski_chat.js. OWL va por el global; los hooks bajo owl.hooks.
 const { Component } = owl;
-const { useState, onWillStart } = owl.hooks;
+// `onWillUnmount` lo necesita la baja del oyente de "abre el panel": sin
+// darse de baja, cada recarga del systray deja un oyente muerto tocando el
+// estado de un componente que ya no existe.
+const { useState, onWillStart, onWillUnmount } = owl.hooks;
 import { registry } from "@web/core/registry";
 import { browser } from "@web/core/browser/browser";
 import { useService } from "@web/core/utils/hooks";
 import { AskiChatWidget } from "../chat/aski_chat";
+import { canUseChat } from "../record/aski_access";
+import { onOpenRequest } from "../record/aski_record";
 
 const STORAGE_KEY = "aski_connector.bubble_state";
 
@@ -45,13 +50,19 @@ export class AskiSystray extends Component {
         this.onClose = () => this.close();
         this.state = useState({ ...loadBubbleState(), canUse: false });
         onWillStart(async () => {
-            try {
-                this.state.canUse = await this.orm.call(
-                    "aski.account.link", "can_use_chat", []);
-            } catch (e) {
-                this.state.canUse = false;
-            }
+            // Memoizado y COMPARTIDO con el boton del chatter: entre los dos
+            // hacen UNA llamada por pestana, no una cada uno.
+            this.state.canUse = await canUseChat(() =>
+                this.orm.call("aski.account.link", "can_use_chat", []));
         });
+        // El boton "Aski" de una ficha pide abrir la burbuja. Se desmarca al
+        // desmontar: sin la baja, cada recarga del systray dejaria un oyente
+        // muerto que sigue tocando el estado de un componente que ya no existe.
+        onWillUnmount(onOpenRequest(() => {
+            this.state.open = true;
+            this.state.minimized = false;
+            this._persist();
+        }));
     }
 
     _persist() {
