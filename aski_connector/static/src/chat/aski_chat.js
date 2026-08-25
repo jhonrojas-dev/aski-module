@@ -1224,18 +1224,36 @@ export class AskiChatWidget extends Component {
 
     // Los registros se abren EN Odoo, que es la ventaja de estar dentro: en la
     // app y en la web esto es un enlace que saca al usuario del programa.
+    //
+    // ⛔ En PESTANA NUEVA, no con `doAction({target: "current"})`. Eso ultimo
+    // reemplazaba el chat por la ficha: el usuario perdia la conversacion y
+    // tenia que volver y preguntar otra vez. Abriendo aparte, se contrasta la
+    // ficha contra la respuesta con las dos a la vista, que es justo para lo
+    // que se mira el detalle.
     openRecord(fila) {
         const modelo = (this.state.records || {}).model;
         if (!modelo || !fila.id) {
             return;
         }
-        this.action.doAction({
-            type: "ir.actions.act_window",
-            res_model: modelo,
-            res_id: fila.id,
-            views: [[false, "form"]],
-            target: "current",
-        });
+        // `noopener` ademas de `_blank`: la pestana nueva no tiene que poder
+        // tocar la que deja el chat abierto.
+        // `window.open` y no `browser.open`: es lo que ya usa openBilling en este
+        // mismo fichero y funciona en las seis series. `noopener` ademas de
+        // `_blank`, para que la pestana nueva no pueda tocar la del chat.
+        window.open(this._urlRegistro(modelo, fila.id), "_blank",
+                    "noopener,noreferrer");
+    }
+
+    // La direccion de una ficha cambio de forma entre series: hasta la 16 es el
+    // hash de /web y desde la 17 la ruta /odoo/<modelo>/<id>. Se DEDUCE de la
+    // pagina en la que estamos en vez de fijar una constante por version, que es
+    // lo que habria que tocar en cada serie nueva.
+    _urlRegistro(modelo, id) {
+        const raiz = browser.location.origin;
+        if (browser.location.pathname.indexOf("/odoo") === 0) {
+            return raiz + "/odoo/" + modelo + "/" + id;
+        }
+        return raiz + "/web#id=" + id + "&model=" + modelo + "&view_type=form";
     }
 
     // =====================================================================
