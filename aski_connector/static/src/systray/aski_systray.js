@@ -1,9 +1,11 @@
 /** @odoo-module **/
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState, onWillStart, onWillUnmount } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { browser } from "@web/core/browser/browser";
 import { useService } from "@web/core/utils/hooks";
 import { AskiChatWidget } from "../chat/aski_chat";
+import { canUseChat } from "../record/aski_access";
+import { onOpenRequest } from "../record/aski_record";
 
 const STORAGE_KEY = "aski_connector.bubble_state";
 
@@ -37,13 +39,19 @@ export class AskiSystray extends Component {
         // false para NO parpadear la burbuja antes de resolver el permiso.
         this.state = useState({ ...loadBubbleState(), canUse: false });
         onWillStart(async () => {
-            try {
-                this.state.canUse = await this.orm.call(
-                    "aski.account.link", "can_use_chat", []);
-            } catch (e) {
-                this.state.canUse = false;
-            }
+            // Memoizado y COMPARTIDO con el boton del chatter: entre los dos
+            // hacen UNA llamada por pestana, no una cada uno.
+            this.state.canUse = await canUseChat(() =>
+                this.orm.call("aski.account.link", "can_use_chat", []));
         });
+        // El boton "Aski" de una ficha pide abrir la burbuja. Se desmarca al
+        // desmontar: sin la baja, cada recarga del systray dejaria un oyente
+        // muerto que sigue tocando el estado de un componente que ya no existe.
+        onWillUnmount(onOpenRequest(() => {
+            this.state.open = true;
+            this.state.minimized = false;
+            this._persist();
+        }));
     }
 
     _persist() {

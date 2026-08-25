@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        El boton "Aski" en la barra del chatter — VARIANTE ODOO 19.
+
+        Se inserta ANTES del separador elastico (`o-mail-Chatter-topbarGrow`), o sea
+        al final del grupo de acciones (Send message / Log note / Activity) y no
+        suelto a la derecha entre los iconos de buscar y adjuntar: es una accion del
+        usuario sobre la ficha, y va donde estan sus hermanas.
+
+        Estilo: el MISMO que el boton de Actividad (`btn btn-secondary text-nowrap`,
+        `my-2` cuando la cabecera no es compacta). Nada de colores propios ni de
+        tamanos a medida — un boton que desentona en el chatter se lee como un
+        anadido de tercero, no como parte de Odoo.
+    -->
+    <t t-name="aski_connector.ChatterAski" t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('o-mail-Chatter-topbarGrow')]" position="before">
+            <button t-if="askiState.canUse"
+                    class="o-aski-chatterBtn btn btn-secondary text-nowrap me-1 d-flex align-items-center"
+                    t-att-class="{ 'my-2': !props.compactHeight }"
+                    t-att-disabled="!props.threadId"
+                    title="Ask Aski about this record"
+                    t-on-click="() => this.askiAsk()">
+                <img class="o-aski-chatterBtn-mark"
+                     src="/aski_connector/static/src/img/aski_mark.png"
+                     alt="" aria-hidden="true"/>
+                <span>Aski</span>
+            </button>
+        </xpath>
+    </t>
+
+</templates>
