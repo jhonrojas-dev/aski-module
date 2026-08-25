@@ -1,0 +1,34 @@
+// ---------------------------------------------------------------------------
+// El boton "Aski" del chatter.
+// ---------------------------------------------------------------------------
+// Deliberadamente CORTO: el boton hereda `btn btn-secondary` de Bootstrap, que es
+// lo que le da el mismo alto, radio, color y estados (hover/focus/disabled) que
+// "Log note" y "Activity". Aqui solo se resuelve lo que Bootstrap no sabe: el
+// tamano de la marca y su separacion del texto.
+//
+// ⛔ Nada de `height`, `padding` ni `background` propios. En cuanto un boton de
+// tercero fija los suyos, deja de seguir al tema (claro/oscuro, densidad compacta)
+// y queda medio centimetro desalineado de sus hermanos en alguna vista — que es
+// exactamente el detalle por el que un anadido se nota anadido.
+
+.o-aski-chatterBtn {
+    .o-aski-chatterBtn-mark {
+        // Al alto de la letra, no al del boton: una marca mas grande que el texto
+        // que la acompana desequilibra la fila entera.
+        width: 14px;
+        height: 14px;
+        margin-right: 6px;
+        object-fit: contain;
+        // La marca es decorativa; el nombre ya lo da el texto de al lado. Si la
+        // imagen no carga, el boton sigue leyendose "Aski" sin un hueco raro.
+        flex: 0 0 auto;
+    }
+
+    // El icono no se apaga solo cuando el boton esta deshabilitado (registro nuevo
+    // sin guardar): Bootstrap baja la opacidad del boton, pero una imagen a todo
+    // color dentro sigue pareciendo pulsable.
+    &:disabled .o-aski-chatterBtn-mark,
+    &.disabled .o-aski-chatterBtn-mark {
+        opacity: .5;
+    }
+}
