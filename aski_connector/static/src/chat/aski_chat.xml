@@ -43,7 +43,7 @@
                             <i class="fa fa-exclamation-circle"/> Out of credits
                         </span>
                         <span class="ac-credits" t-else="">
-                            <i class="fa fa-bolt"/> <t t-esc="state.walletCredits"/>
+                            <i class="fa fa-bolt"/> <t t-esc="creditosFmt"/>
                         </span>
                         <span class="ac-plan" t-if="state.planName and !props.minimized" t-esc="state.planName"/>
                     </t>
@@ -140,6 +140,253 @@
                 </div>
             </t>
 
+
+            <!-- ==========================================================
+                 Grafico. En una VENTANA y no dentro de la burbuja, por lo
+                 mismo que en la app: la tabla se queda siempre visible —es
+                 lo auditable— y el mensaje no cambia de tamano al abrirlo.
+                 Sin librerias: SVG a mano. Meter una dependencia entera
+                 para tres formas no se justifica.
+                 ========================================================== -->
+            <t t-if="chartAbierto">
+                <div class="ac-win-wrap">
+                    <div class="ac-win-scrim" t-on-click="closeChart"/>
+                <div class="ac-win ac-win-chart" role="dialog" aria-modal="true">
+                    <div class="ac-win-head">
+                        <span class="ac-win-title">Chart</span>
+                        <button class="ac-icon-btn" title="Close" t-on-click="closeChart">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+                    <div class="ac-win-body">
+                        <t t-foreach="chartAbierto.series" t-as="s" t-key="s.currency + '-' + s_index">
+                            <section class="ac-chart-serie">
+                                <!-- El encabezado de moneda SOLO con varias: con
+                                     una sola seria ruido, y el simbolo ya va en
+                                     cada cifra. Jamas se comparten ejes entre
+                                     monedas. -->
+                                <h4 t-if="chartAbierto.series.length > 1 and s.currency"
+                                    class="ac-chart-cur" t-esc="s.currency"/>
+
+                                <!-- Barras -->
+                                <div t-if="chartAbierto.kind === 'bar'" class="ac-chart-bars">
+                                    <t t-foreach="barras(s, chartAbierto)" t-as="f" t-key="f.label + '-' + f_index">
+                                        <div t-attf-class="ac-bar-row {{ f.otros ? 'otros' : '' }}">
+                                            <span class="ac-bar-lbl" t-att-title="f.label" t-esc="f.label"/>
+                                            <span class="ac-bar-track">
+                                                <span t-if="!f.otros" class="ac-bar-fill"
+                                                      t-attf-style="width: {{ f.pct }}%"/>
+                                            </span>
+                                            <span class="ac-bar-val" t-esc="f.valor"/>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <!-- Linea -->
+                                <t t-if="chartAbierto.kind === 'line'">
+                                    <t t-set="L" t-value="linea(s, chartAbierto)"/>
+                                    <div class="ac-chart-line">
+                                        <div class="ac-line-axis">
+                                            <span t-esc="L.arriba"/>
+                                            <span t-esc="L.abajo"/>
+                                        </div>
+                                        <svg t-attf-viewBox="0 0 {{ L.W }} {{ L.H }}"
+                                             preserveAspectRatio="none" class="ac-line-svg" role="img">
+                                            <t t-foreach="L.guias" t-as="g" t-key="g_index">
+                                                <line x1="0" t-att-x2="L.W" t-att-y1="g" t-att-y2="g"
+                                                      class="ac-line-grid"/>
+                                            </t>
+                                            <!-- ⛔ SIN puntos en los extremos: el
+                                                 lienzo se estira en horizontal y eso
+                                                 convierte un circulo en una elipse
+                                                 aplastada que parece un fallo de
+                                                 dibujo. El trazo se salva con
+                                                 vector-effect, un circle no. -->
+                                            <path t-att-d="L.d" class="ac-line-path"/>
+                                        </svg>
+                                        <div class="ac-line-lbls">
+                                            <span t-esc="L.primero"/>
+                                            <span t-esc="L.ultimo"/>
+                                        </div>
+                                    </div>
+                                </t>
+
+                                <!-- Dona -->
+                                <t t-if="chartAbierto.kind === 'donut'">
+                                    <t t-set="D" t-value="dona(s)"/>
+                                    <div t-if="D" class="ac-chart-donut">
+                                        <svg viewBox="0 0 180 180" class="ac-donut-svg" role="img">
+                                            <g transform="translate(90,90) rotate(-90)">
+                                                <t t-foreach="D.trozos" t-as="z" t-key="z_index">
+                                                    <circle t-att-r="D.R" fill="none" t-att-stroke-width="D.G"
+                                                            t-attf-class="ac-slice {{ z.clase }}"
+                                                            t-att-stroke-dasharray="z.dash"
+                                                            t-att-stroke-dashoffset="z.offset"/>
+                                                </t>
+                                            </g>
+                                        </svg>
+                                        <ul class="ac-donut-legend">
+                                            <t t-foreach="D.trozos" t-as="z" t-key="z_index">
+                                                <li>
+                                                    <i t-attf-class="ac-dot {{ z.clase }}"/>
+                                                    <span class="ac-leg-lbl" t-att-title="z.label" t-esc="z.label"/>
+                                                    <span class="ac-leg-pct"><t t-esc="z.pct"/>%</span>
+                                                </li>
+                                            </t>
+                                        </ul>
+                                    </div>
+                                </t>
+
+                                <p class="ac-chart-foot" t-esc="pieGrafico(s, chartAbierto)"/>
+                            </section>
+                        </t>
+                    </div>
+                </div>
+                </div>
+            </t>
+
+            <!-- ==========================================================
+                 Compartir enlace. Solo CREA: administrar los enlaces de la
+                 cuenta (verlos, revocarlos) no se hace desde el Odoo de un
+                 cliente, y el backend tampoco lo acepta con token personal.
+                 ========================================================== -->
+            <t t-if="state.shareFor">
+                <div class="ac-modal-wrap">
+                    <div class="ac-modal-scrim" t-on-click="closeShare"/>
+                    <div class="ac-modal" role="dialog" aria-modal="true">
+                        <span class="ac-modal-badge"><i class="fa fa-link"/></span>
+                        <t t-if="!state.shareUrl">
+                            <h3 class="ac-modal-title">Share link</h3>
+                            <p class="ac-modal-sub">Anyone with the link can read this answer. It expires on its own.</p>
+                            <div class="ac-modal-body">
+                                <span class="ac-modal-label">How long it lasts</span>
+                                <div class="ac-modal-chips">
+                                    <button t-foreach="[7, 30]" t-as="d" t-key="d"
+                                            t-attf-class="ac-modal-chip {{ state.shareDays === d ? 'on' : '' }}"
+                                            t-on-click="() => this.setShareDays(d)">
+<t t-esc="plazoLabel(d)"/>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="ac-modal-acts">
+                                <button class="ac-btn ghost" t-on-click="closeShare"
+                                        t-att-disabled="state.shareBusy">Cancel</button>
+                                <button class="ac-btn primary" t-on-click="doShare"
+                                        t-att-disabled="state.shareBusy">
+                                    <i t-if="state.shareBusy" class="fa fa-circle-o-notch fa-spin"/>
+                                    Create link
+                                </button>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <h3 class="ac-modal-title">Link ready</h3>
+                            <div class="ac-modal-body">
+                                <!-- La direccion se queda A LA VISTA y seleccionable:
+                                     hay que copiarla, asi que un aviso que se va solo
+                                     obligaria a ir a buscarla justo despues de
+                                     crearla. -->
+                                <div class="ac-modal-url">
+                                    <input type="text" readonly="readonly" t-att-value="state.shareUrl"/>
+                                </div>
+                                <!-- El vencimiento que VUELVE del backend, no el que
+                                     se pidio: el plan puede recortarlo en silencio. -->
+                                <p t-if="state.shareExpires" class="ac-modal-hint">
+                                    Expires: <t t-esc="caducidadFmt"/>
+                                </p>
+                            </div>
+                            <div class="ac-modal-acts">
+                                <button class="ac-btn ghost" t-on-click="copyShare">
+                                    <i class="fa fa-clone"/> Copy
+                                </button>
+                                <button class="ac-btn primary" t-on-click="closeShare">Done</button>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ==========================================================
+                 Los registros detras de la cifra. El backend RE-EJECUTA la
+                 consulta con los permisos del usuario, asi que puede
+                 declinar con un motivo legible: eso no es un error, es la
+                 explicacion, y se ensena tal cual.
+                 Ventaja de estar DENTRO de Odoo: la fila abre el registro
+                 de verdad, en vez de sacar al usuario a otra aplicacion.
+                 ========================================================== -->
+            <t t-if="state.recordsFor">
+                <div class="ac-modal-wrap">
+                    <div class="ac-modal-scrim" t-on-click="closeRecords"/>
+                    <div class="ac-modal tall" role="dialog" aria-modal="true">
+                        <span class="ac-modal-badge"><i class="fa fa-table"/></span>
+                        <h3 class="ac-modal-title">
+                            <t t-if="state.records and state.records.label" t-esc="state.records.label"/>
+                            <t t-else="">Records</t>
+                        </h3>
+                        <div class="ac-modal-body">
+                            <div t-if="state.recordsBusy" class="ac-loading">
+                                <i class="fa fa-circle-o-notch fa-spin"/> <span>Loading…</span>
+                            </div>
+                            <t t-elif="state.records">
+                                <p t-if="state.records.unavailable" class="ac-modal-empty"
+                                   t-esc="state.records.unavailable"/>
+                                <p t-elif="!(state.records.rows or []).length" class="ac-modal-empty">
+                                    No records to show for this answer.
+                                </p>
+                                <t t-else="">
+                                    <p class="ac-modal-count" t-if="state.records.total"
+                                       t-esc="conteoRegistros"/>
+                                    <ul class="ac-recs">
+                                        <t t-foreach="state.records.rows or []" t-as="f" t-key="f.id">
+                                            <li class="ac-rec" t-on-click="() => this.openRecord(f)">
+                                                <span class="ac-rec-t" t-esc="f.title"/>
+                                                <span t-if="f.subtitle" class="ac-rec-s" t-esc="f.subtitle"/>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+                            </t>
+                        </div>
+                        <div class="ac-modal-acts">
+                            <button class="ac-btn ghost" t-on-click="closeRecords">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ==========================================================
+                 Enviar por correo. Sale con el reply-to del usuario: quien
+                 lo recibe ve de quien viene y le contesta a EL.
+                 ========================================================== -->
+            <t t-if="state.emailFor">
+                <div class="ac-modal-wrap">
+                    <div class="ac-modal-scrim" t-on-click="closeEmail"/>
+                    <div class="ac-modal" role="dialog" aria-modal="true">
+                        <span class="ac-modal-badge"><i class="fa fa-envelope-o"/></span>
+                        <h3 class="ac-modal-title">Send by email</h3>
+                        <p class="ac-modal-sub">It goes out with your address as reply-to, so whoever receives it can answer you.</p>
+                        <div class="ac-modal-body">
+                            <span class="ac-modal-label">To (separate with commas)</span>
+                            <input class="ac-modal-field" type="text" t-att-value="state.emailTo"
+                                   placeholder="name@company.com" t-on-input="onEmailInput"/>
+                            <button t-attf-class="ac-modal-check {{ state.emailAttach ? 'on' : '' }}"
+                                    t-on-click="toggleEmailAttach">
+                                <i t-attf-class="fa {{ state.emailAttach ? 'fa-check-square-o' : 'fa-square-o' }}"/>
+                                Attach the spreadsheet
+                            </button>
+                        </div>
+                        <div class="ac-modal-acts">
+                            <button class="ac-btn ghost" t-on-click="closeEmail"
+                                    t-att-disabled="state.emailBusy">Cancel</button>
+                            <button class="ac-btn primary" t-on-click="doEmail"
+                                    t-att-disabled="state.emailBusy">
+                                <i t-if="state.emailBusy" class="fa fa-circle-o-notch fa-spin"/>
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
             <!-- loading-state -->
             <div t-if="state.loading" class="ac-loading">
                 <i class="fa fa-circle-o-notch fa-spin"/> <span>Loading…</span>
@@ -222,6 +469,17 @@
                             </div>
                         </div>
                         <div t-elif="m.role === 'assistant'" class="ac-bubble ac-bubble-bot">
+                            <t t-set="graf" t-value="chartDe(m)"/>
+                            <button t-if="graf" class="ac-chart-open"
+                                    t-on-click="() => this.openChart(m)">
+                                <i class="fa fa-bar-chart"/> View chart
+                                <!-- "Convertido" NO es un detalle tecnico: dos
+                                     respuestas con el mismo simbolo significan
+                                     cosas distintas segun la base, y el usuario
+                                     no tiene como saberlo si no se le dice. -->
+                                <span t-if="graf.currency_mode === 'convertido'"
+                                      class="ac-chart-conv"> · <t t-esc="etiquetaConvertido"/></span>
+                            </button>
                             <div class="md" t-out="renderMd(m.text)"/>
                             <!-- La fila se pinta SIEMPRE; lo condicional es el chip
                                  de creditos. Cuando el t-if colgaba de la fila, una
@@ -257,10 +515,6 @@
                                 <button t-if="m.backendId" class="ac-detail-btn" title="Details"
                                         t-on-click="() => this.toggleDetail(m)">
                                     <i class="fa fa-info-circle"/>
-                                </button>
-                                <button t-if="m.backendId" class="ac-detail-btn" title="Export this answer to PDF"
-                                        t-on-click="() => this.exportMessageDetail(m)" t-att-disabled="state.exporting">
-                                    <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
                                 </button>
                             </div>
                         </div>
@@ -323,8 +577,16 @@
                     <!-- Analisis profundo: solo se ofrece si el plan lo incluye
                          (agentEnabled lo dice el backend). Ofrecerlo siempre era
                          prometer algo que acaba en un 403. -->
-                    <div t-if="state.agentEnabled" class="ac-composer-tools">
-                        <button t-attf-class="ac-deep-toggle {{ state.deepMode ? 'on' : '' }}"
+                    <div t-if="state.agentEnabled or state.conversationId" class="ac-composer-tools">
+                        <button t-if="state.conversationId" class="ac-fresh"
+                                t-on-click="clearContext" t-att-disabled="state.clearing || state.sending"
+                                title="Forget what we talked about, without deleting the thread">
+                            <i t-attf-class="fa {{ state.clearing ? 'fa-circle-o-notch fa-spin' : 'fa-refresh' }}"/>
+                            Start fresh
+                        </button>
+                        <span t-else="" class="ac-tools-gap"/>
+                        <button t-if="state.agentEnabled"
+                                t-attf-class="ac-deep-toggle {{ state.deepMode ? 'on' : '' }}"
                                 t-on-click="toggleDeepMode" t-att-disabled="state.sending"
                                 title="Deep analysis: slower, but digs through more data">
                             <i class="fa fa-flask"/> Deep analysis
@@ -377,7 +639,7 @@
                             <div class="ac-detail-stats">
                                 <div class="ac-stat">
                                     <i class="fa fa-bolt"/>
-                                    <div><div class="ac-stat-v" t-esc="m.credits ?? 0"/><div class="ac-stat-k">credits</div></div>
+                                    <div><div class="ac-stat-v" t-esc="m.credits ?? '—'"/><div class="ac-stat-k">credits</div></div>
                                 </div>
                                 <div t-if="m.rows !== null" class="ac-stat">
                                     <i class="fa fa-table"/>
@@ -444,10 +706,35 @@
                                     <i class="fa fa-exclamation-circle"/> Couldn't send your note. Please try again.
                                 </span>
                             </div>
-                            <button class="ac-detail-export" t-on-click="() => this.exportMessageDetail(m)"
-                                    t-att-disabled="state.exporting">
-                                <i class="fa fa-file-pdf-o"/> Export this answer
-                            </button>
+                            <div class="ac-acts">
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="() => this.openRecords(m)"
+                                        t-att-disabled="state.recordsBusy">
+                                    <i class="fa fa-table"/> <span>See the records behind this</span>
+                                </button>
+                                <button class="ac-act" t-on-click="() => this.copyText(m)">
+                                    <i class="fa fa-clone"/> <span>Copy text</span>
+                                </button>
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="() => this.openShare(m)">
+                                    <i class="fa fa-link"/> <span>Share link</span>
+                                </button>
+                                <button class="ac-act" t-on-click="() => this.exportMessageDetail(m)"
+                                        t-att-disabled="state.exporting">
+                                    <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
+                                    <span>Export this answer to PDF</span>
+                                </button>
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="() => this.exportXlsx(m)"
+                                        t-att-disabled="state.xlsxBusy">
+                                    <i t-attf-class="fa {{ state.xlsxBusy ? 'fa-circle-o-notch fa-spin' : 'fa-file-excel-o' }}"/>
+                                    <span>Export to Excel</span>
+                                </button>
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="() => this.openEmail(m)">
+                                    <i class="fa fa-envelope-o"/> <span>Send by email</span>
+                                </button>
+                            </div>
                         </div>
                 </div>
             </div>
