@@ -18,7 +18,12 @@
 //   * En la plantilla se accede a `chatter` DIRECTO, sin prefijo.
 
 import { patch } from "@web/core/utils/patch";
-import { useService } from "@web/core/utils/hooks";
+// ⛔ NO `useService("orm")`: en esta serie el `ChatterTopbar` es un componente de
+// "messaging", y su entorno NO trae los servicios de wowl. Pedir el servicio ahi
+// lanza `Service orm is not available` en cada montaje del chatter — el boton no
+// llega a pintarse y la consola se llena. Se usa el `rpc.query` heredado, que es
+// justo lo que ya hace el systray de la rama 14 por el mismo motivo.
+import rpc from "web.rpc";
 import { ChatterTopbar } from "@mail/components/chatter_topbar/chatter_topbar";
 import { canUseChat } from "@aski_connector/record/aski_access";
 import { setRecord, clearRecordIf, requestOpen } from "@aski_connector/record/aski_record";
@@ -28,11 +33,10 @@ const { useState, onWillStart, onWillUnmount } = owl.hooks;
 patch(ChatterTopbar.prototype, "aski_connector.ChatterTopbar", {
     setup() {
         this._super(...arguments);
-        this.askiOrm = useService("orm");
         this.askiState = useState({ canUse: false });
         onWillStart(async () => {
             this.askiState.canUse = await canUseChat(() =>
-                this.askiOrm.call("aski.account.link", "can_use_chat", [])
+                rpc.query({ model: "aski.account.link", method: "can_use_chat", args: [] })
             );
         });
         onWillUnmount(() => {
@@ -68,7 +72,9 @@ patch(ChatterTopbar.prototype, "aski_connector.ChatterTopbar", {
         setRecord(t.model, t.id, "");
         requestOpen();
         try {
-            const filas = await this.askiOrm.read(t.model, [t.id], ["display_name"]);
+            const filas = await rpc.query({
+                model: t.model, method: "read", args: [[t.id], ["display_name"]],
+            });
             if (filas && filas.length && filas[0].display_name) {
                 setRecord(t.model, t.id, filas[0].display_name);
             }
