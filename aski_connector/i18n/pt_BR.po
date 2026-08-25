@@ -582,10 +582,10 @@ msgstr "Olá, sou o Aski"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid ""
 "Ask about your business in plain language — sales, receivables, top "
-"customers and more. Read-only & safe."
+"customers and more. Read-only by default."
 msgstr ""
 "Pergunte sobre o seu negócio em linguagem simples — vendas, contas a "
-"receber, principais clientes e mais. Somente leitura e seguro."
+"receber, principais clientes e mais. Somente leitura por padrão."
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
