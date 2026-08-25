@@ -439,7 +439,7 @@
                     <div t-if="!state.messages.length" class="ac-welcome">
                         <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
                         <div class="ac-welcome-title">Hi, I'm Aski</div>
-                        <div class="ac-welcome-sub">Ask about your business in plain language — sales, receivables, top customers and more. Read-only &amp; safe.</div>
+                        <div class="ac-welcome-sub">Ask about your business in plain language — sales, receivables, top customers and more. Read-only by default.</div>
                         <!-- Las sugerencias vienen del getter `samples` (JS, con _t()):
                              la etiqueta y el texto que se ENVIA son el MISMO string
                              traducido. Antes el t-on-click llevaba el literal ingles
