@@ -1162,6 +1162,12 @@ export class AskiChatWidget extends Component {
         const texto = m.text || "";
         try {
             await browser.navigator.clipboard.writeText(texto);
+            // La accion TERMINO: la hoja de detalle se cierra, como ya hacen las
+            // que abren otra ventana (`openRecords`, `openShare`, `emailAnswer`).
+            // Dejarla puesta con el aviso de "copiado" encima se siente atascada:
+            // el usuario ya obtuvo lo que vino a buscar. Reportado sobre la
+            // instancia real el 25/08.
+            this.closeDetail();
             this.notification.add(_t("Answer copied."), { type: "success" });
         } catch (e) {
             // Sin permiso de portapapeles (o sin HTTPS en algunos navegadores):
@@ -1314,6 +1320,9 @@ export class AskiChatWidget extends Component {
             this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
         } finally {
             this.state.xlsxBusy = false;
+            // Igual que copiar: la accion termino, asi que la hoja se va. El
+            // resultado (o el error) ya lo dice el aviso.
+            this.closeDetail();
         }
     }
 
