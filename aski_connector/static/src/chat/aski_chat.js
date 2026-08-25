@@ -17,6 +17,9 @@ odoo.define("aski_connector.chat", function (require) {
 // y sin arrow functions en t-on-* -> llamada a metodo.
 const core = require("web.core");
 const rpc = require("web.rpc");
+// El ambito del registro abierto: MISMO codigo que en 15-19, pedido con
+// `require` porque en esta serie no hay modulos ES.
+const { getRecord, clearRecord, subscribe } = require("aski_connector.record");
 const _t = core._t;
 const { Component } = owl;
 const { useState, useRef, onWillStart, onWillUnmount, onMounted } = owl.hooks;
@@ -339,6 +342,13 @@ class AskiChatWidget extends Component {
         });
         onWillUnmount(_bajaRecord);
         onWillStart(async () => { await this.loadStatus(); });
+        // ⛔ El chat abria por ARRIBA, ensenando el mensaje mas viejo del hilo.
+        // Causa: `loadStatus` corre en `onWillStart` —antes del montaje— y su
+        // `openConversation` llama a `_scrollToBottom`, que lee `messagesRef.el`.
+        // Ese elemento AUN NO EXISTE, asi que el scroll se perdia en silencio.
+        // Aqui el DOM ya esta, y `onWillStart` termino, asi que los mensajes
+        // estan puestos: es el primer instante en el que se puede bajar de verdad.
+        onMounted(() => this._scrollToBottom());
         // El chat se cierra (o se cambia de pantalla) con una respuesta en
         // vuelo: el cronometro seguiria latiendo sobre un componente que ya no
         // existe.
