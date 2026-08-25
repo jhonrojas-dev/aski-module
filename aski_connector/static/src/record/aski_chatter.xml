@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
 
     <!--
-        El boton "Aski" en la barra del chatter — VARIANTE ODOO 19.
+        El boton "Aski" en la barra del chatter — VARIANTE ODOO 17.
 
         Se inserta ANTES del separador elastico (`o-mail-Chatter-topbarGrow`), o sea
         al final del grupo de acciones (Send message / Log note / Activity) y no

@@ -1,6 +1,6 @@
 /** @odoo-module **/
 // ---------------------------------------------------------------------------
-// El boton "Aski" DENTRO del chatter — VARIANTE ODOO 19.
+// El boton "Aski" DENTRO del chatter — VARIANTE ODOO 17.
 // ---------------------------------------------------------------------------
 // Preguntar estando parado en una ficha ("¿por que esta atrasada?") sin tener que
 // reescribir de que documento se habla. El boton fija el registro abierto y abre
@@ -17,7 +17,7 @@
 
 import { patch } from "@web/core/utils/patch";
 import { useService } from "@web/core/utils/hooks";
-import { Chatter } from "@mail/chatter/web_portal/chatter";
+import { Chatter } from "@mail/core/web/chatter";
 import { useState, onWillStart, onWillUnmount } from "@odoo/owl";
 import { canUseChat } from "@aski_connector/record/aski_access";
 import { setRecord, clearRecordIf, requestOpen } from "@aski_connector/record/aski_record";
