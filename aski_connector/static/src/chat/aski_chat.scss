@@ -20,16 +20,31 @@
     --ac-gold-light: #F8D060;
     --ac-gold-deep: #B89846;
     --ac-on-gold: #2E2200;
+    // El texto que va SOBRE el primary. No vale `--ac-on-gold`: ese es el que va
+    // sobre el DORADO (un pardo casi negro) y encima del navy no se lee. En
+    // claro el primary es el navy, asi que aqui es blanco; en oscuro el primary
+    // ES el dorado y el par se invierte (ver aski_chat.dark.scss).
+    --ac-on-primary: #FFFFFF;
     --ac-bg: #FAFAFE;
     --ac-surface: #FFFFFF;
-    --ac-surface-2: #F2F4FA;
+    // surfaceContainerLow. Antes #F2F4FA, que no es ningun rol de Material.
+    --ac-surface-2: #F7F8FC;
     --ac-surface-variant: #E3E7F0;
     --ac-on-surface: #152642;
     --ac-on-variant: #44546A;
     --ac-primary-container: #D9E2F1;
     --ac-on-primary-container: #0A1224;
     --ac-outline: #B0B8C5;
-    --ac-outline-soft: #E5E7EB;
+    // outlineVariant. Antes #E5E7EB — el gris de Tailwind, no el de la marca.
+    // Es el color de TODOS los bordes y divisores del chat.
+    --ac-outline-soft: #D3D9E4;
+    // Los cinco surfaceContainer, que no estaban: hacen falta para los estados
+    // (hover, tiles, menus) sin inventar tonos a ojo.
+    --ac-surface-c-lowest: #FFFFFF;
+    --ac-surface-c-low: #F7F8FC;
+    --ac-surface-c: #F1F3F9;
+    --ac-surface-c-high: #EAEDF5;
+    --ac-surface-c-highest: #E3E7F0;
     --ac-error: #B3261E;
     --ac-success: #1B8A4B;
 
@@ -39,9 +54,15 @@
     flex-direction: column;
     height: 100%;
     box-sizing: border-box;
-    // Fondo con el mismo degradado navy->bg del .chat-page de la app.
+    // Port del Brush.verticalGradient de la app: `primary` al 6% muriendo en
+    // `background` al 30%. Se escribe con el TOKEN y no con un navy fijo, que
+    // es lo que hace que en el tema oscuro el lavado salga DORADO igual que en
+    // el movil (alli `primary` es el dorado). Antes eran tres paradas con el
+    // navy escrito a mano.
     background: linear-gradient(to bottom,
-        rgba(21, 38, 66, .10) 0%, rgba(21, 38, 66, .035) 20%, var(--ac-bg) 42%, var(--ac-bg) 100%);
+        color-mix(in srgb, var(--ac-navy) 6%, var(--ac-bg)) 0%,
+        var(--ac-bg) 30%,
+        var(--ac-bg) 100%);
     color: var(--ac-on-surface);
     font-size: 14px;
     position: relative;
@@ -366,11 +387,12 @@
         color: #fff !important;
         i { color: #fff !important; }
     }
+    // La app la pinta como un Surface PLANO a tonalElevation 0: `surface`, sin
+    // borde y sin sombra. El borde solo existe en la burbuja fallida.
     .ac-bubble-bot {
         align-self: flex-start; max-width: 92%;
-        background: var(--ac-surface); border: 1px solid var(--ac-outline-soft);
+        background: var(--ac-surface);
         border-bottom-left-radius: 4px; color: var(--ac-on-surface) !important;
-        box-shadow: 0 1px 2px rgba(21, 38, 66, .05);
     }
     // meta (creditos + detalle + export), como el .ts de la app
     .ac-meta {
@@ -709,10 +731,395 @@
     }
 
     // =====================================================================
+    //  Hoja del grafico
+    // =====================================================================
+    // ⛔ `absolute` y NO `fixed` como en la web: aqui el chat es un panel DENTRO
+    // de Odoo, y una hoja fija se saldria del panel para pegarse al borde de la
+    // ventana del navegador, tapando el menu de Odoo. Se ancla a `.aski-chat`,
+    // igual que el cajon.
+    // El MISMO patron que `.ac-sheet-wrap`, que ya estaba probado: envoltorio a
+    // pantalla del panel, velo dentro y la ventana como item de flex pegada
+    // abajo. z-index 45 porque estas ventanas se abren DESDE el panel de
+    // detalle, que vive a 40 — si no, el boton sale tapado.
+    .ac-win-wrap {
+        position: absolute; inset: 0; z-index: 45;
+        display: flex; flex-direction: column; justify-content: flex-end;
+        align-items: center;
+    }
+    .ac-win {
+        position: relative; z-index: 1; width: 100%; max-width: 460px;
+        // ⛔ `min-height: 0` es lo que deja que `max-height` y el scroll interno
+        // funcionen de verdad siendo item de un flex. Sin el, el contenido se
+        // desborda por abajo y el boton de accion queda FUERA del area visible
+        // del widget (que es overflow:hidden): no se puede ni pulsar. Ya estaba
+        // aprendido en `.ac-sheet` y volvi a caer.
+        min-height: 0; max-height: 82%;
+        display: flex; flex-direction: column;
+        background: var(--ac-surface); color: var(--ac-on-surface);
+        border-top-left-radius: 20px; border-top-right-radius: 20px;
+        box-shadow: 0 -8px 28px rgba(21, 38, 66, .22);
+        animation: ac-win-up .22s ease-out;
+    }
+    .ac-win-head {
+        flex: none; display: flex; align-items: center; gap: 8px;
+        padding: 12px 10px 8px 18px;
+        .ac-win-title {
+            flex: 1; font-size: 15px; font-weight: 700; color: var(--ac-on-surface);
+        }
+        // `.ac-icon-btn` esta anidado bajo `.ac-header`, asi que aqui no hereda
+        // nada y saldria como control NATIVO del navegador: un cuadrado con
+        // borde. Lleva su propio estilo.
+        .ac-icon-btn {
+            flex: none; width: 32px; height: 32px; border-radius: 50%;
+            border: 0; background: transparent; padding: 0; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background-color .12s ease;
+            i { font-size: 14px; color: var(--ac-on-variant) !important; }
+            &:hover { background: var(--ac-surface-c-high); }
+        }
+    }
+    // Sin barra de desplazamiento a la vista, como el resto del panel: Chrome
+    // pinta una clara y ancha que en oscuro se lleva la vista. Se SIGUE pudiendo
+    // desplazar — no es overflow:hidden.
+    .ac-win-body {
+        flex: 1; overflow-y: auto; padding: 4px 18px 20px;
+        scrollbar-width: none; -ms-overflow-style: none;
+        &::-webkit-scrollbar { width: 0; height: 0; }
+    }
+
+    // =====================================================================
+    //  Grafico
+    // =====================================================================
+    // La puerta al grafico, en DORADO. Atenuada como texto secundario pasaba
+    // desapercibida, y es la UNICA via: si no se ve, la funcion no existe para
+    // el usuario.
+    .ac-chart-open {
+        display: inline-block; margin: 2px 0 8px; padding: 0;
+        background: none; border: 0; cursor: pointer;
+        font: inherit; font-size: 13.5px; font-weight: 600;
+        color: var(--ac-gold-deep) !important;
+        i { color: var(--ac-gold-deep) !important; margin-right: 4px; }
+        &:hover { text-decoration: underline; }
+    }
+    .ac-chart-conv { font-weight: 400; color: var(--ac-on-variant); }
+
+    // El grafico quiere ANCHO: doce meses apretados pierden justo lo que se
+    // viene a mirar, la FORMA de la serie. Se ensancha SOLO esta hoja.
+    .ac-win-chart { max-width: 920px; }
+    // Velo PROPIO: `.ac-scrim` esta a z-index 10, muy por debajo del panel
+    // de detalle (40), asi que no cubriria nada.
+    .ac-win-scrim {
+        position: absolute; inset: 0; z-index: 0; cursor: pointer;
+        background: rgba(21, 38, 66, .38); animation: ac-fade .16s ease;
+    }
+    .ac-chart-serie + .ac-chart-serie { margin-top: 22px; }
+    .ac-chart-cur {
+        margin: 0 0 8px; font-size: 14px; font-weight: 600;
+        color: var(--ac-gold-deep);
+    }
+
+    // ---- Barras ----
+    // UNA sola rejilla para TODAS las filas, no una por fila: si cada fila
+    // dimensiona sus columnas por su cuenta, cada barra recibe una pista de
+    // distinto ancho y el mismo importe se dibuja mas largo en la fila de nombre
+    // corto. Comparar longitudes es justamente para lo que existe el grafico.
+    // `display: contents` deja que las tres celdas caigan en la rejilla madre.
+    .ac-chart-bars {
+        display: grid; grid-template-columns: minmax(0, 1.4fr) 1.7fr auto;
+        gap: 6px 10px; align-items: center;
+    }
+    .ac-bar-row {
+        display: contents;
+        &.otros {
+            color: var(--ac-on-variant);
+            .ac-bar-val { font-weight: 400; }
+        }
+    }
+    .ac-bar-lbl {
+        font-size: 13px; white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ac-bar-track {
+        height: 18px; border-radius: 5px; overflow: hidden;
+        background: color-mix(in srgb, var(--ac-on-variant) 12%, transparent);
+    }
+    .ac-bar-fill {
+        display: block; height: 100%; border-radius: 5px;
+        background: var(--ac-gold-deep);
+    }
+    .ac-bar-val { font-size: 13px; font-weight: 500; white-space: nowrap; }
+
+    // ---- Linea ----
+    .ac-chart-line {
+        display: grid; grid-template-columns: auto 1fr;
+        grid-template-areas: 'axis svg' '. lbls'; gap: 4px 8px;
+    }
+    .ac-line-axis {
+        grid-area: axis; display: flex; flex-direction: column;
+        justify-content: space-between; font-size: 11.5px;
+        color: var(--ac-on-variant);
+    }
+    .ac-line-svg { grid-area: svg; width: 100%; height: 150px; }
+    .ac-line-lbls {
+        grid-area: lbls; display: flex; justify-content: space-between;
+        font-size: 11.5px; color: var(--ac-on-variant);
+    }
+    // `vector-effect` para que el trazo no se deforme: el lienzo se estira en
+    // horizontal (preserveAspectRatio="none") y sin esto la linea saldria fina
+    // arriba y gorda abajo.
+    .ac-line-grid {
+        stroke: color-mix(in srgb, var(--ac-on-variant) 25%, transparent);
+        stroke-width: 1; vector-effect: non-scaling-stroke;
+    }
+    .ac-line-path {
+        fill: none; stroke: var(--ac-gold-deep); stroke-width: 2.5;
+        stroke-linejoin: round; stroke-linecap: round;
+        vector-effect: non-scaling-stroke;
+    }
+
+    // ---- Dona ----
+    .ac-chart-donut {
+        display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .ac-donut-svg { width: 150px; height: 150px; flex: none; }
+    .ac-donut-legend {
+        list-style: none; margin: 0; padding: 0; flex: 1; min-width: 180px;
+        display: flex; flex-direction: column; gap: 5px;
+        li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    }
+    .ac-leg-lbl {
+        flex: 1; min-width: 0; white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ac-leg-pct { color: var(--ac-on-variant); font-weight: 500; }
+    .ac-dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+    // Rampa ALTERNANDO calido y frio: dos sectores contiguos se tocan, asi que
+    // si son tonos vecinos del mismo dorado no se distinguen. Ninguno se apoya
+    // en el fondo: todos contrastan en claro y en oscuro.
+    .ac-slice.s0, .ac-dot.s0 { stroke: var(--ac-gold-deep); background: var(--ac-gold-deep); }
+    .ac-slice.s1, .ac-dot.s1 { stroke: #A8BFE0; background: #A8BFE0; }
+    .ac-slice.s2, .ac-dot.s2 { stroke: var(--ac-gold-light); background: var(--ac-gold-light); }
+    .ac-slice.s3, .ac-dot.s3 { stroke: #5E7290; background: #5E7290; }
+    .ac-slice.s4, .ac-dot.s4 { stroke: #7A5C1F; background: #7A5C1F; }
+    .ac-slice.s5, .ac-dot.s5 { stroke: #D9E2F1; background: #D9E2F1; }
+
+    .ac-chart-foot {
+        margin: 8px 0 0; font-size: 12px; color: var(--ac-on-variant);
+        &:empty { display: none; }
+    }
+
+    // =====================================================================
+    //  Lista de acciones del panel de detalle
+    // =====================================================================
+    .ac-acts {
+        display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
+    }
+    .ac-act {
+        display: flex; align-items: center; gap: 10px; width: 100%;
+        padding: 10px 12px; border: 0; border-radius: 10px;
+        background: var(--ac-surface-c); color: var(--ac-on-surface) !important;
+        font: inherit; font-size: 13.5px; font-weight: 500;
+        text-align: left; cursor: pointer;
+        transition: background-color .12s ease;
+        i {
+            flex: none; width: 16px; text-align: center;
+            color: var(--ac-gold-deep) !important;
+        }
+        span { flex: 1; min-width: 0; }
+        &:hover:not(:disabled) { background: var(--ac-surface-c-high); }
+        &:disabled { cursor: not-allowed; opacity: .6; }
+    }
+
+    // =====================================================================
+    //  Modal centrado (compartir, registros, correo)
+    // =====================================================================
+    // Mismas medidas que el modal de la web, que es la forma que funciona para
+    // esto: insignia redonda, titulo, campos etiquetados y la fila de acciones
+    // abajo. Una hoja pegada al borde inferior servia para el panel de detalle
+    // —que es una lista larga— pero para un formulario de dos campos quedaba
+    // desangelada y el boton se salia del area visible.
+    .ac-modal-wrap {
+        position: absolute; inset: 0; z-index: 46;
+        display: flex; align-items: center; justify-content: center;
+        padding: 16px;
+    }
+    .ac-modal-scrim {
+        position: absolute; inset: 0; z-index: 0; cursor: pointer;
+        background: rgba(10, 18, 36, .45); animation: ac-fade .16s ease;
+    }
+    .ac-modal {
+        position: relative; z-index: 1;
+        width: 100%; max-width: 420px; max-height: 100%;
+        display: flex; flex-direction: column;
+        // `min-height: 0` para que el scroll interno funcione siendo item de un
+        // flex; sin el, el contenido desborda y la fila de acciones queda fuera
+        // del area visible del widget (que es overflow:hidden).
+        min-height: 0;
+        padding: 22px 20px 16px;
+        background: var(--ac-surface); color: var(--ac-on-surface) !important;
+        border-radius: 28px;                  // el radio de los dialogos M3
+        box-shadow: 0 12px 40px rgba(21, 38, 66, .26);
+        animation: ac-modal-in .18s ease-out;
+        // La lista de registros es larga: esta variante se ensancha y deja
+        // desplazar dentro.
+        &.tall { max-width: 520px; }
+    }
+    .ac-modal-badge {
+        flex: none; width: 54px; height: 54px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 14px;
+        background: color-mix(in srgb, var(--ac-navy) 16%, transparent);
+        i { font-size: 20px; color: var(--ac-navy) !important; }
+    }
+    .ac-modal-title {
+        flex: none; margin: 0 0 6px; text-align: center;
+        font-size: 19px; font-weight: 700; color: var(--ac-on-surface);
+    }
+    .ac-modal-sub {
+        flex: none; margin: 0 0 16px; text-align: center;
+        font-size: 13.5px; line-height: 1.45; color: var(--ac-on-variant);
+    }
+    // Lo que puede crecer va aqui dentro: asi el titulo y las acciones se
+    // quedan siempre a la vista y solo se desplaza el medio.
+    .ac-modal-body {
+        flex: 1; min-height: 0; overflow-y: auto;
+        scrollbar-width: none; -ms-overflow-style: none;
+        &::-webkit-scrollbar { width: 0; height: 0; }
+    }
+    .ac-modal-label {
+        display: block; margin: 0 0 6px;
+        font-size: 12.5px; font-weight: 600; color: var(--ac-on-variant);
+    }
+    .ac-modal-field {
+        width: 100%; padding: 11px 13px; margin-bottom: 14px;
+        border: 1.5px solid var(--ac-outline-soft); border-radius: 12px;
+        background: var(--ac-surface-c-lowest); color: var(--ac-on-surface);
+        font: inherit; font-size: 14px;
+        &:focus { outline: none; border-color: var(--ac-navy); }
+    }
+    .ac-modal-hint {
+        margin: -6px 0 14px; font-size: 12px; line-height: 1.4;
+        color: var(--ac-on-variant);
+    }
+    // Los dos botones al mismo ancho, como en la web: uno fantasma para salir y
+    // uno relleno para la accion.
+    .ac-modal-acts {
+        flex: none; display: flex; gap: 10px; margin-top: 6px;
+        .ac-btn { flex: 1; justify-content: center; }
+    }
+    .ac-btn {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 11px 16px; border-radius: 999px;
+        border: 1.5px solid transparent;
+        font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+        transition: filter .12s ease, background .12s ease;
+        &.ghost {
+            background: transparent; border-color: var(--ac-outline-soft);
+            color: var(--ac-on-surface) !important;
+            i { color: var(--ac-on-surface) !important; }
+            &:hover:not(:disabled) { background: var(--ac-surface-c); }
+        }
+        &.primary {
+            // `--ac-on-primary` y no un #fff fijo ni `--ac-on-gold`: en oscuro
+            // el primary ES el dorado, asi que el par tiene que invertirse con
+            // el tema. Con on-gold (un pardo casi negro) el texto no se leia
+            // sobre el navy del tema claro.
+            background: var(--ac-navy); color: var(--ac-on-primary) !important;
+            i { color: var(--ac-on-primary) !important; }
+            &:hover:not(:disabled) { filter: brightness(1.12); }
+        }
+        &:disabled { cursor: not-allowed; opacity: .6; }
+    }
+
+    // El acuse: la direccion se COPIA, asi que no puede ir en un aviso que se
+    // va solo — se queda en el propio modal, seleccionable.
+    .ac-modal-url {
+        display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+        input {
+            flex: 1; min-width: 0; padding: 10px 12px;
+            border: 1.5px solid var(--ac-outline-soft); border-radius: 12px;
+            background: var(--ac-surface-c-lowest); color: var(--ac-on-surface);
+            font: inherit; font-size: 12.5px;
+        }
+    }
+
+    // Casilla de una linea (adjuntar la hoja de calculo).
+    .ac-modal-check {
+        display: inline-flex; align-items: center; gap: 8px;
+        margin: 0 0 16px; padding: 8px 12px 8px 10px;
+        border: 1.5px solid var(--ac-outline-soft); border-radius: 12px;
+        background: transparent; color: var(--ac-on-surface) !important;
+        font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer;
+        i { color: var(--ac-on-variant) !important; }
+        &.on {
+            border-color: var(--ac-navy);
+            background: color-mix(in srgb, var(--ac-navy) 10%, transparent);
+            i { color: var(--ac-navy) !important; }
+        }
+    }
+
+    // Plazos del enlace: pastillas, como en la app.
+    .ac-modal-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .ac-modal-chip {
+        padding: 8px 14px; border-radius: 10px;
+        border: 1.5px solid var(--ac-outline-soft);
+        background: transparent; color: var(--ac-on-surface) !important;
+        font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: border-color .12s ease, background .12s ease;
+        &:hover { background: var(--ac-surface-c); }
+        &.on {
+            border-color: var(--ac-navy);
+            background: color-mix(in srgb, var(--ac-navy) 12%, transparent);
+        }
+    }
+
+    // ---- La lista de registros ----
+    .ac-modal-count {
+        margin: 0 0 8px; font-size: 12px; color: var(--ac-on-variant);
+    }
+    .ac-recs {
+        list-style: none; margin: 0; padding: 0;
+        display: flex; flex-direction: column; gap: 2px;
+    }
+    .ac-rec {
+        display: flex; flex-direction: column; gap: 2px;
+        padding: 10px 12px; border-radius: 12px; cursor: pointer;
+        transition: background-color .12s ease;
+        &:hover { background: var(--ac-surface-c-high); }
+        .ac-rec-t { font-size: 13.5px; font-weight: 500; color: var(--ac-on-surface); }
+        .ac-rec-s { font-size: 12px; color: var(--ac-on-variant); }
+    }
+    .ac-modal-empty {
+        margin: 6px 0 12px; font-size: 13.5px; line-height: 1.45;
+        color: var(--ac-on-variant);
+    }
+
+    // =====================================================================
+    //  "Empezar de cero" en el pie
+    // =====================================================================
+    // Los dos chips a los extremos, como en la web. El hueco vacio mantiene el
+    // de analisis profundo a la derecha cuando el otro no esta.
+    .ac-composer-tools { justify-content: space-between; }
+    .ac-tools-gap { flex: none; }
+    .ac-fresh {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 13px; border-radius: 8px;
+        border: 1.5px solid var(--ac-outline-soft);
+        background: transparent; color: var(--ac-on-surface) !important;
+        font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+        transition: border-color .12s ease, background .12s ease;
+        i { color: var(--ac-on-variant) !important; }
+        &:hover:not(:disabled) { background: var(--ac-surface-c); }
+        &:disabled { cursor: not-allowed; opacity: .6; }
+    }
+
+    // =====================================================================
     //  Animaciones
     // =====================================================================
     @keyframes ac-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
     @keyframes ac-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes ac-modal-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+    @keyframes ac-win-up { from { transform: translateY(100%); } to { transform: none; } }
     @keyframes ac-slide-in { from { transform: translateX(-100%); } to { transform: none; } }
     @keyframes ac-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-5px); opacity: 1; } }
 }

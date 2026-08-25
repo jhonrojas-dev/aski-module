@@ -1441,3 +1441,220 @@ msgstr "¿Te sirvió?"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Response details"
 msgstr "Detalles de la respuesta"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%(shown)s of %(total)s"
+msgstr "%(shown)s de %(total)s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s days"
+msgstr "%s días"
+
+#. module: aski_connector
+#. odoo-javascript
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Add at least one email address."
+msgstr "Añade al menos una dirección de correo."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Answer copied."
+msgstr "Respuesta copiada."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Anyone with the link can read this answer. It expires on its own."
+msgstr ""
+"Cualquiera con el enlace puede leer esta respuesta. Caduca por sí sola."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Attach the spreadsheet"
+msgstr "Adjuntar la hoja de cálculo"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Chart"
+msgstr "Gráfico"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Context cleared. The next question starts fresh."
+msgstr "Contexto olvidado. La siguiente pregunta empieza de cero."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Copy"
+msgstr "Copiar"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Copy text"
+msgstr "Copiar el texto"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Could not copy. Select the link and copy it manually."
+msgstr "No se pudo copiar. Selecciona el enlace y cópialo a mano."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Could not copy. Select the text and copy it manually."
+msgstr "No se pudo copiar. Selecciona el texto y cópialo a mano."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Could not send to: %s"
+msgstr "No se pudo enviar a: %s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Create link"
+msgstr "Crear el enlace"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Expires:"
+msgstr "Caduca:"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Export to Excel"
+msgstr "Exportar a Excel"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Forget what we talked about, without deleting the thread"
+msgstr "Olvidar lo que hablamos, sin borrar el hilo"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "How long it lasts"
+msgstr "Cuánto dura"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"It goes out with your address as reply-to, so whoever receives it can answer"
+" you."
+msgstr ""
+"Sale con tu dirección como remitente de respuesta, así quien lo recibe te "
+"puede contestar."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Link copied."
+msgstr "Enlace copiado."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Link ready"
+msgstr "Enlace listo"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "No records to show for this answer."
+msgstr "No hay registros que mostrar para esta respuesta."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Records"
+msgstr "Registros"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "See the records behind this"
+msgstr "Ver los registros detrás de esto"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Send by email"
+msgstr "Enviar por correo"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Sent to %s recipient(s)."
+msgstr "Enviado a %s destinatario(s)."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Share link"
+msgstr "Compartir enlace"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Start fresh"
+msgstr "Empezar de cero"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "There are no rows to export."
+msgstr "No hay filas que exportar."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "To (separate with commas)"
+msgstr "Para (separa con comas)"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Top %(shown)s of %(total)s"
+msgstr "Los %(shown)s primeros de %(total)s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Total: %s"
+msgstr "Total: %s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "View chart"
+msgstr "Ver el gráfico"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "converted"
+msgstr "convertido"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "name@company.com"
+msgstr "name@company.com"

@@ -68,6 +68,16 @@ Get the app and learn more at https://aski.dev
         "web.assets_backend": [
             "aski_connector/static/src/chat/**/*",
             "aski_connector/static/src/systray/**/*",
+            # ⛔ El remove va DESPUES del glob: las operaciones se aplican en
+            # ORDEN, asi que ponerlo antes no quitaba nada (aun no estaba) y el
+            # glob lo volvia a meter -> la paleta oscura pisaba la clara siempre.
+            ("remove", "aski_connector/static/src/chat/aski_chat.dark.scss"),
+        ],
+        # Odoo 19 no marca el modo oscuro con una clase: cambia el BUNDLE
+        # (cookie color_scheme=dark). Como assets_backend entra en los dos, aqui
+        # solo hace falta redefinir las variables del chat.
+        "web.assets_web_dark": [
+            "aski_connector/static/src/chat/aski_chat.dark.scss",
         ],
     },
     "images": [
