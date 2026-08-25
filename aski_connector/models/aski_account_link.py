@@ -592,9 +592,12 @@ class AskiAccountLink(models.Model):
             return {}
         if res_id <= 0 or not isinstance(record_model, str):
             return {}
-        # Mismo formato que exige el backend (`^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$`).
-        # Sin punto no es un modelo de Odoo.
-        if "." not in record_model or not record_model.replace(".", "").replace("_", "").isalnum():
+        # Mismo formato que exige el backend (`^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*$`).
+        # ⛔ El punto NO es obligatorio: los modelos que crea Studio se llaman
+        # `x_pedido`, `x_contrato`… sin punto, y exigirlo los descartaba aqui
+        # mismo — la ficha no salia justo en los modelos propios del cliente.
+        limpio = record_model.replace(".", "").replace("_", "")
+        if not limpio.isalnum() or not record_model[:1].islower():
             return {}
         return {"record": {"model": record_model, "res_id": res_id}}
 
