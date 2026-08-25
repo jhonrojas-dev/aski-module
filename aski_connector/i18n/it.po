@@ -139,7 +139,7 @@ msgstr "o scopri di più su"
 #. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Ask Aski anything about your Odoo…"
-msgstr "Chiedi ad Aski qualsiasi cosa sul tuo Odoo…"
+msgstr "Chiedi sul tuo Odoo…"
 
 #. module: aski_connector
 #. odoo-javascript
@@ -1660,3 +1660,27 @@ msgstr "convertito"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "name@company.com"
 msgstr "name@company.com"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asking about"
+msgstr "Su"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
+msgid "Ask Aski about this record"
+msgstr "Chiedi ad Aski su questo record"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask about everything again, not just this record"
+msgstr "Torna a chiedere su tutto, non solo su questo record"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Remove record scope"
+msgstr "Rimuovi il record"

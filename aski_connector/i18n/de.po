@@ -142,7 +142,7 @@ msgstr "oder mehr erfahren auf"
 #. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Ask Aski anything about your Odoo…"
-msgstr "Fragen Sie Aski alles zu Ihrem Odoo…"
+msgstr "Fragen Sie zu Ihrem Odoo…"
 
 #. module: aski_connector
 #. odoo-javascript
@@ -1678,3 +1678,27 @@ msgstr "umgerechnet"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "name@company.com"
 msgstr "name@company.com"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asking about"
+msgstr "Zu"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
+msgid "Ask Aski about this record"
+msgstr "Aski zu diesem Datensatz fragen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask about everything again, not just this record"
+msgstr "Wieder alles fragen, nicht nur diesen Datensatz"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Remove record scope"
+msgstr "Datensatzbezug entfernen"
