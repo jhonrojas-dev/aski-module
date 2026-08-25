@@ -338,7 +338,12 @@ class AskiAccountLink(models.Model):
         sub = data.get("subscription") or {}
         vals = {
             "wallet_credits": wallet.get("balance", 0),
-            "plan_name": (sub or {}).get("plan_id") or "",
+            # ⛔ `plan_name`, NO `plan_id`: el backend ya manda el nombre
+            # legible ("Enterprise Plus") y aqui se estaba leyendo el
+            # identificador, asi que la cabecera mostraba "enterprise_plus".
+            # Se cae a plan_id solo si el backend no lo trajera.
+            "plan_name": ((sub or {}).get("plan_name")
+                          or (sub or {}).get("plan_id") or ""),
             "agent_enabled": bool(data.get("agent_enabled")),
             "partner_managed": bool(data.get("partner_managed")),
             "partner_name": (sub or {}).get("partner_name") or "",
@@ -601,6 +606,9 @@ class AskiAccountLink(models.Model):
             "answer": data.get("answer", ""),
             "conversation_id": data.get("conversation_id"),
             "credits": data.get("credits"),
+            # Para que el grafico salga YA en el turno que se acaba de mandar y
+            # no solo tras la recarga del hilo (que puede fallar sin red).
+            "chart": (data.get("query") or {}).get("chart"),
             # El agente puede pedir confirmacion antes de una consulta pesada, o
             # declinar. El chat lo refleja en vez de tragarselo.
             "confirmation_required": bool(data.get("confirmation_required")),
@@ -635,6 +643,7 @@ class AskiAccountLink(models.Model):
             "answer": data.get("answer", ""),
             "conversation_id": data.get("conversation_id"),
             "credits": data.get("credits"),
+            "chart": (data.get("query") or {}).get("chart"),
         }
 
     @api.model
@@ -780,6 +789,12 @@ class AskiAccountLink(models.Model):
                 "createdAt": m.get("created_at"),
                 "credits": m.get("credits") if role == "assistant" else None,
                 "rows": m.get("odoo_result_count") if role == "assistant" else None,
+                # El grafico viaja DENTRO de la consulta guardada (igual que
+                # en la app y la web), asi que sobrevive al historial, donde
+                # ya no hay filas que mirar. None en la mayoria de turnos,
+                # que es lo correcto: pocas respuestas admiten grafico.
+                "chart": ((m.get("odoo_query") or {}).get("chart")
+                          if role == "assistant" else None),
                 "feedback": m.get("feedback") if role == "assistant" else None,
                 # El motivo que escribio al marcar 'dislike'. Vuelve para que al
                 # recargar el hilo lo siga viendo: un comentario que desaparece
@@ -809,6 +824,158 @@ class AskiAccountLink(models.Model):
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         data = resp.json()
         return {"content_html": data.get("content_html", "")}
+
+    # =================================================================
+    #  Las demas funciones del chat que YA se pueden usar con un PAT
+    # =================================================================
+    # ⛔ Aqui solo entra lo que el backend acepta con token personal. Lo que
+    # exige sesion de navegador (listar y revocar enlaces, borrar la
+    # conversacion, avisos programados) NO se finge: una fila que responde 401
+    # es peor que una fila que no esta.
+
+    @api.model
+    def message_records(self, message_id):
+        """Los registros que hay DETRAS de una cifra.
+
+        No devuelve filas guardadas: el backend RE-EJECUTA la consulta con las
+        credenciales del usuario, asi que los permisos se aplican al mirar. Y
+        puede declinar con un motivo legible — eso no es un error, es la
+        explicacion, y se pasa tal cual al widget.
+        """
+        rec = self._link_para_chat()
+        try:
+            resp = requests.get(
+                aski_api_base(self.env) + "/chat/messages/%s/records" % message_id,
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
+
+    @api.model
+    def export_message_xlsx(self, message_id):
+        """La hoja de calculo de una respuesta, en base64.
+
+        El backend vuelve a ejecutar la consulta: las filas no se guardan con el
+        mensaje. Eso hace que el fichero lleve las cifras de HOY, con los rangos
+        relativos reanclados.
+        """
+        rec = self._link_para_chat()
+        try:
+            resp = requests.get(
+                aski_api_base(self.env) + "/chat/messages/%s/export-xlsx" % message_id,
+                params={"lang": self.env.user.lang or ""},
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        data = resp.json()
+        return {
+            "filename": data.get("filename") or "aski.xlsx",
+            "content_b64": data.get("content_b64") or "",
+            "rows": data.get("rows") or 0,
+        }
+
+    @api.model
+    def email_answer(self, message_id, to, attach_xlsx=False, tz_offset_minutes=0):
+        """Manda la respuesta por correo.
+
+        Sale con el `reply_to` del usuario: quien lo recibe ve de quien viene y
+        le contesta a EL. El backend lo limita por plan y por cupo diario, y
+        devuelve el MOTIVO cuando falla — se propaga entero en vez de un
+        "no se pudo enviar" que deja reintentando lo mismo.
+        """
+        rec = self._link_para_chat()
+        destinos = [d.strip() for d in (to or []) if (d or "").strip()]
+        if not destinos:
+            raise UserError(_("Add at least one email address."))
+        cuerpo = {
+            "to": destinos,
+            "attach_xlsx": bool(attach_xlsx),
+            "lang": self.env.user.lang or None,
+            "tz_offset_minutes": tz_offset_minutes,
+        }
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/chat/messages/%s/answer-email" % message_id,
+                json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
+
+    @api.model
+    def create_share(self, message_id, days=None):
+        """Crea el enlace publico de una respuesta.
+
+        ⛔ Solo CREA. Listar y revocar enlaces se queda fuera del modulo a
+        proposito: administrar los enlaces de la cuenta se hace donde vive la
+        cuenta, no dentro del Odoo de un cliente. El backend recorta los dias
+        en silencio al maximo del plan, asi que lo que se ensena al usuario es
+        el `expires_at` que VUELVE, no el que se pidio.
+        """
+        rec = self._link_para_chat()
+        cuerpo = {}
+        if days:
+            cuerpo["days"] = int(days)
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/chat/messages/%s/share" % message_id,
+                json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        data = resp.json()
+        return {
+            "url": data.get("url") or "",
+            "expires_at": data.get("expires_at") or "",
+            "has_password": bool(data.get("has_password")),
+        }
+
+    @api.model
+    def get_wallet(self):
+        """El saldo REAL, releido del backend.
+
+        El widget restaba el coste en local tras cada respuesta, que es solo una
+        estimacion: si el cobro difiere del estimado —o el entorno no cobra— la
+        cabecera se queda desfasada hasta la siguiente recarga. Esto la corrige
+        con lo que dice el servidor, que es la unica cifra que vale.
+        """
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.pat:
+            return {"wallet_credits": 0, "plan_name": ""}
+        rec._sync_wallet()
+        return {"wallet_credits": rec.wallet_credits or 0,
+                "plan_name": rec.plan_name or ""}
+
+    @api.model
+    def clear_context(self, conversation_id):
+        """Olvida el contexto del hilo SIN borrarlo: la siguiente pregunta no
+        arrastra lo anterior. Mismo endpoint que el chip del pie en la app y en
+        la web."""
+        rec = self._link_para_chat()
+        try:
+            resp = requests.post(
+                aski_api_base(self.env)
+                + "/chat/conversations/%s/clear-context" % conversation_id,
+                json={}, headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code not in (200, 204):
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return True
+
+    def _link_para_chat(self):
+        """La conexion activa, ya comprobada. Estaba repetido en cada metodo."""
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            raise UserError(self._not_connected_error())
+        return rec.sudo()
 
     @api.model
     def export_message_pdf(self, message_id, tz_offset_minutes=0):
