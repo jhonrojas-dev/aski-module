@@ -1,0 +1,39 @@
+// Tema OSCURO del chat de Aski dentro de Odoo.
+//
+// Odoo 19 no marca el modo oscuro con una clase ni con un atributo: lo decide
+// una cookie (`color_scheme=dark`) y CAMBIA EL BUNDLE, cargando
+// `web.assets_web_dark` en lugar de `web.assets_web`. Como `web.assets_backend`
+// entra en los dos, `aski_chat.scss` ya se carga en oscuro; lo unico que hace
+// falta es redefinir sus variables aqui, y este fichero solo se sirve cuando el
+// usuario tiene el modo oscuro puesto.
+//
+// Los valores son el DarkScheme de la app (Android Color.kt), no tonos elegidos
+// a ojo: navy profundo de fondo, y el DORADO pasa a ser `primary` — por eso el
+// lavado de arriba y la burbuja del usuario se vuelven doradas solas, sin una
+// sola regla nueva de maquetacion.
+.aski-chat {
+    --ac-navy: #E8C058;              // en oscuro `primary` ES el dorado
+    --ac-navy-dark: #050A14;
+    --ac-on-gold: #2E2200;
+    // Aqui el primary ES el dorado, asi que lo que va encima es el pardo oscuro
+    // (al reves que en el tema claro).
+    --ac-on-primary: #2E2200;
+    --ac-bg: #050A14;                // background (BrandNavyDeep)
+    --ac-surface: #0A1224;
+    --ac-surface-2: #0D1729;         // surfaceContainerLow
+    --ac-surface-variant: #1E2E48;
+    --ac-on-surface: #EDEFF5;
+    --ac-on-variant: #B0B8C5;
+    --ac-primary-container: #E8C058; // igual que en el movil: dorado
+    --ac-on-primary-container: #2E2200;
+    --ac-outline: #44546A;
+    --ac-outline-soft: #24334C;      // outlineVariant en oscuro
+    --ac-surface-c-lowest: #04080F;
+    --ac-surface-c-low: #0D1729;
+    --ac-surface-c: #141F33;
+    --ac-surface-c-high: #1B283E;
+    --ac-surface-c-highest: #223148;
+    --ac-error: #FFB4AB;
+    --ac-success: #5BD08A;
+    --ac-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+}

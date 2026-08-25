@@ -217,6 +217,19 @@ export class AskiChatWidget extends Component {
             exporting: false,
             conversations: [],
             drawerOpen: false,
+            // --- Grafico: el id del mensaje cuyo grafico esta abierto ---
+            chartFor: null,
+            // --- Compartir enlace (solo crear; administrarlos no) ---
+            shareFor: null, shareUrl: "", shareExpires: "", shareDays: 7,
+            shareBusy: false,
+            // --- Los registros detras de la cifra ---
+            recordsFor: null, records: null, recordsBusy: false,
+            // --- Excel ---
+            xlsxBusy: false,
+            // --- Enviar por correo ---
+            emailFor: null, emailTo: "", emailAttach: true, emailBusy: false,
+            // --- Empezar de cero ---
+            clearing: false,
             detailFor: null,
             // Motivo del 'dislike' (campo "¿Que estuvo mal?" del panel de
             // detalle). Vive en el estado del chat y NO en el mensaje porque
@@ -846,6 +859,7 @@ export class AskiChatWidget extends Component {
             this.state.messages.push({
                 id: `a${Date.now()}`, role: "assistant", text: r.answer || "",
                 credits: typeof r.credits === "number" ? r.credits : null,
+                chart: r.chart || null,
                 backendId: null, rows: null, feedback: null,
                 feedbackComment: null, createdAt: new Date().toISOString(),
             });
@@ -867,6 +881,17 @@ export class AskiChatWidget extends Component {
                         "aski.account.link", "load_conversation", [this.state.conversationId]);
                 } catch (e2) { /* la burbuja optimista ya quedo visible, no molestar */ }
             }
+            // Y el saldo con lo que dice el SERVIDOR: la resta local de arriba
+            // es una estimacion y se desfasa si el cobro real difiere.
+            try {
+                const w = await this.orm.call("aski.account.link", "get_wallet", []);
+                if (typeof w.wallet_credits === "number") {
+                    this.state.walletCredits = w.wallet_credits;
+                }
+                if (w.plan_name) {
+                    this.state.planName = w.plan_name;
+                }
+            } catch (e3) { /* se queda la estimacion local, que ya es util */ }
         } catch (e) {
             const msg = this._msgDe(e);
             // "Recargar creditos" solo si el fallo SON los creditos: ante un ERP
@@ -890,6 +915,462 @@ export class AskiChatWidget extends Component {
             this.state.sendingDeep = false;
             this._stopClock();
             this._scrollToBottom();
+        }
+    }
+
+    // =====================================================================
+    //  Grafico
+    // =====================================================================
+    // El grafico viaja DENTRO de la consulta guardada, asi que vale igual para
+    // el turno recien mandado y para el historial. Se valida con las MISMAS
+    // reglas que la app y la web: solo tres formas, y una serie necesita al
+    // menos dos puntos (con uno no hay nada que comparar). Tolerante a
+    // proposito: un grafico jamas puede tumbar el render de una respuesta que
+    // ya se cobro.
+    chartDe(m) {
+        const c = m && m.chart;
+        if (!c || typeof c !== "object") {
+            return null;
+        }
+        if (["bar", "line", "donut"].indexOf(c.kind) === -1) {
+            return null;
+        }
+        const series = (Array.isArray(c.series) ? c.series : []).filter(
+            (s) => s && Array.isArray(s.points) && s.points.length >= 2);
+        return series.length ? Object.assign({}, c, { series }) : null;
+    }
+
+    // ⛔ Estos tres textos se arman ENTEROS y no partidos en la plantilla.
+    // "<t/> days" exportaba "days" a solas y "<t/> of <t/>" exportaba "of":
+    // traducidos como fragmentos, el orden de las palabras queda mal en cuanto
+    // el idioma no coloca el numero delante.
+    // La caducidad, en fecha LOCAL y no el ISO crudo que manda el backend:
+    // "2026-09-01T06:24:53.479855" no lo lee nadie.
+    get caducidadFmt() {
+        const iso = this.state.shareExpires;
+        if (!iso) {
+            return "";
+        }
+        const d = new Date(iso.endsWith("Z") || iso.indexOf("+") > 0 ? iso : iso + "Z");
+        if (isNaN(d.getTime())) {
+            return iso;   // si no se puede leer, se ensena tal cual: nunca vacio
+        }
+        return d.toLocaleDateString(undefined,
+            { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    plazoLabel(d) {
+        return _t("%s days", d);
+    }
+
+    get conteoRegistros() {
+        const r = this.state.records || {};
+        return _t("%(shown)s of %(total)s", {
+            shown: (r.rows || []).length, total: r.total });
+    }
+
+    get etiquetaConvertido() {
+        return _t("converted");
+    }
+
+    openChart(m) {
+        // Al abrir esto se CIERRA el panel de detalle de debajo: dejarlo
+        // puesto apilaba dos capas y se veia como un descuido. Se cierra de
+        // verdad (no se oculta), para que al salir de aqui no reaparezca solo.
+        this.closeDetail();
+        this.state.chartFor = m.id;
+    }
+
+    closeChart() {
+        this.state.chartFor = null;
+    }
+
+    get chartAbierto() {
+        const id = this.state.chartFor;
+        if (!id) {
+            return null;
+        }
+        const m = this.state.messages.find((x) => x.id === id);
+        return m ? this.chartDe(m) : null;
+    }
+
+    // --- Barras -------------------------------------------------------------
+    // "Otros" NO entra en la escala: agrupa cientos de entidades, asi que su
+    // valor aplasta al resto y las barras reales quedan en una astilla, que es
+    // justo lo que el grafico venia a dejar comparar. Se muestra su cifra, sin
+    // barra que compita.
+    barras(s, spec) {
+        const tope = Math.max(...s.points.map((p) => Math.abs(p.value)), 1e-9);
+        const filas = s.points.map((p) => ({
+            label: p.label,
+            valor: this.fmtCifra(p.value, s, spec),
+            pct: Math.min(100, (Math.abs(p.value) / tope) * 100),
+            otros: false,
+        }));
+        if (s.other) {
+            filas.push({
+                label: s.other.label,
+                valor: this.fmtCifra(s.other.value, s, spec),
+                pct: 0,
+                otros: true,
+            });
+        }
+        return filas;
+    }
+
+    // --- Linea --------------------------------------------------------------
+    // El eje arranca en CERO salvo que haya negativos: un eje truncado exagera
+    // las diferencias, que es el error que borra la confianza en las cifras.
+    // Y forzar el piso a cero con negativos esconderia las caidas bajo cero.
+    linea(s, spec) {
+        const vals = s.points.map((p) => p.value);
+        const max = Math.max(...vals);
+        const min = Math.min(...vals, 0);
+        const rango = Math.max(max - min, 1e-9);
+        const W = 600;
+        const H = 180;
+        const paso = s.points.length > 1 ? W / (s.points.length - 1) : W;
+        const y = (v) => H - ((v - min) / rango) * H;
+        const d = s.points
+            .map((p, i) => (i ? "L" : "M") + (paso * i).toFixed(1) + "," + y(p.value).toFixed(1))
+            .join(" ");
+        return {
+            d, W, H,
+            arriba: this.fmtCorto(max, s, spec),
+            abajo: this.fmtCorto(min, s, spec),
+            primero: s.points[0].label,
+            ultimo: s.points[s.points.length - 1].label,
+            guias: [0, 0.5, 1].map((f) => H * f),
+        };
+    }
+
+    // --- Dona ---------------------------------------------------------------
+    dona(s) {
+        const total = s.points.reduce((a, p) => a + p.value, 0);
+        if (total <= 0) {
+            return null;
+        }
+        const R = 70;
+        const C = 2 * Math.PI * R;
+        let acum = 0;
+        const trozos = s.points.map((p, i) => {
+            const frac = p.value / total;
+            const t = {
+                clase: "s" + (i % 6),
+                dash: (C * frac).toFixed(2) + " " + C.toFixed(2),
+                offset: (-C * acum).toFixed(2),
+                label: p.label,
+                pct: Math.round(frac * 100),
+            };
+            acum += frac;
+            return t;
+        });
+        return { R, G: 22, trozos };
+    }
+
+    // --- Pie del grafico ----------------------------------------------------
+    // Sin total afirmable NO se inventa uno: se dice exactamente que se esta
+    // viendo ("Top 10 de 240").
+    pieGrafico(s, spec) {
+        if (s.total === null || s.total === undefined) {
+            if (s.partial_of !== null && s.partial_of !== undefined) {
+                return _t("Top %(shown)s of %(total)s", {
+                    shown: s.points.length, total: s.partial_of });
+            }
+            return "";
+        }
+        return _t("Total: %s", this.fmtCifra(s.total, s, spec));
+    }
+
+    // --- Formato ------------------------------------------------------------
+    // `toLocaleString` y NO el formateador de Odoo: el modulo del formateador y
+    // su nombre cambian entre la 14 y la 19, y esto tiene que compilar en las
+    // seis series.
+    _agrupado(v, dec) {
+        return Number(v).toLocaleString(undefined, {
+            minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
+
+    // Un conteo no lleva decimales ni simbolo; un importe lleva ambos cuando se
+    // conoce el simbolo (al partir por moneda viene vacio A PROPOSITO, porque
+    // el codigo ya rotula la seccion). Los centimos se omiten a partir de cinco
+    // cifras: en un grafico no aportan y roban el ancho del numero. La cifra
+    // exacta sigue en la tabla.
+    fmtCifra(v, s, spec) {
+        if (spec.is_count) {
+            return this._agrupado(v, 0);
+        }
+        const n = this._agrupado(v, Math.abs(v) >= 10000 ? 0 : 2);
+        return s.symbol ? s.symbol + " " + n : n;
+    }
+
+    fmtCorto(v, s, spec) {
+        const a = Math.abs(v);
+        let n = v, sfx = "";
+        if (a >= 1e6) { n = v / 1e6; sfx = "M"; }
+        else if (a >= 1e3) { n = v / 1e3; sfx = "k"; }
+        const cuerpo = this._agrupado(n, sfx && a >= 1e3 ? 1 : 0) + sfx;
+        return spec.is_count || !s.symbol ? cuerpo : s.symbol + " " + cuerpo;
+    }
+
+    // El saldo, con separador de miles. "60000" se lee mal de un vistazo y en
+    // la app y en la web sale agrupado.
+    get creditosFmt() {
+        return this._agrupado(this.state.walletCredits || 0, 0);
+    }
+
+    // =====================================================================
+    //  Copiar el texto
+    // =====================================================================
+    async copyText(m) {
+        const texto = m.text || "";
+        try {
+            await browser.navigator.clipboard.writeText(texto);
+            this.notification.add(_t("Answer copied."), { type: "success" });
+        } catch (e) {
+            // Sin permiso de portapapeles (o sin HTTPS en algunos navegadores):
+            // se dice, en vez de dejar creer que se copio.
+            this.notification.add(
+                _t("Could not copy. Select the text and copy it manually."),
+                { type: "warning" });
+        }
+    }
+
+    // =====================================================================
+    //  Compartir enlace
+    // =====================================================================
+    // ⛔ Solo CREA. Administrar los enlaces (listarlos, revocarlos) se queda
+    // fuera a proposito y el backend tampoco lo acepta con token personal: eso
+    // se hace donde vive la cuenta, no dentro del Odoo de un cliente.
+    openShare(m) {
+        // Al abrir esto se CIERRA el panel de detalle de debajo: dejarlo
+        // puesto apilaba dos capas y se veia como un descuido. Se cierra de
+        // verdad (no se oculta), para que al salir de aqui no reaparezca solo.
+        this.closeDetail();
+        this.state.shareFor = m.backendId || null;
+        this.state.shareUrl = "";
+        this.state.shareExpires = "";
+        this.state.shareDays = 7;
+        this.state.shareBusy = false;
+    }
+
+    closeShare() {
+        this.state.shareFor = null;
+    }
+
+    setShareDays(d) {
+        this.state.shareDays = d;
+    }
+
+    async doShare() {
+        if (this.state.shareBusy || !this.state.shareFor) {
+            return; // guarda contra doble tap
+        }
+        this.state.shareBusy = true;
+        try {
+            const r = await this.orm.call("aski.account.link", "create_share",
+                                          [this.state.shareFor, this.state.shareDays]);
+            this.state.shareUrl = r.url || "";
+            // Lo que se ENSENA es el vencimiento que VUELVE: el backend recorta
+            // los dias al maximo del plan sin avisar, asi que mostrar los que se
+            // pidieron seria mentir sobre cuando caduca.
+            this.state.shareExpires = r.expires_at || "";
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.shareBusy = false;
+        }
+    }
+
+    async copyShare() {
+        try {
+            await browser.navigator.clipboard.writeText(this.state.shareUrl);
+            this.notification.add(_t("Link copied."), { type: "success" });
+        } catch (e) {
+            this.notification.add(
+                _t("Could not copy. Select the link and copy it manually."),
+                { type: "warning" });
+        }
+    }
+
+    // =====================================================================
+    //  Los registros detras de la cifra
+    // =====================================================================
+    async openRecords(m) {
+        if (!m.backendId) {
+            return;
+        }
+        // Igual que las demas ventanas: cierra el panel de debajo. Va DESPUES de
+        // la guarda, o cerraria el panel sin abrir nada.
+        this.closeDetail();
+        this.state.recordsFor = m.backendId;
+        this.state.records = null;
+        this.state.recordsBusy = true;
+        try {
+            this.state.records = await this.orm.call(
+                "aski.account.link", "message_records", [m.backendId]);
+        } catch (e) {
+            this.state.recordsFor = null;
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.recordsBusy = false;
+        }
+    }
+
+    closeRecords() {
+        this.state.recordsFor = null;
+        this.state.records = null;
+    }
+
+    // Los registros se abren EN Odoo, que es la ventaja de estar dentro: en la
+    // app y en la web esto es un enlace que saca al usuario del programa.
+    openRecord(fila) {
+        const modelo = (this.state.records || {}).model;
+        if (!modelo || !fila.id) {
+            return;
+        }
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: modelo,
+            res_id: fila.id,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+
+    // =====================================================================
+    //  Excel
+    // =====================================================================
+    async exportXlsx(m) {
+        if (this.state.xlsxBusy || !m.backendId) {
+            return;
+        }
+        this.state.xlsxBusy = true;
+        try {
+            const r = await this.orm.call("aski.account.link", "export_message_xlsx",
+                                          [m.backendId]);
+            if (!r.content_b64) {
+                this.notification.add(_t("There are no rows to export."),
+                                      { type: "warning" });
+                return;
+            }
+            this._descargarB64(r.content_b64, r.filename,
+                              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.xlsxBusy = false;
+        }
+    }
+
+    // Base64 -> descarga. Sin pasar por ir.attachment: no deja basura en la
+    // base del cliente y el fichero no queda guardado en su Odoo.
+    _descargarB64(b64, nombre, tipo) {
+        const bin = atob(b64);
+        const buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) {
+            buf[i] = bin.charCodeAt(i);
+        }
+        const url = URL.createObjectURL(new Blob([buf], { type: tipo }));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = nombre;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        // Se libera despues: revocarlo en el mismo tick cancela la descarga en
+        // algunos navegadores.
+        browser.setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
+
+    // =====================================================================
+    //  Enviar por correo
+    // =====================================================================
+    openEmail(m) {
+        // Al abrir esto se CIERRA el panel de detalle de debajo: dejarlo
+        // puesto apilaba dos capas y se veia como un descuido. Se cierra de
+        // verdad (no se oculta), para que al salir de aqui no reaparezca solo.
+        this.closeDetail();
+        this.state.emailFor = m.backendId || null;
+        // Se propone el correo de la cuenta Aski conectada: es el destino mas
+        // probable y evita teclear. Se toma del estado y NO del servicio de
+        // usuario de Odoo, cuya forma cambia entre la 14 y la 19.
+        this.state.emailTo = this.state.email || "";
+        this.state.emailAttach = true;
+        this.state.emailBusy = false;
+    }
+
+    closeEmail() {
+        this.state.emailFor = null;
+    }
+
+    onEmailInput(ev) {
+        this.state.emailTo = ev.target.value;
+    }
+
+    toggleEmailAttach() {
+        this.state.emailAttach = !this.state.emailAttach;
+    }
+
+    async doEmail() {
+        if (this.state.emailBusy || !this.state.emailFor) {
+            return;
+        }
+        const destinos = (this.state.emailTo || "")
+            .split(/[,;\s]+/).map((s) => s.trim()).filter(Boolean);
+        if (!destinos.length) {
+            this.notification.add(_t("Add at least one email address."),
+                                  { type: "warning" });
+            return;
+        }
+        this.state.emailBusy = true;
+        try {
+            const r = await this.orm.call("aski.account.link", "email_answer",
+                [this.state.emailFor, destinos, this.state.emailAttach,
+                 -new Date().getTimezoneOffset()]);
+            // El backend dice CUANTOS salieron y cuales no, con el motivo. Se
+            // repite tal cual: "no se pudo enviar" a secas deja reintentando lo
+            // mismo, y una direccion que rebota no se arregla igual que un
+            // correo saliente sin configurar.
+            if (r.sent) {
+                this.notification.add(
+                    _t("Sent to %s recipient(s).", r.sent), { type: "success" });
+            }
+            if ((r.failed || []).length || r.error) {
+                this.notification.add(
+                    r.error || _t("Could not send to: %s", (r.failed || []).join(", ")),
+                    { type: "danger", sticky: true });
+            }
+            if (r.sent && !((r.failed || []).length || r.error)) {
+                this.state.emailFor = null;
+            }
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.emailBusy = false;
+        }
+    }
+
+    // =====================================================================
+    //  Empezar de cero
+    // =====================================================================
+    // Olvida el contexto SIN borrar el hilo: la siguiente pregunta no arrastra
+    // lo anterior. Es lo que hace el chip del pie en la app y en la web.
+    async clearContext() {
+        if (!this.state.conversationId || this.state.clearing) {
+            return;
+        }
+        this.state.clearing = true;
+        try {
+            await this.orm.call("aski.account.link", "clear_context",
+                                [this.state.conversationId]);
+            this.notification.add(
+                _t("Context cleared. The next question starts fresh."),
+                { type: "success" });
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.clearing = false;
         }
     }
 
