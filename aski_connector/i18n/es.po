@@ -41,7 +41,7 @@ msgid "Click <b>Generate connection code</b> below."
 msgstr "Pulsa <b>Generar código de conexión</b> abajo."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
@@ -136,13 +136,13 @@ msgid "or learn more at"
 msgstr "o más información en"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Ask Aski anything about your Odoo…"
 msgstr "Pregunta sobre tu Odoo…"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model:ir.module.category,name:aski_connector.module_category_aski
 #: model:ir.ui.menu,name:aski_connector.menu_aski_root
@@ -229,7 +229,7 @@ msgid "Aski token (encrypted)"
 msgstr "Token de Aski (cifrado)"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Cancel"
@@ -259,13 +259,13 @@ msgid "Connect Aski chat"
 msgstr "Conectar el chat de Aski"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Connect Aski to start chatting"
 msgstr "Conecta Aski para empezar a chatear"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Connect my Aski account"
 msgstr "Conectar mi cuenta de Aski"
@@ -363,13 +363,13 @@ msgid "Last synced"
 msgstr "Última sincronización"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Loading…"
 msgstr "Cargando…"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Out of credits"
 msgstr "Sin créditos"
@@ -397,13 +397,13 @@ msgid "Reconnect / paste a new token"
 msgstr "Reconectar / pegar un token nuevo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Retry"
 msgstr "Reintentar"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Something went wrong. Try again."
 msgstr "Algo salió mal. Intenta de nuevo."
@@ -420,7 +420,7 @@ msgid "That token is invalid or was revoked. Generate a new one in Aski."
 msgstr "Ese token no es válido o fue revocado. Genera uno nuevo en Aski."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Top up credits"
 msgstr "Recargar créditos"
@@ -452,7 +452,7 @@ msgid "aski.dev"
 msgstr "aski.dev"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Export last answer to PDF"
 msgstr "Exportar la última respuesta a PDF"
@@ -464,85 +464,85 @@ msgid "There's no Aski answer to export yet."
 msgstr "Todavía no hay ninguna respuesta de Aski para exportar."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "credits"
 msgstr "créditos"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Conversations"
 msgstr "Conversaciones"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Details"
 msgstr "Detalles"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Minimize"
 msgstr "Minimizar"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "New conversation"
 msgstr "Nueva conversación"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "No conversations yet."
 msgstr "Todavía no hay conversaciones."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "How much did I sell this month?"
 msgstr "¿Cuánto vendí este mes?"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "My top 10 customers"
 msgstr "Mis 10 mejores clientes"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Overdue invoices"
 msgstr "Facturas vencidas"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "How many customers do I have?"
 msgstr "¿Cuántos clientes tengo?"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "rows"
 msgstr "filas"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Export this answer"
 msgstr "Exportar esta respuesta"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Untitled"
 msgstr "Sin título"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Out of credits - tap to top up"
 msgstr "Sin créditos - toca para recargar"
@@ -559,7 +559,7 @@ msgstr ""
 "Pregúntale desde tu celular, desde la web o aquí mismo dentro de Odoo."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Export this answer to PDF"
 msgstr "Exportar esta respuesta a PDF"
@@ -570,25 +570,25 @@ msgid "Connect Aski"
 msgstr "Conectar Aski"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "AI assistant · read-only"
 msgstr "Asistente de IA · solo lectura"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/systray/aski_systray.xml:0
 msgid "Aski - ask your Odoo"
 msgstr "Aski - pregúntale a tu Odoo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Hi, I'm Aski"
 msgstr "Hola, soy Aski"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid ""
 "Ask about your business in plain language — sales, receivables, top "
@@ -643,13 +643,13 @@ msgstr ""
 "propio usuario de Odoo puede."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Aski chat isn't enabled for your user"
 msgstr "El chat de Aski no está habilitado para tu usuario"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid ""
 "Ask an administrator to add you to the \"Use the Aski chat\" group to start "
@@ -691,13 +691,13 @@ msgid "User"
 msgstr "Usuario"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Aski isn't set up yet"
 msgstr "Aski aún no está configurado"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Ask an administrator to connect Aski for your team."
 msgstr "Pídele a un administrador que conecte Aski para tu equipo."
@@ -737,13 +737,13 @@ msgstr ""
 "Solo los administradores pueden configurar la conexión compartida de Aski."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Disconnect my Aski account"
 msgstr "Desconectar mi cuenta de Aski"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid ""
@@ -753,7 +753,7 @@ msgstr ""
 "con tu token."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Disconnect"
@@ -773,7 +773,7 @@ msgid "Aski was already disconnected."
 msgstr "Aski ya estaba desconectado."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
@@ -781,7 +781,7 @@ msgid "Aski account disconnected."
 msgstr "Cuenta de Aski desconectada."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Save"
@@ -1099,7 +1099,7 @@ msgstr ""
 "%(detail)s"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid ""
 "Ask your Odoo in plain language, right here — sales, receivables,\n"
@@ -1123,7 +1123,7 @@ msgstr ""
 " nuevo."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Aski isn't responding right now"
 msgstr "Aski no está respondiendo en este momento"
@@ -1140,25 +1140,25 @@ msgid "Cobrand Html"
 msgstr "HTML de co-marca"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Conversation name"
 msgstr "Nombre de la conversación"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Conversation removed."
 msgstr "Conversación quitada."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Deep"
 msgstr "Profundo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Deep analysis"
 msgstr "Análisis profundo"
@@ -1169,13 +1169,13 @@ msgid "Deep analysis included"
 msgstr "Incluye análisis profundo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Deep analysis: slower, but digs through more data"
 msgstr "Análisis profundo: más lento, pero revisa más datos"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Digging deeper — this one takes a while."
 msgstr "Analizando a fondo: esto toma un rato."
@@ -1233,7 +1233,7 @@ msgstr ""
 "Aski, ni en el celular ni en la web."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Not now"
 msgstr "Ahora no"
@@ -1248,7 +1248,7 @@ msgstr ""
 "ya está puesto y no tienes que escribirlo."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Out of credits - your Aski partner tops them up"
 msgstr "Sin créditos: tu socio de Aski los recarga"
@@ -1284,31 +1284,31 @@ msgid "Partner Show Cobrand"
 msgstr "Mostrar co-marca del socio"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Remove"
 msgstr "Quitar"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Remove this conversation from your list?"
 msgstr "¿Quitar esta conversación de tu lista?"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Rename"
 msgstr "Renombrar"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Run it"
 msgstr "Ejecutar"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
@@ -1335,13 +1335,13 @@ msgstr ""
 "él, así que los enlaces de compra quedan ocultos."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "This one needs a heavier analysis. Run it anyway?"
 msgstr "Esta consulta necesita un análisis más pesado. ¿La ejecutamos igual?"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Try again"
 msgstr "Reintentar"
@@ -1353,13 +1353,13 @@ msgid "Type a name for the conversation."
 msgstr "Escribe un nombre para la conversación."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Working on it…"
 msgstr "Trabajando en eso…"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "You appear to be offline. Check your connection and try again."
 msgstr "Parece que estás sin conexión. Revisa tu red e inténtalo de nuevo."
@@ -1377,85 +1377,85 @@ msgid "aski.dev/#pricing"
 msgstr "aski.dev/#pricing"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "s"
 msgstr "s"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Couldn't send your note. Please try again."
 msgstr "No se pudo enviar el motivo. Inténtalo de nuevo."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "E.g.: the total doesn't match what I see in my ERP"
 msgstr "Ej.: el total no coincide con el que veo en mi ERP"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Helpful answer"
 msgstr "Respuesta útil"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Send"
 msgstr "Enviar"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Sending…"
 msgstr "Enviando…"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Thanks. Now we know what to fix."
 msgstr "Gracias. Con esto sabemos qué corregir."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Unhelpful answer"
 msgstr "Respuesta no útil"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What went wrong? (optional)"
 msgstr "¿Qué estuvo mal? (opcional)"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Helpful?"
 msgstr "¿Te sirvió?"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Response details"
 msgstr "Detalles de la respuesta"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "%(shown)s of %(total)s"
 msgstr "%(shown)s de %(total)s"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "%s days"
 msgstr "%s días"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
@@ -1463,98 +1463,98 @@ msgid "Add at least one email address."
 msgstr "Añade al menos una dirección de correo."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Answer copied."
 msgstr "Respuesta copiada."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Anyone with the link can read this answer. It expires on its own."
 msgstr ""
 "Cualquiera con el enlace puede leer esta respuesta. Caduca por sí sola."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Attach the spreadsheet"
 msgstr "Adjuntar la hoja de cálculo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Chart"
 msgstr "Gráfico"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Context cleared. The next question starts fresh."
 msgstr "Contexto olvidado. La siguiente pregunta empieza de cero."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Copy"
 msgstr "Copiar"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Copy text"
 msgstr "Copiar el texto"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Could not copy. Select the link and copy it manually."
 msgstr "No se pudo copiar. Selecciona el enlace y cópialo a mano."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Could not copy. Select the text and copy it manually."
 msgstr "No se pudo copiar. Selecciona el texto y cópialo a mano."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Could not send to: %s"
 msgstr "No se pudo enviar a: %s"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Create link"
 msgstr "Crear el enlace"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Expires:"
 msgstr "Caduca:"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Export to Excel"
 msgstr "Exportar a Excel"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Forget what we talked about, without deleting the thread"
 msgstr "Olvidar lo que hablamos, sin borrar el hilo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "How long it lasts"
 msgstr "Cuánto dura"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid ""
 "It goes out with your address as reply-to, so whoever receives it can answer"
@@ -1564,121 +1564,121 @@ msgstr ""
 "puede contestar."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Link copied."
 msgstr "Enlace copiado."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Link ready"
 msgstr "Enlace listo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "No records to show for this answer."
 msgstr "No hay registros que mostrar para esta respuesta."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Records"
 msgstr "Registros"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "See the records behind this"
 msgstr "Ver los registros detrás de esto"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Send by email"
 msgstr "Enviar por correo"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Sent to %s recipient(s)."
 msgstr "Enviado a %s destinatario(s)."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Share link"
 msgstr "Compartir enlace"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Start fresh"
 msgstr "Empezar de cero"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "There are no rows to export."
 msgstr "No hay filas que exportar."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "To (separate with commas)"
 msgstr "Para (separa con comas)"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Top %(shown)s of %(total)s"
 msgstr "Los %(shown)s primeros de %(total)s"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Total: %s"
 msgstr "Total: %s"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "View chart"
 msgstr "Ver el gráfico"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "converted"
 msgstr "convertido"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "name@company.com"
 msgstr "name@company.com"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Asking about"
 msgstr "Sobre"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
 msgid "Ask Aski about this record"
 msgstr "Preguntar a Aski sobre este registro"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Ask about everything again, not just this record"
 msgstr "Volver a preguntar sobre todo, no solo este registro"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Remove record scope"
 msgstr "Quitar el registro"
