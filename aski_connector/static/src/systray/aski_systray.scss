@@ -41,7 +41,11 @@
 
     .ac-floating-panel {
         position: fixed;
-        bottom: 18px;
+        // Mismo anclaje inferior que las ventanas de chat de Odoo: su contenedor
+        // (`chat_hub.scss`) usa `$o-mail-ChatHub-bubblesMargin: 10px`. Con 18 px
+        // el panel arrancaba mas arriba y no compartia linea con una conversacion
+        // de Discuss abierta al lado — se veia desalineado. Reportado el 25/08.
+        bottom: 10px;
         // Odoo ancla SUS PROPIAS ventanas nativas de Discuss (y cualquier chat
         // que las reutilice, como el add-on de WhatsApp AI) abajo-a-la-derecha
         // en CUALQUIER instancia — es comportamiento core, no algo especifico
@@ -55,8 +59,18 @@
         // Altura medida contra la propia ventana nativa de Discuss de Odoo
         // (o-mail-ChatWindow, ~633px en un viewport de 1000px) para que Aski
         // se sienta igual de alto, no un widget chico al lado.
-        height: 648px;
-        max-height: calc(100vh - 36px);
+        // Alto EXACTO de la ventana de Odoo, sacado de su fuente y no medido a
+        // ojo: `chat_window.scss` usa `height: Min(95vh, $o-mail-ChatWindow-width
+        // * 15 / 9)` con un ancho de 380 px -> 633,33 px, con tope del 95% del
+        // alto de pantalla.
+        //
+        // ⛔ Se expresa con `height` + `max-height` y NO con `min(95vh, 633px)`:
+        // SASS evalua `min()` el mismo y revienta con unidades mezcladas, lo que
+        // deja SIN COMPILAR el bundle entero y todo el backend sin estilos. Este
+        // modulo ya lo provoco una vez (25/08). Odoo lo esquiva escribiendo `Min`
+        // con mayuscula; aqui se evita la funcion del todo, que es mas seguro.
+        height: 633px;
+        max-height: 95vh;
         max-width: calc(100vw - 36px);
         background: #fff;
         border-radius: 18px;
