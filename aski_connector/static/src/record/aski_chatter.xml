@@ -2,24 +2,27 @@
 <templates xml:space="preserve">
 
     <!--
-        El boton "Aski" en la barra del chatter — VARIANTE ODOO 19.
+        El boton "Aski" en la barra del chatter — VARIANTE ODOO 16.
 
-        Se inserta ANTES del separador elastico (`o-mail-Chatter-topbarGrow`), o sea
-        al final del grupo de acciones (Send message / Log note / Activity) y no
-        suelto a la derecha entre los iconos de buscar y adjuntar: es una accion del
-        usuario sobre la ficha, y va donde estan sus hermanas.
+        La 16 no tiene el `mail.Chatter` con props de 17+: la barra es su propia
+        plantilla, `mail.ChatterTopbar`, y todo se lee a traves de `chatterTopbar`.
 
-        Estilo: el MISMO que el boton de Actividad (`btn btn-secondary text-nowrap`,
-        `my-2` cuando la cabecera no es compacta). Nada de colores propios ni de
-        tamanos a medida — un boton que desentona en el chatter se lee como un
-        anadido de tercero, no como parte de Odoo.
+        Se inserta ANTES del separador elastico (el `div` con
+        `o_ChatterTopbar_borderLeft` Y `flex-grow-1`), o sea justo detras del boton
+        de Actividades: es donde acaban las acciones del usuario y empieza el hueco
+        que empuja los iconos a la derecha. Se piden las DOS clases porque
+        `o_ChatterTopbar_borderLeft` sale mas de una vez en esta plantilla y con una
+        sola el xpath cogeria el nodo equivocado.
+
+        Estilo: `btn btn-light text-nowrap` + `o_ChatterTopbar_button`, que es
+        exactamente lo que llevan "Actividades" y sus hermanos en esta serie
+        (en 17+ el equivalente es `btn-secondary`).
     -->
-    <t t-name="aski_connector.ChatterAski" t-inherit="mail.Chatter" t-inherit-mode="extension">
-        <xpath expr="//span[hasclass('o-mail-Chatter-topbarGrow')]" position="before">
-            <button t-if="askiState.canUse"
-                    class="o-aski-chatterBtn btn btn-secondary text-nowrap me-1 d-flex align-items-center"
-                    t-att-class="{ 'my-2': !props.compactHeight }"
-                    t-att-disabled="!props.threadId"
+    <t t-name="aski_connector.ChatterAski" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o_ChatterTopbar_borderLeft') and hasclass('flex-grow-1')]" position="before">
+            <button t-if="askiVisible"
+                    class="o_ChatterTopbar_button o-aski-chatterBtn btn btn-light text-nowrap d-flex align-items-center"
+                    type="button"
                     title="Ask Aski about this record"
                     t-on-click="() => this.askiAsk()">
                 <img class="o-aski-chatterBtn-mark"
