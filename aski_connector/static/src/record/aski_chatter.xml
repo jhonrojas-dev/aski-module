@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        El boton "Aski" en la barra del chatter — VARIANTE ODOO 14.
+
+        La barra de la 14 es igual que la de la 15: se accede a `chatter` DIRECTO
+        (sin el prefijo `chatterTopbar.` de la 16), el hueco elastico es
+        `.o-autogrow` y los botones son `btn btn-link o_ChatterTopbar_button`.
+
+        `t-on-click` lleva el NOMBRE del manejador, no una funcion flecha: en OWL 1
+        `this` dentro de la plantilla no es el componente. Se sigue la convencion
+        de esta serie (`_onClickX`), como los botones de al lado.
+
+        En esta serie la plantilla se declara por la clave `qweb` del manifest, NO
+        por `assets`: esa clave no existe en la 14 y se ignora en silencio.
+    -->
+    <t t-name="aski_connector.ChatterAski" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o-autogrow')]" position="before">
+            <button t-if="askiVisible"
+                    class="btn btn-link o_ChatterTopbar_button o-aski-chatterBtn"
+                    type="button"
+                    title="Ask Aski about this record"
+                    t-on-click="_onClickAski">
+                <img class="o-aski-chatterBtn-mark"
+                     src="/aski_connector/static/src/img/aski_mark.png"
+                     alt="" aria-hidden="true"/>
+                <span>Aski</span>
+            </button>
+        </xpath>
+    </t>
+
+</templates>

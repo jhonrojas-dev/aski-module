@@ -19,7 +19,7 @@ const core = require("web.core");
 const rpc = require("web.rpc");
 const _t = core._t;
 const { Component } = owl;
-const { useState, useRef, onWillStart, onWillUnmount } = owl.hooks;
+const { useState, useRef, onWillStart, onWillUnmount, onMounted } = owl.hooks;
 // Margen para que el aviso de "cuenta desconectada" se alcance a leer antes de
 // que la recarga completa se lo lleve por delante.
 const DISCONNECT_RELOAD_DELAY_MS = 1200;
@@ -325,7 +325,19 @@ class AskiChatWidget extends Component {
             renamingId: null,
             renameText: "",
             confirmDeleteId: null,
+            // REGISTRO ABIERTO: la ficha del ERP desde la que se pregunta, puesta
+            // por el boton "Aski" del chatter. `null` en la pantalla completa y
+            // mientras el usuario no lo pida: el chat se comporta como siempre.
+            record: null,
         });
+        // El ambito lo manda un singleton de modulo (`record/aski_record.js`) y no
+        // una prop, porque quien lo fija —el chatter— no es antepasado de este
+        // componente: viven en dos arboles distintos del web client.
+        this.state.record = getRecord().model ? getRecord() : null;
+        const _bajaRecord = subscribe((r) => {
+            this.state.record = r.model ? r : null;
+        });
+        onWillUnmount(_bajaRecord);
         onWillStart(async () => { await this.loadStatus(); });
         // El chat se cierra (o se cambia de pantalla) con una respuesta en
         // vuelo: el cronometro seguiria latiendo sobre un componente que ya no
@@ -396,6 +408,16 @@ class AskiChatWidget extends Component {
 
     async retryLoad() {
         await this.loadStatus();
+    }
+
+    /**
+     * Quita el ambito: la × del chip.
+     * No borra la conversacion ni lo ya respondido — a partir de aqui las
+     * preguntas vuelven a ser sobre TODO el ERP, que es justo lo que el chip
+     * dejaba de decir si no se pudiera quitar.
+     */
+    clearScope() {
+        clearRecord();
     }
 
     async refreshConversations() {
@@ -922,11 +944,17 @@ class AskiChatWidget extends Component {
         this._scrollToBottom();
         try {
             const isNewThread = !this.state.conversationId;
+            // El ambito viaja en LOS DOS modos: el modo profundo se abre desde el
+            // mismo boton del chatter, y una capacidad que solo tuviera uno de los
+            // dos se lee como un fallo del otro.
+            const rec = this.state.record;
+            const recModel = rec ? rec.model : null;
+            const recId = rec ? rec.resId : null;
             const r = profundo
                 ? await this.orm.call("aski.account.link", "send_message_agent",
-                    [text, this.state.conversationId, confirmarPesada])
+                    [text, this.state.conversationId, confirmarPesada, recModel, recId])
                 : await this.orm.call("aski.account.link", "send_message",
-                    [text, this.state.conversationId]);
+                    [text, this.state.conversationId, recModel, recId]);
             if (r.conversation_id) {
                 this.state.conversationId = r.conversation_id;
             }

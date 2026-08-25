@@ -16,6 +16,18 @@
                     src="/aski_connector/static/src/chat/aski_chat.js"/>
             <script type="text/javascript"
                     src="/aski_connector/static/src/systray/aski_systray.js"/>
+            <!-- El boton "Aski" del chatter y el estado del registro abierto.
+                 El ORDEN aqui es indiferente (`odoo.define` resuelve las
+                 dependencias por nombre), pero se listan de lo compartido a lo
+                 concreto para que se lea igual que en las otras cinco ramas. -->
+            <link rel="stylesheet" type="text/scss"
+                  href="/aski_connector/static/src/record/aski_record.scss"/>
+            <script type="text/javascript"
+                    src="/aski_connector/static/src/record/aski_record.js"/>
+            <script type="text/javascript"
+                    src="/aski_connector/static/src/record/aski_access.js"/>
+            <script type="text/javascript"
+                    src="/aski_connector/static/src/record/aski_chatter.js"/>
         </xpath>
     </template>
 

@@ -572,7 +572,35 @@ class AskiAccountLink(models.Model):
         raise UserError(_("Aski error: %s") % rec._error_message(resp))
 
     @api.model
-    def send_message_agent(self, text, conversation_id=None, confirm_heavy=False):
+    def _record_body(self, record_model, record_id):
+        """El REGISTRO ABIERTO para el cuerpo de la peticion, o `{}` si no hay.
+
+        Lo comparten los dos modos (normal y profundo) para que el contrato salga
+        identico desde los dos: si cada uno armara el suyo, bastaria un despiste
+        para que el modo profundo mandara `id` donde el normal manda `res_id` y la
+        ficha se perdiera solo en uno.
+
+        Valida aqui ademas de en el backend porque el par llega del navegador: un
+        modelo con formato raro debe morir antes de gastar una peticion HTTP. El
+        backend vuelve a validarlo — es su frontera, no puede fiarse de esta.
+        """
+        if not record_model or not record_id:
+            return {}
+        try:
+            res_id = int(record_id)
+        except (TypeError, ValueError):
+            return {}
+        if res_id <= 0 or not isinstance(record_model, str):
+            return {}
+        # Mismo formato que exige el backend (`^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$`).
+        # Sin punto no es un modelo de Odoo.
+        if "." not in record_model or not record_model.replace(".", "").replace("_", "").isalnum():
+            return {}
+        return {"record": {"model": record_model, "res_id": res_id}}
+
+    @api.model
+    def send_message_agent(self, text, conversation_id=None, confirm_heavy=False,
+                           record_model=None, record_id=None):
         """Analisis profundo: MISMO motor que el interruptor de la app y la web.
 
         Existe porque el cliente con plan Pro/Enterprise ya paga el modo profundo
@@ -591,6 +619,7 @@ class AskiAccountLink(models.Model):
             body["conversation_id"] = conversation_id
         if confirm_heavy:
             body["confirm_heavy"] = True
+        body.update(self._record_body(record_model, record_id))
         try:
             resp = requests.post(aski_api_base(self.env) + "/chat/agent", json=body,
                                  headers=rec._headers(), timeout=_TIMEOUT_AGENT)
@@ -616,7 +645,8 @@ class AskiAccountLink(models.Model):
         }
 
     @api.model
-    def send_message(self, text, conversation_id=None):
+    def send_message(self, text, conversation_id=None,
+                     record_model=None, record_id=None):
         """Envia una pregunta al motor real de Aski (mismo determinista +
         narrador + wallet que la app Android) y devuelve la respuesta.
         Llamado desde el widget OWL via orm.call — corre con sudo() para usar la
@@ -630,6 +660,7 @@ class AskiAccountLink(models.Model):
         body = {"credential_id": rec.credential_id, "prompt": text}
         if conversation_id:
             body["conversation_id"] = conversation_id
+        body.update(self._record_body(record_model, record_id))
         try:
             resp = requests.post(aski_api_base(self.env) + "/chat", json=body,
                                  headers=rec._headers(), timeout=_TIMEOUT_CHAT)

@@ -563,6 +563,25 @@
                 </div>
 
                 <div class="ac-composer">
+                    <!-- REGISTRO ABIERTO: sobre que ficha se esta preguntando.
+                         Va PEGADO al compositor y no en la cabecera a proposito:
+                         es lo que el usuario tiene que ver mientras escribe. Un
+                         ambito invisible convierte "¿cuanto debe?" en una cifra
+                         que no cuadra con la pantalla, sin que nadie sepa por que.
+                         Siempre se puede quitar con la ×. -->
+                    <div t-if="state.record" class="ac-scope" role="status">
+                        <i class="fa fa-thumb-tack ac-scope-pin" aria-hidden="true"/>
+                        <span class="ac-scope-lbl">Asking about</span>
+                        <span class="ac-scope-name" t-att-title="state.record.label">
+                            <t t-esc="state.record.label or (state.record.model + ' #' + state.record.resId)"/>
+                        </span>
+                        <button class="ac-scope-x" t-on-click="clearScope"
+                                title="Ask about everything again, not just this record"
+                                aria-label="Remove record scope">
+                            <i class="fa fa-times" aria-hidden="true"/>
+                        </button>
+                    </div>
+
                     <!-- El agente avisa de que la consulta es pesada y espera el
                          visto bueno, igual que en la app. -->
                     <div t-if="state.pendingHeavy" class="ac-heavy">

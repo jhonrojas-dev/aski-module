@@ -653,6 +653,49 @@
         background: var(--ac-bg); border-top: 1px solid var(--ac-outline-soft);
     }
 
+    // REGISTRO ABIERTO: sobre que ficha se pregunta. Mismo ancho y centrado que
+    // el resto de filas del composer, para que no se salga de la columna.
+    //
+    // Sobrio a proposito (superficie alta + borde suave, nada de dorado): tiene
+    // que verse SIEMPRE sin robarle la atencion a la respuesta. Un banner llamativo
+    // encima del composer cansa a los tres mensajes y acaba ignorandose — y este
+    // aviso deja de servir justo cuando deja de leerse.
+    .ac-scope {
+        width: 100%; max-width: 860px; margin: 0 auto 8px;
+        display: flex; align-items: center; gap: 6px;
+        padding: 5px 6px 5px 10px;
+        border: 1px solid var(--ac-outline-soft); border-radius: 999px;
+        background: var(--ac-surface-c-high); color: var(--ac-on-variant);
+        font-size: 12px; line-height: 1.35;
+        // `min-width: 0` en el contenedor flex: sin el, el hijo con ellipsis no
+        // puede encogerse y un nombre largo estira la pildora fuera del panel.
+        min-width: 0;
+    }
+
+    .ac-scope-pin { flex: 0 0 auto; font-size: 11px; opacity: .75; }
+
+    .ac-scope-lbl { flex: 0 0 auto; opacity: .8; }
+
+    // El nombre del registro es el dato: resalta sobre el rotulo. Y se recorta —
+    // hay `display_name` de 200 caracteres (direcciones completas, referencias
+    // concatenadas) que romperian la fila entera.
+    .ac-scope-name {
+        flex: 1 1 auto; min-width: 0;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        font-weight: 600; color: var(--ac-on-surface);
+    }
+
+    .ac-scope-x {
+        flex: 0 0 auto;
+        width: 20px; height: 20px; padding: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        border: 0; border-radius: 50%;
+        background: transparent; color: var(--ac-on-variant); cursor: pointer;
+        font-size: 11px;
+        &:hover { background: var(--ac-surface-c-highest); color: var(--ac-on-surface); }
+        &:focus-visible { outline: 2px solid var(--ac-outline); outline-offset: 1px; }
+    }
+
     // Fila de herramientas sobre el composer (hoy: analisis profundo).
     .ac-composer-tools {
         width: 100%; max-width: 860px; margin: 0 auto 8px;

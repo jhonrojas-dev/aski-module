@@ -17,8 +17,12 @@ const SystrayMenu = require("web.SystrayMenu");
 const AbstractAction = require("web.AbstractAction");
 const { ComponentWrapper } = require("web.OwlCompatibility");
 const { AskiChatWidget } = require("aski_connector.chat");
+// Los DOS son el mismo codigo que en 15-19, solo que aqui se piden con
+// `require` porque la 14 no tiene modulos ES.
+const { canUseChat } = require("aski_connector.access");
+const { onOpenRequest } = require("aski_connector.record");
 const { Component } = owl;
-const { useState, onWillStart } = owl.hooks;
+const { useState, onWillStart, onWillUnmount } = owl.hooks;
 
 const STORAGE_KEY = "aski_connector.bubble_state";
 
@@ -44,19 +48,25 @@ class AskiSystray extends Component {
         // para NO parpadear la burbuja antes de resolver el permiso.
         this.state = useState({ ...loadBubbleState(), canUse: false });
         onWillStart(async () => {
-            try {
-                // La 14 no tiene los servicios de wowl (no hay useService/orm):
-                // web.rpc.query() es el equivalente legacy de orm.call(), igual
-                // que en el shim del chat.
-                this.state.canUse = await rpc.query({
-                    model: "aski.account.link",
-                    method: "can_use_chat",
-                    args: [],
-                });
-            } catch (e) {
-                this.state.canUse = false;
-            }
+            // La 14 no tiene los servicios de wowl (no hay useService/orm):
+            // `rpc.query()` es el equivalente legacy de `orm.call()`. Y va
+            // memoizado y COMPARTIDO con el boton del chatter: entre los dos
+            // hacen UNA llamada por pestana, no una cada uno. `canUseChat` ya
+            // traga sus propios errores, por eso aqui no hace falta try/catch.
+            this.state.canUse = await canUseChat(() => rpc.query({
+                model: "aski.account.link",
+                method: "can_use_chat",
+                args: [],
+            }));
         });
+        // El boton "Aski" de una ficha pide abrir la burbuja. Se desmarca al
+        // desmontar: sin la baja, cada recarga del systray dejaria un oyente
+        // muerto que sigue tocando el estado de un componente que ya no existe.
+        onWillUnmount(onOpenRequest(() => {
+            this.state.open = true;
+            this.state.minimized = false;
+            this._persist();
+        }));
         // OWL 1: en las plantillas `this` NO es el componente, asi que las props
         // callback se pasan YA atadas desde aqui.
         this.onMinimize = () => this.minimize();

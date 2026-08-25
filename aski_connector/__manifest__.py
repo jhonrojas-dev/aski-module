@@ -57,7 +57,17 @@ Get the app and learn more at https://aski.dev
     "website": "https://aski.dev",
     "license": "LGPL-3",
     "support": "soporte@aski.dev",
-    "depends": ["base", "web"],
+    # `mail` es necesario para el boton de Aski DENTRO del chatter: la plantilla
+    # `mail.Chatter` se hereda con `t-inherit`, y un `t-inherit` sobre una
+    # plantilla que no existe rompe el bundle entero de assets (pantalla en
+    # blanco), no solo el boton. No hay forma de heredar "solo si esta instalado".
+    #
+    # No se saco a un modulo aparte a proposito: serian DOS fichas que publicar y
+    # mantener en las seis series para ahorrar una dependencia que, en la practica,
+    # ya esta puesta en cualquier Odoo real (`sale`, `account`, `crm` y `project`
+    # dependen de `mail`). El coste de mantener el parche paralelo es mayor que el
+    # de la dependencia.
+    "depends": ["base", "web", "mail"],
     "data": [
         "security/aski_security.xml",
         "security/ir.model.access.csv",
@@ -76,6 +86,8 @@ Get the app and learn more at https://aski.dev
     "qweb": [
         "static/src/chat/aski_chat.xml",
         "static/src/systray/aski_systray.xml",
+        # La plantilla del boton del chatter: en esta serie tambien por `qweb`.
+        "static/src/record/aski_chatter.xml",
     ],
     "images": [
         "static/description/banner.png",
