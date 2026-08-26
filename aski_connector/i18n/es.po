@@ -1682,3 +1682,117 @@ msgstr "Volver a preguntar sobre todo, no solo este registro"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Remove record scope"
 msgstr "Quitar el registro"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Search your history"
+msgstr "Buscar en el historial"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Clear search"
+msgstr "Limpiar búsqueda"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Searching..."
+msgstr "Buscando..."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Couldn't complete the search."
+msgstr "No se pudo completar la búsqueda."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Too many searches right now. Try again in a moment."
+msgstr "Demasiadas búsquedas por ahora. Inténtalo en un momento."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No results for"
+msgstr "Sin resultados para"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Your figures right now"
+msgstr "Tus cifras ahora"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Refresh"
+msgstr "Actualizar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Your ERP did not answer"
+msgstr "Tu ERP no respondió"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Too many refreshes. Try again in a while."
+msgstr "Demasiadas actualizaciones. Inténtalo más tarde."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No movements to show in this connection yet."
+msgstr "Todavía no hay movimientos que mostrar en esta conexión."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Showing the last known figures."
+msgstr "Se muestran las últimas cifras conocidas."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "See more questions"
+msgstr "Ver más preguntas"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "What you can ask"
+msgstr "Qué puedes preguntar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "across %s companies"
+msgstr "suma %s empresas"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "just now"
+msgstr "hace un momento"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s min ago"
+msgstr "hace %s min"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s h ago"
+msgstr "hace %s h"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s d ago"
+msgstr "hace %s d"
