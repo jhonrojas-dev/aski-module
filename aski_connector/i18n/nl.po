@@ -1685,3 +1685,117 @@ msgstr "Weer over alles vragen, niet alleen dit record"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Remove record scope"
 msgstr "Record verwijderen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Search your history"
+msgstr "Zoek in je geschiedenis"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Clear search"
+msgstr "Zoekopdracht wissen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Searching..."
+msgstr "Bezig met zoeken..."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Couldn't complete the search."
+msgstr "De zoekopdracht kon niet worden voltooid."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Too many searches right now. Try again in a moment."
+msgstr "Te veel zoekopdrachten op dit moment. Probeer het zo opnieuw."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No results for"
+msgstr "Geen resultaten voor"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Your figures right now"
+msgstr "Je cijfers nu"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Refresh"
+msgstr "Vernieuwen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Your ERP did not answer"
+msgstr "Je ERP gaf geen antwoord"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Too many refreshes. Try again in a while."
+msgstr "Te veel verversingen. Probeer het later opnieuw."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No movements to show in this connection yet."
+msgstr "Nog geen bewegingen om te tonen in deze verbinding."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Showing the last known figures."
+msgstr "Dit zijn de laatst bekende cijfers."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "See more questions"
+msgstr "Bekijk meer vragen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "What you can ask"
+msgstr "Wat je kunt vragen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "across %s companies"
+msgstr "over %s bedrijven"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "just now"
+msgstr "zojuist"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s min ago"
+msgstr "%s min geleden"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s h ago"
+msgstr "%s u geleden"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s d ago"
+msgstr "%s d geleden"
