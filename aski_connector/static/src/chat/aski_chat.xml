@@ -68,6 +68,55 @@
                     <button class="ac-drawer-new" t-on-click="newConversation">
                         <i class="fa fa-plus"/> New conversation
                     </button>
+
+                    <!-- Buscar DENTRO de los mensajes. Va aqui, pegado a la
+                         lista, porque filtra lo que hay debajo y no lo de
+                         arriba. Los textos salen de `txt` (JS) y no como
+                         literales: en 14 y 15 el texto estatico de una
+                         plantilla OWL no se traduce nunca. -->
+                    <div class="ac-drawer-search">
+                        <i class="fa fa-search"/>
+                        <input type="text" class="ac-drawer-search-input"
+                               t-att-value="state.searchQ" t-on-input="onSearchInput"
+                               t-att-placeholder="txt.searchPh"
+                               t-att-aria-label="txt.searchPh"/>
+                        <button t-if="state.searchQ" class="ac-drawer-search-x"
+                                t-att-title="txt.searchClear"
+                                t-att-aria-label="txt.searchClear"
+                                t-on-click="clearSearch">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+
+                    <!-- Con busqueda activa el cajon ensena RESULTADOS en vez
+                         de hilos: los cuatro estados, sin dejar ninguno mudo. -->
+                    <t t-if="searchActive">
+                        <div t-if="state.searchLoading" class="ac-drawer-empty">
+                            <i class="fa fa-circle-o-notch fa-spin"/> <t t-esc="txt.searching"/>
+                        </div>
+                        <div t-elif="state.searchCode" class="ac-drawer-empty ac-drawer-searcherr">
+                            <div t-esc="searchErrTxt"/>
+                            <button class="ac-btn-link" t-on-click="retrySearch"
+                                    t-esc="txt.retry"/>
+                        </div>
+                        <div t-elif="!state.searchResults.length" class="ac-drawer-empty"
+                             t-esc="searchEmptyTxt"/>
+                        <t t-else="">
+                            <t t-foreach="state.searchResults" t-as="r" t-key="r.messageId">
+                                <button class="ac-search-item"
+                                        t-on-click="() => this.openSearchResult(r)">
+                                    <span class="ac-search-conv" t-esc="searchConvTitle(r)"/>
+                                    <!-- El fragmento va en TRES trozos de texto y
+                                         nunca como HTML: es texto del usuario y de
+                                         sus datos. Los offsets del resaltado los
+                                         calcula el backend (ver snippetPartes). -->
+                                    <span class="ac-search-snip"><t t-esc="snippetPartes(r).pre"/><mark t-esc="snippetPartes(r).hit"/><t t-esc="snippetPartes(r).post"/></span>
+                                    <span class="ac-search-date" t-esc="searchFecha(r)"/>
+                                </button>
+                            </t>
+                        </t>
+                    </t>
+                    <t t-if="!searchActive">
                     <div t-if="!state.conversations.length" class="ac-drawer-empty">
                         No conversations yet.
                     </div>
@@ -109,6 +158,7 @@
                                 </button>
                             </span>
                         </div>
+                    </t>
                     </t>
 
                     <!-- Cerrar sesion de la cuenta Aski. Solo a quien le
@@ -242,6 +292,36 @@
                         </t>
                     </div>
                 </div>
+                </div>
+            </t>
+
+            <!-- ==========================================================
+                 La biblioteca: TODO lo que esta conexion sabe responder,
+                 agrupado por seccion. Las secciones y las preguntas llegan ya
+                 traducidas del backend, asi que aqui no se traduce contenido:
+                 solo el marco. Reusa `.ac-modal tall` en vez de inventar otro
+                 dialogo — su cuerpo ya hace scroll con la cabecera fija, que es
+                 justo lo que pide una lista larga.
+                 ========================================================== -->
+            <t t-if="state.libraryOpen and startSections.length">
+                <div class="ac-modal-wrap">
+                    <div class="ac-modal-scrim" t-on-click="closeLibrary"/>
+                    <div class="ac-modal tall" role="dialog" aria-modal="true">
+                        <span class="ac-modal-badge"><i class="fa fa-list-ul"/></span>
+                        <h3 class="ac-modal-title" t-esc="txt.libTitle"/>
+                        <div class="ac-modal-body">
+                            <t t-foreach="startSections" t-as="sec" t-key="sec.key">
+                                <div class="ac-lib-sec" t-esc="sec.label"/>
+                                <button t-foreach="sec.questions" t-as="q" t-key="q.key"
+                                        class="ac-lib-q" t-esc="q.text"
+                                        t-on-click="() => this.useLibraryQuestion(q)"/>
+                            </t>
+                        </div>
+                        <div class="ac-modal-acts">
+                            <button class="ac-btn ghost" t-on-click="closeLibrary"
+                                    t-esc="txt.close"/>
+                        </div>
+                    </div>
                 </div>
             </t>
 
@@ -440,19 +520,78 @@
                         <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
                         <div class="ac-welcome-title">Hi, I'm Aski</div>
                         <div class="ac-welcome-sub">Ask about your business in plain language — sales, receivables, top customers and more. Read-only by default.</div>
+
+                        <!-- Las cifras REALES de ESTA conexion, antes de la
+                             primera pregunta. Llegan del backend ya formateadas y
+                             ya traducidas: aqui no se calcula ni se reformatea
+                             nada. -->
+                        <!-- ⛔ La tarjeta se pinta solo si tiene ALGO que decir:
+                             cifras, un fallo que declarar, la espera, o el aviso
+                             honesto de que esta conexion aun no tiene movimientos.
+                             Colgarla de `state.sugs` a secas dejaba un recuadro con
+                             titulo y nada debajo en una instancia recien creada. -->
+                        <div t-if="startMetrics.length or state.sugsCode or state.sugsLoading or (state.sugs and state.sugs.empty)"
+                             class="ac-start">
+                            <div class="ac-start-head">
+                                <span class="ac-start-title" t-esc="txt.startTitle"/>
+                                <span t-if="startAge" class="ac-start-age" t-esc="startAge"/>
+                                <button class="ac-start-refresh"
+                                        t-att-disabled="state.sugsLoading"
+                                        t-on-click="() => this.loadSuggestions(true)">
+                                    <i t-attf-class="fa {{ state.sugsLoading ? 'fa-circle-o-notch fa-spin' : 'fa-refresh' }}"/>
+                                    <t t-esc="txt.startRefresh"/>
+                                </button>
+                            </div>
+                            <!-- Esqueleto y no un spinner suelto: la tarjeta ya
+                                 ocupa su sitio y no da el salto de maqueta cuando
+                                 llegan las cifras. -->
+                            <div t-if="state.sugsLoading and !state.sugs" class="ac-start-skel">
+                                <div class="ac-start-skel-row"/>
+                                <div class="ac-start-skel-row"/>
+                            </div>
+                            <div t-elif="startMetrics.length" class="ac-start-list">
+                                <t t-foreach="startMetrics" t-as="mt" t-key="mt.id">
+                                    <div class="ac-start-row">
+                                        <div class="ac-start-k">
+                                            <span t-esc="mt.label"/>
+                                            <span t-if="mt.companies &gt; 1" class="ac-start-co"
+                                                  t-esc="metricEmpresas(mt)"/>
+                                        </div>
+                                        <!-- Una moneda por renglon: el motor ya
+                                             decidio no sumarlas, y juntarlas aqui
+                                             seria inventar un total que no existe. -->
+                                        <div class="ac-start-v">
+                                            <strong t-foreach="metricLineas(mt)" t-as="ln"
+                                                    t-key="ln_index" t-esc="ln"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                            <div t-if="state.sugsCode" class="ac-start-note ac-start-bad"
+                                 t-esc="startErrTxt"/>
+                            <div t-elif="state.sugs and state.sugs.empty" class="ac-start-note"
+                                 t-esc="txt.startEmpty"/>
+                            <div t-elif="state.sugs and state.sugs.stale" class="ac-start-note"
+                                 t-esc="txt.startStale"/>
+                        </div>
                         <!-- Las sugerencias vienen del getter `samples` (JS, con _t()):
                              la etiqueta y el texto que se ENVIA son el MISMO string
                              traducido. Antes el t-on-click llevaba el literal ingles
                              hardcodeado -> se veia en espanol pero se mandaba en ingles. -->
                         <div class="ac-samples">
-                            <button t-foreach="samples" t-as="s" t-key="s.text"
+                            <button t-foreach="samples" t-as="s" t-key="s.key"
                                     class="ac-sample" t-on-click="() => this.useSample(s.text)">
                                 <i t-attf-class="fa {{ s.icon }}"/> <t t-esc="s.text"/>
                             </button>
                         </div>
+                        <button t-if="startSections.length" class="ac-start-more"
+                                t-on-click="openLibrary" t-esc="txt.startMore"/>
                     </div>
                     <t t-foreach="state.messages" t-as="m" t-key="m.id">
-                        <div t-if="m.role === 'user'" class="ac-bubble ac-bubble-user">
+                        <!-- `data-msg-id` no es decorativo: es como el buscador
+                             encuentra la burbuja a la que saltar. -->
+                        <div t-if="m.role === 'user'" t-att-data-msg-id="m.id"
+                             t-attf-class="ac-bubble ac-bubble-user {{ m.id === state.jumpHit ? 'ac-jump-hit' : '' }}">
                             <span t-esc="m.text"/>
                             <!-- Esta pregunta se hizo en analisis profundo. Va en
                                  la PREGUNTA y no en la respuesta porque es ahi
@@ -468,7 +607,8 @@
                                 <span class="ac-time" t-esc="bubbleTime(m.createdAt)"/>
                             </div>
                         </div>
-                        <div t-elif="m.role === 'assistant'" class="ac-bubble ac-bubble-bot">
+                        <div t-elif="m.role === 'assistant'" t-att-data-msg-id="m.id"
+                             t-attf-class="ac-bubble ac-bubble-bot {{ m.id === state.jumpHit ? 'ac-jump-hit' : '' }}">
                             <t t-set="graf" t-value="chartDe(m)"/>
                             <button t-if="graf" class="ac-chart-open"
                                     t-on-click="() => this.openChart(m)">
