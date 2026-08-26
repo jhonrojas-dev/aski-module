@@ -44,6 +44,10 @@ _TIMEOUT_CHAT = 90
 # se le puede decir que hacer. Quien tenga el limite de Odoo mas bajo vera el
 # corte de Odoo igual: es su configuracion, no algo que el modulo pueda evitar.
 _TIMEOUT_AGENT = 110
+# El arranque del chat consulta el ERP del cliente cuando la cache esta fria.
+# 45 s es lo que espera la app antes de rendirse, y queda holgadamente por debajo
+# del `limit_time_real` de Odoo. Con cache caliente responde en milisegundos.
+_TIMEOUT_SUGGESTIONS = 45
 
 
 class AskiAccountLink(models.Model):
@@ -742,6 +746,180 @@ class AskiAccountLink(models.Model):
         if resp.status_code != 200:
             return []
         return [c for c in resp.json() if c.get("odoo_credential_id") == rec.credential_id]
+
+    @api.model
+    def search_history(self, q, limit=30):
+        """Busca texto DENTRO de los mensajes del historial (cajon del chat).
+
+        Devuelve un DICT y no una lista a proposito: una lista vacia cuenta igual
+        "no hay resultados" que "no se pudo buscar", y para quien esta tecleando
+        son dos cosas muy distintas. -> {"ok", "code", "results"}
+
+        No lanza NUNCA: esto corre a cada pausa del teclado y un UserError abriria
+        un dialogo encima del cajon.
+        """
+        self._ensure_chat_access()
+        vacio = {"ok": True, "code": "", "results": []}
+        texto = (q or "").strip()
+        # Mismo minimo que el backend (app/chat/search.py::MIN_QUERY_LEN): con un
+        # solo caracter casi todo coincide. Se corta aqui para no gastar una
+        # peticion en algo que ya se sabe que no ayuda a nadie.
+        if len(texto) < 2:
+            return vacio
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            return vacio
+        try:
+            resp = requests.get(
+                aski_api_base(self.env) + "/chat/search",
+                params={
+                    # 200 es el tope duro del backend: pasarse devuelve un 422 que
+                    # aqui no aporta nada, asi que se recorta antes de salir.
+                    "q": texto[:200],
+                    # Acotado a ESTA conexion, coherente con el cajon, que ya
+                    # ensena solo los hilos de la credencial activa.
+                    "credential_id": rec.credential_id,
+                    "limit": max(1, min(int(limit or 30), 100)),
+                },
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return {"ok": False, "code": "error", "results": []}
+        # El limitador del backend va por IP y en un Odoo TODOS los usuarios salen
+        # por la misma: en una instancia con gente buscando a la vez esto se ve de
+        # verdad. Se distingue del fallo generico para poder decir "espera un
+        # momento" en vez de "algo se rompio".
+        if resp.status_code == 429:
+            return {"ok": False, "code": "rate_limited", "results": []}
+        if resp.status_code != 200:
+            return {"ok": False, "code": "error", "results": []}
+        try:
+            filas = resp.json() or []
+        except Exception:  # noqa: BLE001
+            return {"ok": False, "code": "error", "results": []}
+        salida = []
+        for m in filas:
+            if not isinstance(m, dict):
+                continue
+            salida.append({
+                "conversationId": m.get("conversation_id"),
+                "conversationTitle": m.get("conversation_title") or "",
+                "messageId": m.get("message_id"),
+                # Mismo id que arma load_conversation ("h<id>"): asi el widget
+                # localiza la burbuja en el DOM sin inventarse el formato.
+                "domId": "h%s" % m.get("message_id"),
+                "role": m.get("role") or "",
+                "snippet": m.get("snippet") or "",
+                # Offsets del resaltado, ya calculados por el backend: buscando
+                # "credito" el cliente no encontraria nada en un texto que dice
+                # "credito" con tilde, y habria que duplicar la tabla de acentos
+                # en JavaScript. Ver app/chat/search.py.
+                "matchStart": m.get("match_start") or 0,
+                "matchLen": m.get("match_len") or 0,
+                "createdAt": m.get("created_at"),
+            })
+        return {"ok": True, "code": "", "results": salida}
+
+    def _aski_suggestions_lang(self):
+        """`es` o `en` para el catalogo de preguntas del backend.
+
+        El catalogo del backend vive en esos dos idiomas; el conector se traduce a
+        seis. Un usuario en aleman vera el marco del chat en aleman y las
+        preguntas en ingles: es una limitacion DECLARADA del catalogo, no un
+        olvido de aqui.
+        """
+        return "es" if (self.env.user.lang or "").lower().startswith("es") else "en"
+
+    @api.model
+    def get_suggestions(self, refresh=False):
+        """Con que abre el chat esta conexion: sus cifras y que preguntarle.
+
+        El mismo arranque que la app y la web. No lanza NUNCA: es una carga de
+        pantalla, y si el ERP no responde el chat tiene que seguir usandose.
+        -> {"ok", "code", "metrics", "questions", "sections", "asOf", "stale", "empty"}
+        """
+        self._ensure_chat_access()
+        vacio = {"ok": False, "code": "", "metrics": [], "questions": [],
+                 "sections": [], "asOf": "", "stale": False, "empty": False}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            # Sin conexion no hay nada que pedir, y no es un error: el chat ya
+            # ensena su propia pantalla de "conecta tu cuenta".
+            return dict(vacio, ok=True)
+        params = {
+            "credential_id": rec.credential_id,
+            "lang": self._aski_suggestions_lang(),
+            # El huso del USUARIO de Odoo, no el del servidor: decide que dia es
+            # HOY para las cifras de calendario ("facturado este mes"). Con UTC,
+            # alguien en Lima veria el dia equivocado cinco horas de cada dia.
+            "tz": (self.env.user.tz or "UTC"),
+        }
+        if refresh:
+            params["refresh"] = "true"
+        # La empresa SOLO si el usuario tiene una sola activa. Con varias, en Odoo
+        # ve la suma de todas: acotar a la actual daria una cifra correcta que no
+        # cuadra con su pantalla. Omitiendola, cada metrica declara de cuantas
+        # empresas sale y la tarjeta lo dice en pequeno.
+        try:
+            companias = self.env.companies
+        except Exception:  # noqa: BLE001
+            companias = self.env.company
+        if companias and len(companias) == 1:
+            params["company_id"] = companias.id
+        try:
+            resp = requests.get(aski_api_base(self.env) + "/suggestions",
+                                params=params, headers=rec._headers(),
+                                timeout=_TIMEOUT_SUGGESTIONS)
+        except Exception:  # noqa: BLE001
+            return dict(vacio, code="erp_down")
+        if resp.status_code == 429:
+            return dict(vacio, code="rate_limited")
+        if resp.status_code != 200:
+            return dict(vacio, code="erp_down")
+        try:
+            data = resp.json() or {}
+        except Exception:  # noqa: BLE001
+            return dict(vacio, code="erp_down")
+
+        def _pregunta(p):
+            return {"key": p.get("key") or "", "text": p.get("text") or "",
+                    "section": p.get("section") or ""}
+
+        metricas = []
+        for m in (data.get("metrics") or []):
+            if not isinstance(m, dict):
+                continue
+            metricas.append({
+                "id": m.get("id") or "",
+                # Ya traducida por el backend, como las preguntas: el cliente no
+                # traduce contenido, solo su propio marco.
+                "label": m.get("label") or "",
+                # Ya formateada, y con cada moneda separada por el punto medio
+                # que pone el motor, que es quien decidio NO sumarlas: aqui no
+                # se reformatea jamas.
+                "value": m.get("value") or "",
+                "companies": m.get("companies") or 0,
+            })
+        preguntas = [_pregunta(p) for p in (data.get("questions") or [])
+                     if isinstance(p, dict)]
+        secciones = []
+        for s in (data.get("sections") or []):
+            if not isinstance(s, dict):
+                continue
+            secciones.append({
+                "key": s.get("key") or "",
+                "label": s.get("label") or "",
+                "questions": [_pregunta(p) for p in (s.get("questions") or [])
+                              if isinstance(p, dict)],
+            })
+        return {
+            "ok": True, "code": "",
+            "metrics": metricas, "questions": preguntas, "sections": secciones,
+            # Instante del CALCULO, no del envio: es lo que permite decir "hace 12
+            # min". Una cifra vieja presentada como actual es peor que ninguna.
+            "asOf": data.get("as_of") or "",
+            "stale": bool(data.get("stale")),
+            "empty": bool(data.get("empty")),
+        }
 
     @api.model
     def delete_conversation(self, conversation_id):

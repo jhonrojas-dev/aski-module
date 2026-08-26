@@ -36,6 +36,55 @@ const MAX_PROMPT = 4000;
 // Alto maximo del composer antes de hacer scroll dentro de el (unas 5 lineas).
 const COMPOSER_MAX_PX = 132;
 
+// Buscar en el historial. Por debajo de dos caracteres casi todo coincide, y
+// ademas es el minimo que valida el backend (app/chat/search.py): cortar aqui
+// evita gastar una peticion en algo que ya se sabe que no ayuda.
+const MIN_SEARCH_LEN = 2;
+// 350 ms, y no los 300 de la app y la web, A PROPOSITO: el limite de
+// /chat/search va por IP y desde un Odoo TODOS los usuarios salen por la misma,
+// asi que aqui una pausa un poco mas larga rinde mas que alli.
+const SEARCH_DEBOUNCE_MS = 350;
+// Cuanto dura el aro que senala la burbuja a la que se acaba de saltar.
+const JUMP_HIGHLIGHT_MS = 2000;
+// Cuanto se ensena del termino buscado en el aviso de "sin resultados": una
+// consulta larga entera desbordaria el cajon.
+const MAX_TERM_SHOWN = 40;
+// Chips de arranque en la burbuja del systray. El backend manda cuatro y a
+// pantalla completa se leen en fila, pero en la burbuja cada una ocupa la suya:
+// con las cuatro, el boton de la biblioteca quedaba fuera de la vista y no habia
+// forma de enterarse de que existe el resto del catalogo.
+const MAX_CHIPS_MINI = 2;
+
+// El icono de cada chip sale de la SECCION que declara el backend y no de su
+// texto: asi una pregunta nueva del catalogo nunca aparece sin icono. Las claves
+// son las de `SECCIONES` en app/suggestions/catalog.py.
+const ICONO_SECCION = {
+    ventas: "fa-line-chart",
+    cobranza: "fa-clock-o",
+    clientes: "fa-users",
+    inventario: "fa-cubes",
+    compras: "fa-truck",
+    oportunidades: "fa-trophy",
+    finanzas: "fa-bank",
+};
+
+// El widget se monta DOS veces en la misma pagina (pantalla completa y burbuja
+// del systray) y cada instancia pediria por su cuenta las cifras al ERP del
+// cliente. El modulo JS es UNO solo para las dos, asi que la promesa compartida
+// vive aqui. Mismo patron que `canUseChat()` en record/aski_access.js.
+let _sugPromesa = null;
+function pedirSugerencias(orm, refresh) {
+    if (refresh || !_sugPromesa) {
+        _sugPromesa = orm.call("aski.account.link", "get_suggestions", [!!refresh])
+            // Una promesa RECHAZADA que se quedara cacheada convertiria un corte
+            // de red de un segundo en un arranque roto para el resto de la
+            // sesion: el reintento recibiria el mismo fallo sin volver a
+            // preguntar.
+            .catch((e) => { _sugPromesa = null; throw e; });
+    }
+    return _sugPromesa;
+}
+
 // Markdown -> HTML minimo (bold, italic, code, listas, tablas GFM, blockquote,
 // links). Misma cobertura que web/src/chat/MarkdownMessage.tsx (react-markdown
 // + remark-gfm) y MISMAS clases CSS (.md, .md-table-wrap) para que Odoo se vea
@@ -279,6 +328,17 @@ class AskiChatWidget extends Component {
             exporting: false,
             conversations: [],
             drawerOpen: false,
+            // --- Buscar dentro del historial, desde el cajon ---
+            // `searchQ` es lo TECLEADO y `searchTerm` lo ya consultado. Tenerlos
+            // separados es lo que permite que la lista de hilos ceda el sitio en
+            // cuanto se empieza a escribir, y que el aviso de "sin resultados"
+            // cite lo que de verdad se busco y no lo que se esta escribiendo.
+            searchQ: "", searchTerm: "", searchResults: [],
+            searchLoading: false, searchCode: "",
+            // Burbuja senalada tras saltar desde un resultado. Se apaga sola.
+            jumpHit: null,
+            // --- Arranque: las cifras de esta conexion y que preguntarle ---
+            sugs: null, sugsLoading: false, sugsCode: "", libraryOpen: false,
             // --- Grafico: el id del mensaje cuyo grafico esta abierto ---
             chartFor: null,
             // --- Compartir enlace (solo crear; administrarlos no) ---
@@ -353,13 +413,25 @@ class AskiChatWidget extends Component {
         // vuelo: el cronometro seguiria latiendo sobre un componente que ya no
         // existe.
         onWillUnmount(() => this._stopClock());
+        // Una busqueda en vuelo al cerrar la burbuja del systray: el
+        // temporizador dispararia sobre un componente que ya no existe.
+        onWillUnmount(() => this._cancelSearchTimer());
         // Esc cierra la hoja de detalle, como cualquier dialogo de Odoo. Va en
         // el documento porque la hoja no tiene el foco por si sola, y se retira
         // al desmontar: el widget se monta DOS veces (pantalla completa y
         // burbuja del systray) y dejar el listener colgado haria que la hoja de
         // una cerrase por la otra.
         this._onEsc = (ev) => {
-            if (ev.key === "Escape" && this.state.detailFor) {
+            if (ev.key !== "Escape") {
+                return;
+            }
+            // La biblioteca va DELANTE de la hoja de detalle: con las dos
+            // abiertas, Esc cierra la de encima, que es la que se esta viendo.
+            if (this.state.libraryOpen) {
+                this.state.libraryOpen = false;
+                return;
+            }
+            if (this.state.detailFor) {
                 this.state.detailFor = null;
             }
         };
@@ -398,6 +470,13 @@ class AskiChatWidget extends Component {
                 // el chat parecia perder todo el historial en cada F5.
                 const latest = this.state.conversations[0];
                 if (latest) await this.openConversation(latest.id);
+                // El arranque solo tiene sentido con la bienvenida a la vista.
+                // Y NO se espera a proposito: la primera pantalla no puede
+                // quedarse colgada de un ERP lento, asi que el chat se pinta ya
+                // y la tarjeta de cifras llega cuando llegue.
+                if (!this.state.messages.length) {
+                    this.loadSuggestions();
+                }
             }
         } catch (e) {
             // NO se toca `connected`: que el estado no se pueda leer no
@@ -434,17 +513,28 @@ class AskiChatWidget extends Component {
         this.state.conversations = await this.orm.call("aski.account.link", "list_conversations", []);
     }
 
-    async openConversation(conversationId) {
+    async openConversation(conversationId, saltarA) {
         this.state.drawerOpen = false;
         this.state.conversationId = conversationId;
         this.state.messages = await this.orm.call("aski.account.link", "load_conversation", [conversationId]);
-        this._scrollToBottom();
+        if (saltarA) {
+            // ⛔ El salto EN VEZ del scroll al final, no ademas: haciendo los
+            // dos, el ultimo mensaje del hilo se lleva la vista y el mensaje
+            // buscado ni se ve. Solo se nota buscando uno del medio, que es
+            // justo el caso por el que existe el buscador.
+            this._jumpToMessage(saltarA);
+        } else {
+            this._scrollToBottom();
+        }
     }
 
     newConversation() {
         this.state.drawerOpen = false;
         this.state.conversationId = null;
         this.state.messages = [];
+        // Vuelve a verse el arranque. La promesa esta memoizada en el modulo,
+        // asi que esto no vuelve a pegarle al ERP del cliente.
+        this.loadSuggestions();
     }
 
     // ------------------------------------------------------------------
@@ -578,17 +668,364 @@ class AskiChatWidget extends Component {
     // _t() se evalua en cada render (getter), no al cargar el modulo, para que
     // las traducciones ya esten disponibles.
     get samples() {
+        const delBackend = (this.state.sugs && this.state.sugs.questions) || [];
+        if (delBackend.length) {
+            const lista = this.enBurbuja
+                ? delBackend.slice(0, MAX_CHIPS_MINI)
+                : delBackend;
+            return lista.map((q) => ({
+                key: q.key,
+                text: q.text,
+                icon: ICONO_SECCION[q.section] || "fa-comment-o",
+            }));
+        }
+        // Respaldo: sin red, con el ERP caido o mientras las cifras vienen en
+        // camino, la fila NO puede quedar vacia — una pantalla de arranque muda
+        // es peor que cuatro preguntas genericas. Se quedan las cuatro enteras
+        // aunque sea la burbuja: por este camino no hay biblioteca a la que
+        // llegar, asi que el recorte no ahorraria nada.
         return [
-            { icon: "fa-line-chart", text: _t("How much did I sell this month?") },
-            { icon: "fa-trophy", text: _t("My top 10 customers") },
-            { icon: "fa-clock-o", text: _t("Overdue invoices") },
-            { icon: "fa-users", text: _t("How many customers do I have?") },
+            { key: "f1", icon: "fa-line-chart", text: _t("How much did I sell this month?") },
+            { key: "f2", icon: "fa-trophy", text: _t("My top 10 customers") },
+            { key: "f3", icon: "fa-clock-o", text: _t("Overdue invoices") },
+            { key: "f4", icon: "fa-users", text: _t("How many customers do I have?") },
         ];
+    }
+
+    // Este montaje es el de la burbuja del systray y no el de pantalla completa.
+    // Se deduce de las props porque son las que pone el systray (`aski_systray.xml`)
+    // y la accion de pantalla completa no: no hace falta una prop nueva que
+    // habria que pasar en dos sitios y mantener en las seis series.
+    get enBurbuja() {
+        return !!this.props.onMinimize;
     }
 
     useSample(text) {
         this.state.input = text;
         this.send();
+    }
+
+    // ==================================================================
+    // Buscar DENTRO del historial, desde el cajon. Lo que uno recuerda esta
+    // en el cuerpo de un mensaje, no en el titulo del hilo.
+    // ==================================================================
+    onSearchInput(ev) {
+        const q = (ev && ev.target ? ev.target.value : "") || "";
+        this.state.searchQ = q;
+        this._cancelSearchTimer();
+        if (q.trim().length < MIN_SEARCH_LEN) {
+            // Se limpia YA: dejar los resultados de la consulta anterior debajo
+            // de un cuadro casi vacio se lee como si siguieran valiendo.
+            this.state.searchResults = [];
+            this.state.searchTerm = "";
+            this.state.searchLoading = false;
+            this.state.searchCode = "";
+            return;
+        }
+        this.state.searchLoading = true;
+        this.state.searchCode = "";
+        // `setTimeout` pelado y no `browser.setTimeout`: la serie 14 no importa
+        // el envoltorio `browser`, y este fichero tiene que ser el mismo en las
+        // seis (lo unico que lo adapta es el script de port a OWL 1).
+        this._searchTimer = setTimeout(() => this._doSearch(), SEARCH_DEBOUNCE_MS);
+    }
+
+    _cancelSearchTimer() {
+        if (this._searchTimer) {
+            clearTimeout(this._searchTimer);
+            this._searchTimer = null;
+        }
+    }
+
+    async _doSearch() {
+        this._searchTimer = null;
+        const q = this.state.searchQ.trim();
+        if (q.length < MIN_SEARCH_LEN) {
+            return;
+        }
+        // Numero de peticion: una respuesta lenta que llegue DESPUES de otra mas
+        // nueva pintaria resultados de algo que el usuario ya dejo de buscar. El
+        // RPC de la serie 14 no se puede abortar; contar si.
+        const seq = (this._searchSeq = (this._searchSeq || 0) + 1);
+        let r = null;
+        try {
+            r = await this.orm.call("aski.account.link", "search_history", [q, 30]);
+        } catch (e) {
+            if (seq !== this._searchSeq) {
+                return;
+            }
+            this.state.searchLoading = false;
+            this.state.searchResults = [];
+            this.state.searchTerm = q;
+            this.state.searchCode = "error";
+            return;
+        }
+        if (seq !== this._searchSeq) {
+            return;
+        }
+        this.state.searchLoading = false;
+        this.state.searchCode = (r && r.ok) ? "" : ((r && r.code) || "error");
+        this.state.searchResults = (r && r.results) || [];
+        this.state.searchTerm = q;
+    }
+
+    retrySearch() {
+        if (this.state.searchQ.trim().length < MIN_SEARCH_LEN) {
+            return;
+        }
+        this.state.searchLoading = true;
+        this.state.searchCode = "";
+        this._doSearch();
+    }
+
+    clearSearch() {
+        this._cancelSearchTimer();
+        // Se invalida lo que venga en vuelo: si no, una respuesta en camino
+        // repintaria resultados sobre un cajon que el usuario acaba de limpiar.
+        this._searchSeq = (this._searchSeq || 0) + 1;
+        this.state.searchQ = "";
+        this.state.searchTerm = "";
+        this.state.searchResults = [];
+        this.state.searchLoading = false;
+        this.state.searchCode = "";
+    }
+
+    // Con busqueda activa el cajon ensena RESULTADOS en vez de hilos. Mira lo
+    // TECLEADO y no lo consultado, para que la lista de hilos ceda el sitio sin
+    // esperar a la pausa del teclado (si no, se ve medio segundo de lista vieja
+    // debajo de lo que se acaba de escribir).
+    get searchActive() {
+        return this.state.searchQ.trim().length >= MIN_SEARCH_LEN;
+    }
+
+    get searchTermCorto() {
+        const q = this.state.searchTerm;
+        return q.length > MAX_TERM_SHOWN ? q.slice(0, MAX_TERM_SHOWN) + "\u2026" : q;
+    }
+
+    /**
+     * El fragmento partido en tres TROZOS DE TEXTO para resaltar la coincidencia.
+     *
+     * ⛔ No se devuelve HTML. El fragmento es texto del usuario y de las
+     * respuestas sobre SUS datos: inyectarlo como markup obligaria a escaparlo a
+     * mano y ademas el mecanismo cambia por serie (markup() + t-out en 16-19,
+     * t-raw en 14/15). Con tres `t-esc` el navegador escapa solo, por definicion,
+     * y se escribe igual en las seis series.
+     *
+     * Los offsets vienen del BACKEND (app/chat/search.py) porque buscar `q` aqui
+     * no encontraria nada si el usuario tecleo "credito" y el texto dice
+     * "credito" con tilde: haria falta duplicar la tabla de acentos en JS. Se
+     * acotan por si acaso — un desajuste entre cliente y backend degrada a texto
+     * plano, nunca a un recorte absurdo.
+     */
+    snippetPartes(r) {
+        const texto = (r && r.snippet) || "";
+        const ini = Math.max(0, Math.min(r.matchStart || 0, texto.length));
+        const largo = Math.max(0, Math.min(r.matchLen || 0, texto.length - ini));
+        return {
+            pre: texto.slice(0, ini),
+            hit: texto.slice(ini, ini + largo),
+            post: texto.slice(ini + largo),
+        };
+    }
+
+    async openSearchResult(r) {
+        // La busqueda se limpia al saltar: volver del hilo a una lista de
+        // resultados que ya no viene a cuento desorienta mas que ayuda.
+        const destino = r.domId;
+        this.clearSearch();
+        await this.openConversation(r.conversationId, destino);
+    }
+
+    /**
+     * Lleva la vista a la burbuja de un resultado y la senala.
+     *
+     * Dos detalles que NO son cosmeticos:
+     *
+     * 1) Se busca DENTRO de `messagesRef.el`, nunca en `document`: el widget se
+     *    monta DOS veces a la vez (pantalla completa y burbuja del systray) y un
+     *    querySelector global encontraria la burbuja de la OTRA instancia.
+     * 2) Se mueve el scroll del CONTENEDOR a mano en vez de usar
+     *    `scrollIntoView`: en el systray el chat vive dentro de un panel
+     *    `position: fixed` y scrollIntoView arrastraria tambien a los ancestros
+     *    del web client.
+     *
+     * Y una pasada no basta: al abrir el hilo las burbujas se pintan antes de que
+     * su contenido ocupe sitio (tablas anchas, markdown que reflowea), asi que el
+     * destino se calcula sobre una maqueta a medio hacer. Se corrige por MEDIDA
+     * REAL hasta que de verdad quede a la vista, igual que en la app y en la web.
+     */
+    _jumpToMessage(domId) {
+        let intentos = 0;
+        const paso = () => {
+            const cont = this.messagesRef.el;
+            if (!cont) {
+                return;
+            }
+            const el = cont.querySelector('[data-msg-id="' + domId + '"]');
+            if (!el) {
+                intentos += 1;
+                if (intentos < 6) setTimeout(paso, 150);
+                return;
+            }
+            const c = el.getBoundingClientRect();
+            const s = cont.getBoundingClientRect();
+            const dentro = c.top >= s.top - 1 && c.top <= s.bottom;
+            if (!dentro) {
+                cont.scrollTop += (c.top - s.top)
+                    - Math.max(0, (cont.clientHeight - c.height) / 2);
+                intentos += 1;
+                if (intentos < 6) {
+                    setTimeout(paso, 150);
+                    return;
+                }
+            }
+            this.state.jumpHit = domId;
+            setTimeout(() => {
+                if (this.state.jumpHit === domId) {
+                    this.state.jumpHit = null;
+                }
+            }, JUMP_HIGHLIGHT_MS);
+        };
+        requestAnimationFrame(paso);
+    }
+
+    // ==================================================================
+    // Arranque del chat: las cifras REALES de esta conexion y que preguntarle.
+    // ==================================================================
+    async loadSuggestions(refresh) {
+        if (!this.state.connected || this.state.sugsLoading) {
+            return;
+        }
+        this.state.sugsLoading = true;
+        let r = null;
+        try {
+            r = await pedirSugerencias(this.orm, !!refresh);
+        } catch (e) {
+            this.state.sugsLoading = false;
+            // ⛔ Un fallo NO borra lo que ya se sabia: se sigue pintando con su
+            // edad, que es mas util que un hueco. Y NUNCA por `notification.add`:
+            // en la serie 14 eso no es un aviso flotante, sino una burbuja de
+            // error empujada dentro del hilo.
+            this.state.sugsCode = "erp_down";
+            return;
+        }
+        this.state.sugsLoading = false;
+        this.state.sugsCode = (r && r.ok) ? "" : ((r && r.code) || "erp_down");
+        if (r && r.ok) {
+            this.state.sugs = r;
+        }
+    }
+
+    get startMetrics() {
+        return (this.state.sugs && this.state.sugs.metrics) || [];
+    }
+
+    get startSections() {
+        return (this.state.sugs && this.state.sugs.sections) || [];
+    }
+
+    // Los importes de una cifra, uno por renglon. El motor ya decidio NO sumar
+    // monedas distintas y las unio con el punto medio: aqui solo se parten.
+    // ⛔ Nunca se reformatea un importe en el cliente.
+    metricLineas(m) {
+        return ((m && m.value) || "").split(" \u00b7 ");
+    }
+
+    // "3 empresas". El numero se sustituye sobre la cadena YA traducida y no con
+    // _t("%s companies", n): las series 14 y 15 no admiten argumentos en _t() y
+    // ahi el usuario veria el "%s" tal cual.
+    metricEmpresas(m) {
+        return String(_t("across %s companies")).replace("%s", String(m.companies));
+    }
+
+    // Edad del dato. Misma razon que arriba para sustituir a mano.
+    get startAge() {
+        const iso = this.state.sugs && this.state.sugs.asOf;
+        if (!iso) {
+            return "";
+        }
+        const t = Date.parse(iso);
+        if (isNaN(t)) {
+            return "";
+        }
+        const min = Math.floor((Date.now() - t) / 60000);
+        if (min < 1) {
+            return _t("just now");
+        }
+        if (min < 60) {
+            return String(_t("%s min ago")).replace("%s", String(min));
+        }
+        const h = Math.floor(min / 60);
+        if (h < 48) {
+            return String(_t("%s h ago")).replace("%s", String(h));
+        }
+        return String(_t("%s d ago")).replace("%s", String(Math.floor(h / 24)));
+    }
+
+    openLibrary() {
+        this.state.libraryOpen = true;
+    }
+
+    closeLibrary() {
+        this.state.libraryOpen = false;
+    }
+
+    useLibraryQuestion(q) {
+        this.state.libraryOpen = false;
+        this.useSample(q.text);
+    }
+
+    /**
+     * Los textos nuevos, TODOS por _t() y desde aqui.
+     *
+     * ⛔ No van como literales en la plantilla: en las series 14 y 15 el texto
+     * estatico de una plantilla OWL no se traduce NUNCA (el bundle de plantillas
+     * se sirve crudo y sin idioma), asi que un literal en el .xml se veria en
+     * ingles aunque el .po estuviera perfecto.
+     *
+     * Es un getter y no una constante de modulo para que _t() se evalue en cada
+     * render, cuando el catalogo de traducciones ya esta cargado.
+     */
+    get txt() {
+        return {
+            searchPh: _t("Search your history"),
+            searchClear: _t("Clear search"),
+            searching: _t("Searching..."),
+            searchErr: _t("Couldn't complete the search."),
+            searchBusy: _t("Too many searches right now. Try again in a moment."),
+            searchNone: _t("No results for"),
+            retry: _t("Try again"),
+            startTitle: _t("Your figures right now"),
+            startRefresh: _t("Refresh"),
+            startErpDown: _t("Your ERP did not answer"),
+            startBusy: _t("Too many refreshes. Try again in a while."),
+            startEmpty: _t("No movements to show in this connection yet."),
+            startStale: _t("Showing the last known figures."),
+            startMore: _t("See more questions"),
+            libTitle: _t("What you can ask"),
+            close: _t("Close"),
+        };
+    }
+
+    // "Sin resultados para «lo que sea»". Se arma por concatenacion: _t() con
+    // argumentos no funciona en 14/15.
+    get searchEmptyTxt() {
+        return this.txt.searchNone + " \u00ab" + this.searchTermCorto + "\u00bb";
+    }
+
+    // El aviso de un fallo de busqueda, por CODIGO y no por el texto del backend:
+    // el backend responde en su idioma y esta instancia puede estar en otro.
+    get searchErrTxt() {
+        return this.state.searchCode === "rate_limited"
+            ? this.txt.searchBusy
+            : this.txt.searchErr;
+    }
+
+    get startErrTxt() {
+        return this.state.sugsCode === "rate_limited"
+            ? this.txt.startBusy
+            : this.txt.startErpDown;
     }
 
     renderMd(text) {
@@ -743,15 +1180,34 @@ class AskiChatWidget extends Component {
     // ISO sin offset lo interpreta `new Date()` como hora LOCAL: en Lima saldria
     // cinco horas adelantada. Se le pone la Z cuando no la trae, igual que hace
     // ChatRepository en la app (parseCreatedAtMillis).
-    bubbleTime(iso) {
+    // Un ISO del backend a Date local. Llega en UTC y a veces SIN marca de zona:
+    // sin la "Z" el navegador lo leeria como hora local y la burbuja saldria con
+    // horas de desfase. Lo usan la hora de la burbuja y la fecha de un resultado
+    // de busqueda — un solo parseo, para que no puedan contar cosas distintas.
+    _fechaDe(iso) {
         if (!iso) {
-            return "";
+            return null;
         }
         const d = new Date(/(?:Z|[+-]\d{2}:?\d{2})$/.test(iso) ? iso : iso + "Z");
-        if (isNaN(d.getTime())) {
-            return "";
-        }
-        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        return isNaN(d.getTime()) ? null : d;
+    }
+
+    bubbleTime(iso) {
+        const d = this._fechaDe(iso);
+        return d ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+    }
+
+    // En un resultado va la FECHA y no la hora: puede ser de hace meses, y un
+    // "14:32" suelto no situa nada. `toLocaleDateString` respeta el idioma.
+    searchFecha(r) {
+        const d = this._fechaDe(r && r.createdAt);
+        return d ? d.toLocaleDateString() : "";
+    }
+
+    // El titulo del hilo al que pertenece un resultado. Es CONTEXTO, no el
+    // contenido: por eso en el cajon pesa menos que el fragmento.
+    searchConvTitle(r) {
+        return (r && r.conversationTitle) || _t("Untitled");
     }
 
     async exportMessageDetail(m) {
@@ -1062,13 +1518,18 @@ class AskiChatWidget extends Component {
     }
 
     plazoLabel(d) {
-        return _t("%s days", d);
+        // ⛔ La sustitucion va sobre la cadena YA traducida y no por `_t(txt, val)`:
+        // en las series 14 y 15 `_t` es `translatedTerms[term] || term` — un solo
+        // argumento y cero interpolacion — asi que ahi el usuario veia el "%s"
+        // literal. Con `.replace()` se comporta igual en las seis.
+        return String(_t("%s days")).replace("%s", String(d));
     }
 
     get conteoRegistros() {
         const r = this.state.records || {};
-        return _t("%(shown)s of %(total)s", {
-            shown: (r.rows || []).length, total: r.total });
+        return String(_t("%(shown)s of %(total)s"))
+            .replace("%(shown)s", String((r.rows || []).length))
+            .replace("%(total)s", String(r.total));
     }
 
     get etiquetaConvertido() {
@@ -1176,12 +1637,13 @@ class AskiChatWidget extends Component {
     pieGrafico(s, spec) {
         if (s.total === null || s.total === undefined) {
             if (s.partial_of !== null && s.partial_of !== undefined) {
-                return _t("Top %(shown)s of %(total)s", {
-                    shown: s.points.length, total: s.partial_of });
+                return String(_t("Top %(shown)s of %(total)s"))
+                    .replace("%(shown)s", String(s.points.length))
+                    .replace("%(total)s", String(s.partial_of));
             }
             return "";
         }
-        return _t("Total: %s", this.fmtCifra(s.total, s, spec));
+        return String(_t("Total: %s")).replace("%s", this.fmtCifra(s.total, s, spec));
     }
 
     // --- Formato ------------------------------------------------------------
@@ -1463,11 +1925,13 @@ class AskiChatWidget extends Component {
             // correo saliente sin configurar.
             if (r.sent) {
                 this.notification.add(
-                    _t("Sent to %s recipient(s).", r.sent), { type: "success" });
+                    String(_t("Sent to %s recipient(s).")).replace("%s", String(r.sent)),
+                    { type: "success" });
             }
             if ((r.failed || []).length || r.error) {
                 this.notification.add(
-                    r.error || _t("Could not send to: %s", (r.failed || []).join(", ")),
+                    r.error || String(_t("Could not send to: %s"))
+                        .replace("%s", (r.failed || []).join(", ")),
                     { type: "danger", sticky: true });
             }
             if (r.sent && !((r.failed || []).length || r.error)) {
