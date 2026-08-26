@@ -1452,13 +1452,18 @@ export class AskiChatWidget extends Component {
     }
 
     plazoLabel(d) {
-        return _t("%s days", d);
+        // ⛔ La sustitucion va sobre la cadena YA traducida y no por `_t(txt, val)`:
+        // en las series 14 y 15 `_t` es `translatedTerms[term] || term` — un solo
+        // argumento y cero interpolacion — asi que ahi el usuario veia el "%s"
+        // literal. Con `.replace()` se comporta igual en las seis.
+        return String(_t("%s days")).replace("%s", String(d));
     }
 
     get conteoRegistros() {
         const r = this.state.records || {};
-        return _t("%(shown)s of %(total)s", {
-            shown: (r.rows || []).length, total: r.total });
+        return String(_t("%(shown)s of %(total)s"))
+            .replace("%(shown)s", String((r.rows || []).length))
+            .replace("%(total)s", String(r.total));
     }
 
     get etiquetaConvertido() {
@@ -1566,12 +1571,13 @@ export class AskiChatWidget extends Component {
     pieGrafico(s, spec) {
         if (s.total === null || s.total === undefined) {
             if (s.partial_of !== null && s.partial_of !== undefined) {
-                return _t("Top %(shown)s of %(total)s", {
-                    shown: s.points.length, total: s.partial_of });
+                return String(_t("Top %(shown)s of %(total)s"))
+                    .replace("%(shown)s", String(s.points.length))
+                    .replace("%(total)s", String(s.partial_of));
             }
             return "";
         }
-        return _t("Total: %s", this.fmtCifra(s.total, s, spec));
+        return String(_t("Total: %s")).replace("%s", this.fmtCifra(s.total, s, spec));
     }
 
     // --- Formato ------------------------------------------------------------
@@ -1853,11 +1859,13 @@ export class AskiChatWidget extends Component {
             // correo saliente sin configurar.
             if (r.sent) {
                 this.notification.add(
-                    _t("Sent to %s recipient(s).", r.sent), { type: "success" });
+                    String(_t("Sent to %s recipient(s).")).replace("%s", String(r.sent)),
+                    { type: "success" });
             }
             if ((r.failed || []).length || r.error) {
                 this.notification.add(
-                    r.error || _t("Could not send to: %s", (r.failed || []).join(", ")),
+                    r.error || String(_t("Could not send to: %s"))
+                        .replace("%s", (r.failed || []).join(", ")),
                     { type: "danger", sticky: true });
             }
             if (r.sent && !((r.failed || []).length || r.error)) {
