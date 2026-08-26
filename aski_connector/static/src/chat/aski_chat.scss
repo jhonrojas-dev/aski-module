@@ -122,7 +122,72 @@
         transition: filter .14s ease;
         &:hover { filter: brightness(.97); }
     }
-    .ac-drawer-empty { color: var(--ac-on-variant) !important; font-size: 13px; padding: 8px 6px; }
+    .ac-drawer-empty {
+        color: var(--ac-on-variant) !important; font-size: 13px; padding: 8px 6px;
+        // El aviso de "sin resultados" lleva DENTRO lo que tecleo el usuario, y
+        // una consulta larga sin espacios (un id, un pegado) es una sola palabra
+        // que se derramaria fuera del cajon.
+        overflow-wrap: anywhere;
+    }
+
+    // ---- Buscar dentro del historial -------------------------------------
+    .ac-drawer-search {
+        flex: none; display: flex; align-items: center; gap: 8px;
+        margin: 0 2px 10px; padding: 0 10px; border-radius: 12px;
+        border: 1px solid var(--ac-outline-soft);
+        background: var(--ac-surface-c-low);
+        i { color: var(--ac-on-variant) !important; font-size: 13px; }
+        &:focus-within { border-color: var(--ac-navy); }
+    }
+    .ac-drawer-search-input {
+        // `min-width: 0` no es opcional: sin el, una consulta larga estira la
+        // fila y se lleva por delante el ancho del cajon.
+        flex: 1; min-width: 0;
+        border: 0; background: transparent; font: inherit; font-size: 13.5px;
+        padding: 10px 0; color: var(--ac-on-surface) !important;
+        &:focus { outline: none; }
+    }
+    .ac-drawer-search-x {
+        flex: none; border: 0; background: transparent; cursor: pointer;
+        padding: 4px 2px; border-radius: 6px; line-height: 1;
+        i { color: var(--ac-on-variant) !important; font-size: 13px; }
+        &:hover { background: var(--ac-surface-c-high); }
+    }
+    .ac-drawer-searcherr {
+        display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+        color: var(--ac-error) !important;
+    }
+    .ac-search-item {
+        // En columna, no en fila como un hilo: un fragmento de 160 caracteres no
+        // cabe en una linea de 300 px de cajon.
+        display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+        width: 100%; text-align: left; border: 0; cursor: pointer;
+        background: transparent; padding: 9px 12px; border-radius: 10px;
+        transition: background .12s ease;
+        &:hover { background: var(--ac-surface-c-high); }
+    }
+    // El titulo del hilo es CONTEXTO: pesa menos que el fragmento, que es lo que
+    // la persona esta buscando de verdad.
+    .ac-search-conv {
+        font-size: 12px; font-weight: 600; color: var(--ac-on-variant) !important;
+        max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ac-search-snip {
+        font-size: 13px; line-height: 1.4; color: var(--ac-on-surface) !important;
+        overflow-wrap: anywhere; overflow: hidden;
+        // Tres lineas: sin tope, tres resultados llenan el cajon entero.
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+        mark {
+            // El <mark> del navegador trae un amarillo fijo que en modo oscuro
+            // deja texto negro sobre fondo claro. Se repinta con el tema. La
+            // NEGRITA tampoco es decorativa: sobre una fila ya tenue, el fondo
+            // solo apenas se distingue.
+            background: color-mix(in srgb, var(--ac-gold) 45%, transparent);
+            color: var(--ac-on-surface) !important; font-weight: 700;
+            border-radius: 3px; padding: 0 2px;
+        }
+    }
+    .ac-search-date { font-size: 11px; color: var(--ac-on-variant) !important; }
     .ac-drawer-item {
         padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600;
         display: flex; align-items: center; gap: 9px; color: var(--ac-on-surface) !important;
@@ -357,6 +422,76 @@
         transition: background .13s ease, border-color .13s ease, transform .13s ease;
         i { color: var(--ac-gold-deep) !important; font-size: 13px; }
         &:hover { background: var(--ac-surface-variant); border-color: var(--ac-outline); transform: translateY(-1px); }
+    }
+
+    // ---- Arranque: las cifras reales de la conexion -----------------------
+    .ac-start {
+        width: 100%; max-width: 420px; text-align: left; margin-top: 14px;
+        background: var(--ac-surface); border: 1px solid var(--ac-outline-soft);
+        border-radius: 16px; padding: 12px 14px;
+        display: flex; flex-direction: column; gap: 8px;
+    }
+    .ac-start-head {
+        display: flex; align-items: center; gap: 8px;
+        // `flex-wrap` imprescindible: en la burbuja del systray el ancho es la
+        // mitad y el titulo, la edad y el boton no caben en una linea.
+        flex-wrap: wrap;
+    }
+    .ac-start-title {
+        flex: 1; min-width: 0; font-size: 14px; font-weight: 700;
+        color: var(--ac-on-surface) !important;
+    }
+    .ac-start-age { font-size: 11.5px; color: var(--ac-on-variant) !important; }
+    .ac-start-refresh {
+        border: 0; background: transparent; cursor: pointer; padding: 4px 6px;
+        border-radius: 8px; font-size: 12px; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 6px;
+        color: var(--ac-navy) !important;
+        i { color: var(--ac-navy) !important; font-size: 11px; }
+        &:hover { background: var(--ac-surface-c-high); }
+        &[disabled] { opacity: .55; cursor: default; }
+    }
+    .ac-start-list { display: flex; flex-direction: column; }
+    .ac-start-row {
+        // Una cifra por FILA, no una rejilla: en rejilla la altura de la fila la
+        // fija la tarjeta mas alta, asi que una cifra de tres monedas al lado de
+        // una de un renglon hacia crecer el bloque entero sin necesidad.
+        display: flex; align-items: flex-start; justify-content: space-between;
+        gap: 12px; padding: 7px 0;
+        & + .ac-start-row { border-top: 1px solid var(--ac-outline-soft); }
+    }
+    .ac-start-k {
+        display: flex; flex-direction: column; gap: 2px; min-width: 0;
+        font-size: 12.5px; color: var(--ac-on-variant) !important;
+    }
+    .ac-start-co { font-size: 11px; color: var(--ac-on-variant) !important; }
+    .ac-start-v {
+        display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+        strong {
+            display: block; font-size: 14.5px; line-height: 1.3;
+            color: var(--ac-on-surface) !important; overflow-wrap: anywhere;
+            font-variant-numeric: tabular-nums;
+        }
+    }
+    .ac-start-note { font-size: 12.5px; color: var(--ac-on-variant) !important; }
+    .ac-start-bad { color: var(--ac-error) !important; }
+    .ac-start-skel { display: flex; flex-direction: column; gap: 8px; }
+    .ac-start-skel-row {
+        height: 30px; border-radius: 8px; background: var(--ac-surface-c);
+        animation: ac-skel 1.1s ease-in-out infinite;
+    }
+
+    // ---- Biblioteca de preguntas (dentro de .ac-modal tall) ---------------
+    .ac-lib-sec {
+        font-size: 11.5px; font-weight: 700; letter-spacing: .02em;
+        color: var(--ac-navy) !important; margin: 12px 0 4px;
+    }
+    .ac-lib-q {
+        display: block; width: 100%; text-align: left; border: 0; cursor: pointer;
+        background: transparent; padding: 10px 12px; border-radius: 12px;
+        font-size: 13.5px; color: var(--ac-on-surface) !important;
+        transition: background .12s ease;
+        &:hover { background: var(--ac-surface-c-high); }
     }
 
     // =====================================================================
@@ -643,6 +778,16 @@
     .ac-btn-link {
         border: 0; background: transparent; cursor: pointer; padding: 0;
         color: var(--ac-error) !important; font-weight: 800; text-decoration: underline;
+    }
+    // ⛔ NO se reusa `.ac-btn-link` para esto: ese es el enlace DESTRUCTIVO
+    // (desconectar, reintentar tras un fallo) y va en el rojo de error. Abrir la
+    // biblioteca de preguntas es justo lo contrario — una invitacion — y pintarla
+    // de rojo la leia como una alarma.
+    .ac-start-more {
+        border: 0; background: transparent; cursor: pointer;
+        margin-top: 10px; padding: 6px 10px; border-radius: 8px;
+        font-size: 13px; font-weight: 700; color: var(--ac-navy) !important;
+        &:hover { background: var(--ac-surface-c-high); }
     }
 
     // =====================================================================
@@ -1161,6 +1306,21 @@
     // =====================================================================
     @keyframes ac-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
     @keyframes ac-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes ac-skel { 0%, 100% { opacity: .5; } 50% { opacity: .9; } }
+    // Senal al aterrizar desde un resultado: sin ella uno cae en mitad de un
+    // hilo largo sin saber a cual de todas las burbujas vino. Se apaga sola.
+    @keyframes ac-jump {
+        0%, 55% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac-gold) 75%, transparent); }
+        100% { box-shadow: 0 0 0 3px transparent; }
+    }
+    .ac-jump-hit { animation: ac-jump 2s ease-out; }
+    @media (prefers-reduced-motion: reduce) {
+        .ac-jump-hit {
+            animation: none;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac-gold) 65%, transparent);
+        }
+        .ac-start-skel-row { animation: none; }
+    }
     @keyframes ac-modal-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
     @keyframes ac-win-up { from { transform: translateY(100%); } to { transform: none; } }
     @keyframes ac-slide-in { from { transform: translateX(-100%); } to { transform: none; } }
