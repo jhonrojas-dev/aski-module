@@ -1333,12 +1333,20 @@
                             <div t-if="state.pedirAbierto === 'plan'" class="ac-ins-new">
                                 <div class="ac-ins-q">Which plan do you want?</div>
                                 <div t-if="!state.catalogo" class="ac-ins-note">Reading the plans…</div>
+                                <!-- ⛔ Con lo que INCLUYE cada plan, no solo el
+                                     nombre: nadie elige por "Basic" a secas, y
+                                     el dato ya viene en la misma llamada. Sin
+                                     esto se pide a ciegas y el socio recibe una
+                                     peticion que su cliente no sabe si le sirve. -->
                                 <div t-else="" class="ac-ins-btns">
                                     <button t-foreach="state.catalogo.plans" t-as="p" t-key="p.id"
                                             class="ac-btn-ghost-sm"
                                             t-att-disabled="state.pidiendo or yaPedido('plan', p.id)"
                                             t-on-click="() => this.pedirAlProveedor('plan', p.id)">
                                         <t t-esc="p.name"/>
+                                        <t t-if="p.monthly_credits">
+                                            · <t t-esc="p.monthly_credits"/> cr
+                                        </t>
                                         <t t-if="yaPedido('plan', p.id)"> · requested</t>
                                     </button>
                                 </div>
