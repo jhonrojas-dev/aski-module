@@ -40,24 +40,34 @@ function loadBubbleState() {
 // abre el MISMO widget de chat (historial, tablas, export a PDF — todo reusado,
 // cero duplicacion) en un panel flotante, sin salir de la pantalla actual.
 class AskiSystray extends Component {
+    static template = "aski_connector.Systray";
+    static props = ["*"];
+    static components = { AskiChatWidget };
+
     setup() {
+        // La 14 no tiene el servicio `orm` de wowl. `rpc.query()` es su
+        // equivalente legacy: mismo endpoint y misma sesion.
+        this.orm = {
+            call: (model, method, args) => rpc.query(
+                { model: model, method: method, args: args }),
+        };
         // Recuerda si el usuario la dejo abierta/minimizada — al recargar la
         // pantalla (F5) antes se perdia y volvia a cerrarse siempre.
-        // `canUse` decide si la burbuja se muestra: depende del MODO de acceso
-        // (compartida al grupo / solo admin / por usuario). Arranca en false
-        // para NO parpadear la burbuja antes de resolver el permiso.
+        // `canUse` decide si la burbuja se muestra: solo a los miembros del
+        // grupo del chat (el chat lee via la conexion compartida del admin, asi
+        // que no debe estar al alcance de todo usuario interno). Arranca en
+        // false para NO parpadear la burbuja antes de resolver el permiso.
+        // OWL 1: en las plantillas `this` NO es el componente, asi que una
+        // prop como `onMinimize="() => this.minimize()"` se evaluaria con un
+        // `this` equivocado al invocarse. Se pasan callbacks YA atados.
+        this.onMinimize = () => this.minimize();
+        this.onClose = () => this.close();
         this.state = useState({ ...loadBubbleState(), canUse: false });
         onWillStart(async () => {
-            // La 14 no tiene los servicios de wowl (no hay useService/orm):
-            // `rpc.query()` es el equivalente legacy de `orm.call()`. Y va
-            // memoizado y COMPARTIDO con el boton del chatter: entre los dos
-            // hacen UNA llamada por pestana, no una cada uno. `canUseChat` ya
-            // traga sus propios errores, por eso aqui no hace falta try/catch.
-            this.state.canUse = await canUseChat(() => rpc.query({
-                model: "aski.account.link",
-                method: "can_use_chat",
-                args: [],
-            }));
+            // Memoizado y COMPARTIDO con el boton del chatter: entre los dos
+            // hacen UNA llamada por pestana, no una cada uno.
+            this.state.canUse = await canUseChat(() =>
+                this.orm.call("aski.account.link", "can_use_chat", []));
         });
         // El boton "Aski" de una ficha pide abrir la burbuja. Se desmarca al
         // desmontar: sin la baja, cada recarga del systray dejaria un oyente
@@ -67,10 +77,6 @@ class AskiSystray extends Component {
             this.state.minimized = false;
             this._persist();
         }));
-        // OWL 1: en las plantillas `this` NO es el componente, asi que las props
-        // callback se pasan YA atadas desde aqui.
-        this.onMinimize = () => this.minimize();
-        this.onClose = () => this.close();
     }
 
     _persist() {
@@ -89,8 +95,13 @@ class AskiSystray extends Component {
     }
 
     toggle() {
-        this.state.open = !this.state.open;
-        this.state.minimized = false;
+        if (this.state.open) {
+            this.state.open = false;
+            this.state.minimized = false;
+        } else {
+            this.state.open = true;
+            this.state.minimized = false;
+        }
         this._persist();
     }
 
@@ -105,8 +116,6 @@ class AskiSystray extends Component {
         this._persist();
     }
 }
-AskiSystray.template = "aski_connector.Systray";
-AskiSystray.components = { AskiChatWidget };
 
 // ---- item del systray: Widget legacy que hospeda el componente OWL ----
 const AskiSystrayItem = Widget.extend({

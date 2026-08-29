@@ -249,8 +249,6 @@ class AskiChatWidget extends Component {
     static props = ["*"];
 
     setup() {
-        // Shims de los 3 servicios de wowl, que en la 14 NO existen. El resto del
-        // componente usa this.orm/this.action/this.notification sin enterarse.
         this.orm = {
             // web.rpc.query() es el equivalente legacy de orm.call(): mismo
             // endpoint (/web/dataset/call_kw), misma sesion.
@@ -328,6 +326,87 @@ class AskiChatWidget extends Component {
             exporting: false,
             conversations: [],
             drawerOpen: false,
+            // --- Asiento de equipo ---
+            // Quien abre el chat sin cuenta propia puede estar sentado en la
+            // cuenta de su empresa. `seat` guarda lo que dice el backend; null
+            // mientras no se ha preguntado.
+            seat: null,
+            seatBusy: false,
+            // A quien le llego la peticion: "partner" | "owner". Se guarda para
+            // poder decirlo en pantalla en vez de un "listo" mudo.
+            seatAsked: "",
+            seatPartner: "",
+            // --- Avisos programados ---
+            insightsOpen: false,
+            // El MAPA de lo que Aski sabe hacer: que puede vigilar, que puede
+            // recordar y que puede ejecutar en el ERP. Vive aparte de la hoja de
+            // avisos porque tambien se llega desde el cajon: las acciones no son
+            // un aviso y no tendrian por que esconderse dentro de esa hoja.
+            catOpen: false,
+            catCargando: false,
+            catAvisos: null,
+            catAcciones: null,
+            // A que bloque se entro, para abrir mirando lo que se vino a ver.
+            catFoco: "watch",
+            catVengoDeAvisos: false,
+            // Mi equipo dentro de Odoo: quien mas pregunta con esta cuenta.
+            equipoOpen: false,
+            equipo: null,
+            equipoCargando: false,
+            creditosPedidos: false,
+            // Alta y acciones del equipo, DENTRO de Odoo.
+            invAbierto: false,
+            invEmail: "",
+            invRol: "member",
+            invTope: "",
+            invBusy: false,
+            invEnlace: "",
+            seatPorQuitar: null,
+            seatBusyId: null,
+            // --- Pedirle cosas al proveedor, DESDE Odoo ---
+            // ⛔ Aqui no se enlaza a la pasarela ni se manda a "contactar a
+            // ventas": quien usa Aski dentro del ERP esta ahi por no salir a
+            // otra pantalla, y ademas su tarifa la pone su socio. Se deja una
+            // peticion REGISTRADA que el socio ve en su panel.
+            pedidos: [],
+            catalogo: null,
+            pidiendo: "",
+            pedirAbierto: "",
+            // El asiento que se esta editando (rol y tope). Null = ninguno.
+            seatEdit: null,
+            seatEditRol: "member",
+            seatEditTope: "",
+            insights: [],
+            insightsLoading: false,
+            // Distinto de "no tienes ninguno": el backend no contesto. Son dos
+            // pantallas distintas y pintarlas igual manda a buscar donde no es.
+            insightsErr: false,
+            insightLimit: null,
+            insightUsed: 0,
+            insightPorPersona: [],
+            insightBusy: null,
+            // Alta rapida desde la ultima respuesta: la pregunta ya resuelta se
+            // guarda tal cual y el aviso la repite sin volver a pensar nada.
+            insightNewFor: null,
+            // Alta de los otros tipos: 'watch' | 'reminder' | null. El resumen y
+            // el cierre no pasan por aqui — son interruptores, no formularios.
+            newKind: null,
+            catalogoCargando: false,
+            metricas: [],
+            temas: [],
+            watchMetric: "", watchOp: ">", watchValue: "",
+            remTopic: "", remDays: 3,
+            insightHour: 8,
+            insightFreq: "daily",
+            insightSaving: false,
+            // --- Acciones sobre el ERP ---
+            actions: [],
+            actionsEnabled: false,
+            // El modo de acceso permite acciones (solo "por usuario"). Se guarda
+            // para poder EXPLICAR por que no estan, en vez de esconderlas.
+            actionsModeOk: true,
+            actionBusy: null,
+            confirmActionId: null,
             // --- Buscar dentro del historial, desde el cajon ---
             // `searchQ` es lo TECLEADO y `searchTerm` lo ya consultado. Tenerlos
             // separados es lo que permite que la lista de hilos ceda el sitio en
@@ -477,13 +556,18 @@ class AskiChatWidget extends Component {
                 if (!this.state.messages.length) {
                     this.loadSuggestions();
                 }
+                // Ni las acciones ni el asiento se ESPERAN: la primera pantalla
+                // no puede quedarse colgada de dos llamadas mas. Llegan cuando
+                // llegan y el chat ya esta usable.
+                this._cargarAcciones();
+                this._cargarAsiento();
             }
         } catch (e) {
             // NO se toca `connected`: que el estado no se pueda leer no
             // significa que la cuenta este desconectada. Marcarla como tal
             // pintaba "Conecta Aski para empezar" a alguien que ya la tenia
             // conectada, y lo empujaba a reconectar sin motivo.
-            // `navigator` directo y no `browser.navigator`: lo que expone el
+            // `navigator` directo y no `navigator`: lo que expone el
             // envoltorio `browser` cambia entre series (14 a 19) y esto tiene
             // que funcionar en todas.
             const sinRed = typeof navigator !== "undefined" && navigator.onLine === false;
@@ -619,10 +703,10 @@ class AskiChatWidget extends Component {
     // handler.
     // Nombre de la clase de la excepcion, que es lo que permite reaccionar a un
     // fallo CONCRETO sin leer el texto (que viaja traducido a seis idiomas).
-    // Igual que con el mensaje, la ruta cambia segun la serie: en unas esta en
-    // `e.data.name` y en otras un nivel mas adentro. Cuando no se encontraba, el
-    // chat no ofrecia recargar creditos al quedarse sin saldo ni apagaba el
-    // interruptor de analisis profundo (visto en la QA de la 14).
+    // La ruta cambia segun la serie: en unas esta en `e.data.name` y en otras un
+    // nivel mas adentro. Cuando no se encontraba, el chat no ofrecia recargar
+    // creditos al quedarse sin saldo ni apagaba el interruptor de analisis
+    // profundo (visto en la QA de la 14).
     _claseDe(e) {
         const cand = [
             e && e.data && e.data.name,
@@ -724,7 +808,7 @@ class AskiChatWidget extends Component {
         }
         this.state.searchLoading = true;
         this.state.searchCode = "";
-        // `setTimeout` pelado y no `browser.setTimeout`: la serie 14 no importa
+        // `setTimeout` pelado y no `setTimeout`: la serie 14 no importa
         // el envoltorio `browser`, y este fichero tiene que ser el mismo en las
         // seis (lo unico que lo adapta es el script de port a OWL 1).
         this._searchTimer = setTimeout(() => this._doSearch(), SEARCH_DEBOUNCE_MS);
@@ -990,6 +1074,7 @@ class AskiChatWidget extends Component {
     get txt() {
         return {
             searchPh: _t("Search your history"),
+            invitePh: _t("name@company.com"),
             searchClear: _t("Clear search"),
             searching: _t("Searching..."),
             searchErr: _t("Couldn't complete the search."),
@@ -1046,6 +1131,13 @@ class AskiChatWidget extends Component {
     }
     onCloseClick() {
         if (this.props.onClose) { this.props.onClose(); }
+    }
+
+    // Los `t-on-*` que solo FIJAN un valor de estado (los chips de rol) usan una
+    // funcion flecha en OWL 2. Aqui pasan por este metodo: en OWL 1 la flecha se
+    // evalua, se descarta y el boton no hace NADA, sin un solo error.
+    fijarEstado(campo, valor) {
+        this.state[campo] = valor;
     }
 
     conversationTitle(c) {
@@ -1265,7 +1357,7 @@ class AskiChatWidget extends Component {
             // que action_connect fuerza una carga completa al conectar.
             // `disconnecting` NO se libera: mantiene el boton bloqueado hasta que
             // la pagina se va.
-            window.setTimeout(() => window.location.reload(), DISCONNECT_RELOAD_DELAY_MS);
+            setTimeout(() => window.location.reload(), DISCONNECT_RELOAD_DELAY_MS);
         } catch (e) {
             const msg = this._msgDe(e);
             this.notification.add(msg, { type: "danger", sticky: true });
@@ -1273,8 +1365,30 @@ class AskiChatWidget extends Component {
         }
     }
 
+    /** Donde vive la web de Aski. La manda el MODULO (parametro del sistema
+     *  `aski.web_base`): en Odoo `window.location.origin` es el dominio del
+     *  cliente, y un despliegue propio no vive en app.aski.dev. */
+    get baseWeb() {
+        return (this.state.equipo && this.state.equipo.web_base) || "https://app.aski.dev";
+    }
+
+    abrirWeb(ruta) {
+        window.open(this.baseWeb + ruta, "_blank", "noopener,noreferrer");
+    }
+
     openBilling() {
-        window.open("https://app.aski.dev/billing", "_blank", "noopener,noreferrer");
+        this.abrirWeb("/billing");
+    }
+
+    /** Cuenta PROPIA: aqui no hay a quien pedirle asientos —no hay socio— asi que
+     *  se lleva a comprarlos.
+     *
+     *  ⛔ Y aqui SI se puede enlazar a la compra: la regla que lo prohibe es de
+     *  Google Play y afecta a la app de Android, no a una pagina dentro de Odoo.
+     *  Copiar alli el "contactar a ventas" habria sido arrastrar una limitacion
+     *  ajena y dejar a esta gente sin salida. */
+    comprarAsientos() {
+        this.abrirWeb("/settings/team");
     }
 
     onInput(ev) {
@@ -1385,14 +1499,14 @@ class AskiChatWidget extends Component {
     _startClock() {
         this._stopClock();
         this.state.elapsed = 0;
-        this._clock = window.setInterval(() => {
+        this._clock = setInterval(() => {
             this.state.elapsed += 1;
         }, 1000);
     }
 
     _stopClock() {
         if (this._clock) {
-            window.clearInterval(this._clock);
+            clearInterval(this._clock);
             this._clock = null;
         }
         this.state.elapsed = 0;
@@ -1450,6 +1564,17 @@ class AskiChatWidget extends Component {
                         "aski.account.link", "load_conversation", [this.state.conversationId]);
                 } catch (e2) { /* la burbuja optimista ya quedo visible, no molestar */ }
             }
+            // Y el saldo con lo que dice el SERVIDOR: la resta local de arriba
+            // es una estimacion y se desfasa si el cobro real difiere.
+            try {
+                const w = await this.orm.call("aski.account.link", "get_wallet", []);
+                if (typeof w.wallet_credits === "number") {
+                    this.state.walletCredits = w.wallet_credits;
+                }
+                if (w.plan_name) {
+                    this.state.planName = w.plan_name;
+                }
+            } catch (e3) { /* se queda la estimacion local, que ya es util */ }
         } catch (e) {
             const msg = this._msgDe(e);
             // "Recargar creditos" solo si el fallo SON los creditos: ante un ERP
@@ -1807,7 +1932,7 @@ class AskiChatWidget extends Component {
         }
         // `noopener` ademas de `_blank`: la pestana nueva no tiene que poder
         // tocar la que deja el chat abierto.
-        // `window.open` y no `browser.open`: es lo que ya usa openBilling en este
+        // `window.open` y no `window.open`: es lo que ya usa openBilling en este
         // mismo fichero y funciona en las seis series. `noopener` ademas de
         // `_blank`, para que la pestana nueva no pueda tocar la del chat.
         window.open(this._urlRegistro(modelo, fila.id), "_blank",
@@ -1871,7 +1996,7 @@ class AskiChatWidget extends Component {
         a.remove();
         // Se libera despues: revocarlo en el mismo tick cancela la descarga en
         // algunos navegadores.
-        window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
     }
 
     // =====================================================================
@@ -1967,6 +2092,1011 @@ class AskiChatWidget extends Component {
         }
     }
 
+    // =====================================================================
+    //  Asiento de equipo
+    // =====================================================================
+    // Quien abre el chat aqui y no tiene cuenta puede estar sentado en la de su
+    // empresa. Preguntarlo cuesta una llamada y evita el peor camino que tenia
+    // el conector: mandar a alguien a crear una cuenta y que descubra el precio
+    // de un plan entero al final.
+    async _cargarAsiento() {
+        try {
+            this.state.seat = await this.orm.call("aski.account.link", "seat_status", []);
+        } catch {
+            this.state.seat = null;
+        }
+    }
+
+    async pedirAsiento() {
+        if (this.state.seatBusy) {
+            return;
+        }
+        this.state.seatBusy = true;
+        try {
+            const r = await this.orm.call("aski.account.link", "request_seat", []);
+            this.state.seatAsked = r.routed_to || "owner";
+            this.state.seatPartner = r.partner_name || "";
+            this.notification.add(
+                r.already_pending
+                    ? _t("You had already asked. We let them know again.")
+                    : _t("Done. We passed your request along."),
+                { type: "success" });
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.seatBusy = false;
+        }
+    }
+
+    // Frases COMPLETAS, no trozos pegados alrededor de una interpolacion.
+    // Partirlas en el XML producia msgid como "Sent to", "of" y ", who manages
+    // this account." — imposibles de traducir bien (cada idioma ordena distinto)
+    // y sin contexto para quien traduce. Mismo patron que ya usa el resto del
+    // widget: `%s` y `.replace`, porque las series 14 y 15 no admiten argumentos
+    // en `_t()`.
+    get textoAsientoPedido() {
+        if (this.state.seatAsked === "partner") {
+            return String(_t("Sent to %s, who manages this account."))
+                .replace("%s", this.state.seatPartner || _t("your provider"));
+        }
+        return _t("Sent to the account owner.");
+    }
+
+    /** Por que esta en pausa, no solo QUE lo esta.
+     *
+     *  ⛔ Los tres motivos «del titular» van aparte: a un asiento no se le dice
+     *  «te quedaste sin creditos» por una bolsa que no es suya, que no puede
+     *  recargar y que no decide. Antes esto devolvia «en pausa» a secas, asi que
+     *  no habia forma de saber si lo arreglabas tu o tenia que arreglarlo otro.
+     */
+    motivoPausa(f) {
+        return {
+            no_plan: _t("paused: your plan no longer includes it"),
+            no_credits: _t("paused: you ran out of credits"),
+            failing: _t("paused: we could not reach your ERP"),
+            over_limit: _t("paused: your plan includes fewer alerts"),
+            owner_no_plan: _t("paused: the account plan no longer includes it"),
+            owner_no_credits: _t("paused: the account ran out of credits"),
+            owner_over_limit: _t("paused: the account includes fewer alerts now"),
+        }[f.paused_reason] || _t("paused");
+    }
+
+    /** «· Ana 3, Luis 2, tú 2». Solo cuando hay mas de una persona: en una
+     *  cuenta de uno, repetirse el propio nombre es ruido. */
+    get desgloseCupo() {
+        const filas = (this.state.insightPorPersona || []).filter((p) => p.count > 0);
+        if (filas.length < 2) {
+            return "";
+        }
+        const yo = _t("you");
+        return " · " + filas
+            .map((p) => `${p.is_me ? yo : (p.email || "").split("@")[0]} ${p.count}`)
+            .join(", ");
+    }
+
+    get textoCupoAvisos() {
+        // ⛔ DOS `%s`, no huecos inventados. Un `%u`/`%m` en el msgid rompe el
+        // analisis del catalogo de Odoo y descarta TODAS las cadenas que vengan
+        // despues en el fichero — se comio 59 traducciones sin decir nada.
+        // `replace` con cadena sustituye solo la primera aparicion, asi que dos
+        // llamadas encadenadas rellenan los dos huecos en orden.
+        const usados = Number(this.state.insightUsed) || 0;
+        const tope = Number(this.state.insightLimit);
+        const quien = this.desgloseCupo;
+        // ⛔ Sin tope, el backend manda `null`. Escribiendolo tal cual salia
+        // «2 de false», que no significa nada para nadie.
+        if (!isFinite(tope) || tope <= 0) {
+            return String(_t("%s scheduled alerts on this account."))
+                .replace("%s", String(usados)) + quien;
+        }
+        return String(_t("%s of %s alerts used — the quota belongs to the whole account."))
+            .replace("%s", String(usados))
+            .replace("%s", String(tope)) + quien;
+    }
+
+    // =====================================================================
+    //  Avisos programados
+    // =====================================================================
+    // -----------------------------------------------------------------
+    //  Mi equipo, dentro de Odoo
+    // -----------------------------------------------------------------
+    // ⛔ Las etiquetas se copian de la app (`team_*` en strings.xml). Hasta hoy
+    // el conector SABIA si quien mira es un asiento —`seat_status` se pedia al
+    // arrancar— y no lo enseñaba en ningun sitio: quien se sienta en la cuenta
+    // de otro no veia ni de quien es la cuenta ni cuanto llevaba gastado.
+
+    async openTeam() {
+        this.state.detailFor = null;
+        this.state.equipoOpen = true;
+        this.state.equipoCargando = true;
+        this.state.pedirAbierto = "";
+        this.state.seatEdit = null;
+        try {
+            this.state.equipo = await this.orm.call("aski.account.link", "team_seats", []);
+        } catch {
+            this.state.equipo = null;
+        } finally {
+            this.state.equipoCargando = false;
+        }
+        // Lo pendiente y el catalogo van DESPUES y sin bloquear: la hoja ya se
+        // puede leer con el equipo, y si el catalogo tarda no hay por que dejar
+        // la pantalla en blanco esperandolo.
+        this.cargarPedidos();
+    }
+
+    /** Lo que esta cuenta ya pidio y sigue sin resolver, mas lo que se puede
+     *  pedir. Sin lo primero, el boton no sabe que ya se pulso y la persona lo
+     *  repite — cinco filas de ruido en el panel del socio por una intencion. */
+    async cargarPedidos() {
+        try {
+            const r = await this.orm.call("aski.account.link", "my_partner_requests", []);
+            this.state.pedidos = (r && r.requests) || [];
+        } catch {
+            this.state.pedidos = [];
+        }
+        if (!this.state.catalogo) {
+            try {
+                this.state.catalogo = await this.orm.call(
+                    "aski.account.link", "billing_catalog", []);
+            } catch {
+                this.state.catalogo = null;
+            }
+        }
+    }
+
+    /** ¿Ya se pidió esto y sigue esperando? `id` vacio = cualquiera de ese tipo
+     *  (los asientos no llevan producto: se pide capacidad, no un articulo). */
+    yaPedido(kind, id) {
+        return (this.state.pedidos || []).some(
+            (p) => p.kind === kind && (!id || p.plan_id === id || p.pack_id === id));
+    }
+
+    get esDeSocio() {
+        const e = this.state.equipo || {};
+        return !!e.partner_managed;
+    }
+
+    get nombreProveedor() {
+        const e = this.state.equipo || {};
+        return e.partner_name || _t("your provider");
+    }
+
+    /** Quien va a recibir la peticion. Se dice con NOMBRE: "se lo pedimos a tu
+     *  proveedor" deja a la persona sin saber a quien recordarselo si tarda. */
+    get notaProveedor() {
+        return String(_t("%s gets it in their panel and turns it on."))
+            .replace("%s", this.nombreProveedor);
+    }
+
+    abrirPedir(kind) {
+        this.state.pedirAbierto = this.state.pedirAbierto === kind ? "" : kind;
+    }
+
+    /** Deja la peticion registrada. Un asiento no lleva `id`: lo que se pide es
+     *  capacidad, y el precio del siguiente lo pone el socio. */
+    async pedirAlProveedor(kind, id) {
+        if (this.state.pidiendo) {
+            return;
+        }
+        this.state.pidiendo = kind + (id || "");
+        try {
+            const args = [kind];
+            if (kind === "plan") {
+                args.push(id, null);
+            } else if (kind === "topup") {
+                args.push(null, id);
+            }
+            await this.orm.call("aski.account.link", "request_to_partner", args);
+            this.state.pedirAbierto = "";
+            await this.cargarPedidos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger" });
+        } finally {
+            this.state.pidiendo = "";
+        }
+    }
+
+    // --- Editar un asiento ya creado (rol y tope) ---------------------
+    // El backend lo admite desde hoy; hasta ahora la hoja solo sabia quitar y
+    // devolver, asi que subirle el tope a alguien obligaba a salir a la web.
+
+    abrirEditarAsiento(p) {
+        this.state.seatEdit = p;
+        this.state.seatEditRol = p.role || "member";
+        this.state.seatEditTope = p.monthly_credit_cap ? String(p.monthly_credit_cap) : "";
+    }
+
+    cerrarEditarAsiento() {
+        this.state.seatEdit = null;
+    }
+
+    async guardarAsiento() {
+        const p = this.state.seatEdit;
+        if (!p || this.state.seatBusyId) {
+            return;
+        }
+        this.state.seatBusyId = p.id;
+        try {
+            // ⛔ El tope se quita mandando 0, no vacio: en un PATCH parcial "no
+            // lo mande" y "ponlo en nada" son indistinguibles.
+            const tope = String(this.state.seatEditTope || "").trim();
+            await this.orm.call("aski.account.link", "update_seat", [p.id, {
+                role: this.state.seatEditRol,
+                monthly_credit_cap: tope === "" ? 0 : parseInt(tope, 10),
+            }]);
+            this.state.seatEdit = null;
+            await this.openTeam();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger" });
+        } finally {
+            this.state.seatBusyId = null;
+        }
+    }
+
+    abrirInvitar() {
+        this.state.invAbierto = true;
+        this.state.invEmail = "";
+        this.state.invRol = "member";
+        this.state.invTope = "";
+        this.state.invEnlace = "";
+    }
+
+    cerrarInvitar() {
+        this.state.invAbierto = false;
+    }
+
+    /** El precio SOLO cuando el asiento se va a cobrar. Si queda uno libre, ya
+     *  esta pagado y enseñar un importe asusta sin motivo. */
+    get costoAsiento() {
+        const e = this.state.equipo || {};
+        const c = e.capacity || {};
+        if ((Number(c.available) || 0) > 0 || e.next_seat_price_usd == null) {
+            return "";
+        }
+        const linea = String(_t("Seat %s — US$ %s / month"))
+            .replace("%s", String((Number(c.total) || 0) + 1))
+            .replace("%s", Number(e.next_seat_price_usd).toFixed(2));
+        // ⛔ Y lo que se cobra HOY, que casi nunca es el mes entero: el asiento
+        // se factura con el plan y muere con el, asi que sumarlo tres dias antes
+        // de renovar cuesta tres dias. Enseñar solo el precio del mes hace que
+        // el primer cobro no cuadre con lo que se leyo aqui.
+        if (e.next_seat_prorated_usd == null) {
+            return linea;
+        }
+        return linea + " · " + String(_t("US$ %s today, until it renews"))
+            .replace("%s", Number(e.next_seat_prorated_usd).toFixed(2));
+    }
+
+    async enviarInvitacion() {
+        const correo = (this.state.invEmail || "").trim();
+        if (!correo || !correo.includes("@")) {
+            this.notification.add(_t("Type the email of the person you want to invite."),
+                                  { type: "warning" });
+            return;
+        }
+        this.state.invBusy = true;
+        try {
+            const tope = parseInt(this.state.invTope, 10);
+            const r = await this.orm.call("aski.account.link", "invite_seat", [{
+                email: correo,
+                role: this.state.invRol,
+                monthly_credit_cap: isFinite(tope) && tope > 0 ? tope : null,
+            }]);
+            // El enlace se enseña UNA vez: despues solo queda su huella. Quien
+            // invita tiene que poder pasarselo sin salir de Odoo.
+            this.state.invEnlace = (r && r.invite_link) || "";
+            this.state.invEmail = "";
+            this.state.invAbierto = false;
+            this.notification.add(_t("Invitation ready."), { type: "success" });
+            await this.openTeam();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.invBusy = false;
+        }
+    }
+
+    /** Quitar el asiento CORTA el acceso de una persona: se pregunta antes, aqui
+     *  dentro, como en la app y en la web. Devolverlo va directo — sumar acceso
+     *  no rompe nada. */
+    pedirQuitar(p) {
+        this.state.seatPorQuitar = p;
+    }
+
+    cancelarQuitar() {
+        this.state.seatPorQuitar = null;
+    }
+
+    async _accionAsiento(p, fn) {
+        this.state.seatBusyId = p.id;
+        try {
+            await fn();
+            await this.openTeam();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.seatBusyId = null;
+            this.state.seatPorQuitar = null;
+        }
+    }
+
+    confirmarQuitar() {
+        const p = this.state.seatPorQuitar;
+        if (!p) {
+            return;
+        }
+        return this._accionAsiento(p, () => this.orm.call(
+            "aski.account.link", "set_seat_active", [p.id, false]));
+    }
+
+    devolverAsiento(p) {
+        return this._accionAsiento(p, () => this.orm.call(
+            "aski.account.link", "set_seat_active", [p.id, true]));
+    }
+
+    anularInvitacion(p) {
+        return this._accionAsiento(p, () => this.orm.call(
+            "aski.account.link", "cancel_seat_invite", [p.id]));
+    }
+
+    /** Lo que se le pregunta antes de cortarle el acceso a alguien: CON su
+     *  correo delante, y diciendo que se puede devolver. */
+    get textoQuitarAsiento() {
+        const p = this.state.seatPorQuitar;
+        return p
+            ? String(_t("%s will stop being able to ask with this account. You can give the seat back whenever you want."))
+                .replace("%s", p.email || "")
+            : "";
+    }
+
+    async copiarEnlaceInvitacion() {
+        try {
+            await navigator.clipboard.writeText(this.state.invEnlace || "");
+            this.notification.add(_t("Link copied."), { type: "success" });
+        } catch {
+            // Sin portapapeles el enlace sigue a la vista para copiarlo a mano:
+            // no se molesta con un error por algo que no impide nada.
+        }
+    }
+
+    cerrarEquipo() {
+        this.state.equipoOpen = false;
+    }
+
+    async pedirMasCreditos() {
+        if (this.state.creditosPedidos) {
+            return;
+        }
+        try {
+            const r = await this.orm.call("aski.account.link", "request_more_credits", []);
+            this.state.creditosPedidos = true;
+            this.notification.add(
+                String(_t("We told %s.")).replace("%s", (r && r.owner_email) || ""),
+                { type: "success" });
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        }
+    }
+
+    get esAsiento() {
+        return !!(this.state.seat && this.state.seat.is_seat);
+    }
+
+    /** De quien es la cuenta en la que se sienta. */
+    get textoAsientoCuenta() {
+        const s = this.state.seat || {};
+        return String(_t("You are using the account of %s. Your plan and credits are handled by whoever pays for it."))
+            .replace("%s", s.owner_email || "");
+    }
+
+    /** Lo que lleva gastado, con su tope si lo tiene. */
+    get textoAsientoConsumo() {
+        const s = this.state.seat || {};
+        const usado = Number(s.credits_used) || 0;
+        const tope = Number(s.monthly_credit_cap);
+        if (isFinite(tope) && tope > 0) {
+            return String(_t("You have used %s of %s credits this period."))
+                .replace("%s", String(usado)).replace("%s", String(tope));
+        }
+        return String(_t("You have used %s credits this period."))
+            .replace("%s", String(usado));
+    }
+
+    /** La bolsa con el MISMO formato que el saldo de la cabecera: verla como
+     *  "60000" en un sitio y "60.000" en otro se lee como dos cifras distintas. */
+    get bolsaFmt() {
+        const e = this.state.equipo || {};
+        return this._agrupado(Number(e.pool_balance) || 0, 0);
+    }
+
+    get capacidadEquipo() {
+        return (this.state.equipo && this.state.equipo.capacity) || null;
+    }
+
+    /** Cuanto ocupa cada tramo de la barra. */
+    get pctAsientos() {
+        const c = this.capacidadEquipo || {};
+        const total = Math.max(1, Number(c.total) || 0);
+        return {
+            usados: Math.round(((Number(c.used) || 0) / total) * 100),
+            invitados: Math.round(((Number(c.invited) || 0) / total) * 100),
+        };
+    }
+
+    /** La leyenda, con PLURAL de verdad: "1 invitados" se lee mal y es el caso
+     *  mas comun, porque se invita de uno en uno. */
+    get leyendaAsientos() {
+        const c = this.capacidadEquipo || {};
+        const usados = Number(c.used) || 0;
+        const invitados = Number(c.invited) || 0;
+        const libres = Math.max(0, (Number(c.total) || 0) - usados - invitados);
+        return {
+            usados: usados === 1 ? String(_t("%s seat taken")).replace("%s", "1")
+                                 : String(_t("%s seats taken")).replace("%s", String(usados)),
+            invitados: invitados === 1 ? String(_t("%s invited")).replace("%s", "1")
+                                    : String(_t("%s people invited")).replace("%s", String(invitados)),
+            libres: libres === 1 ? String(_t("%s seat free")).replace("%s", "1")
+                              : String(_t("%s seats free")).replace("%s", String(libres)),
+        };
+    }
+
+    get textoCuotaPlan() {
+        const e = this.state.equipo || {};
+        if (!e.pool_total) {
+            return "";
+        }
+        return String(_t("plan quota: %s")).replace("%s", this._agrupado(Number(e.pool_total) || 0, 0));
+    }
+
+    get personasEquipo() {
+        return (this.state.equipo && this.state.equipo.seats) || [];
+    }
+
+    /** "de N", como en la app: la cifra grande es la ocupacion. */
+    get textoDeTotal() {
+        const c = this.capacidadEquipo || {};
+        return String(_t("of %s")).replace("%s", String(Number(c.total) || 0));
+    }
+
+    /** Lo que consume cada persona, o su estado si todavia no entra. */
+    subDePersona(p) {
+        if (p.status === "invited") {
+            return _t("Invited, not in yet");
+        }
+        if (p.status === "suspended") {
+            return _t("No seat right now");
+        }
+        const usado = Number(p.credits_used) || 0;
+        const tope = Number(p.monthly_credit_cap);
+        const texto = (isFinite(tope) && tope > 0)
+            ? String(_t("%s of %s credits this period"))
+                .replace("%s", String(usado)).replace("%s", String(tope))
+            : String(_t("%s credits this period")).replace("%s", String(usado));
+        // ⛔ El `_t()` FUERA de la plantilla literal: dentro de un `${...}` el
+        // extractor de Odoo no lo ve y la cadena nunca llega al catalogo. Salia
+        // "Account owner" en ingles en medio de una hoja en español.
+        const titular = _t("Account owner");
+        return p.is_owner ? titular + " · " + texto : texto;
+    }
+
+    /** A quien tiene sentido ofrecerle pedir un asiento estando YA conectado:
+     *  a quien su plan no le da equipo. Al titular de un plan con equipo no se le
+     *  ofrece — el asiento lo da el, no lo pide. */
+    get puedePedirAsiento() {
+        const c = this.capacidadEquipo;
+        return !this.esAsiento && !!c && !c.supported;
+    }
+
+    async openInsights() {
+        // Cierra el panel de detalle de debajo, como las demas ventanas: dejarlo
+        // abierto deja dos hojas apiladas y la de abajo se ve por los bordes.
+        this.state.detailFor = null;
+        this.state.insightsOpen = true;
+        await this._cargarAvisos();
+    }
+
+    closeInsights() {
+        this.state.insightsOpen = false;
+        this.state.insightNewFor = null;
+    }
+
+    // ------------------------------------------------------------------
+    //  El catalogo: que puede vigilar, recordar y hacer
+    // ------------------------------------------------------------------
+    //
+    // ⛔ Existe porque la hoja ofrecia "vigilar una cifra" sin decir en ningun
+    // sitio QUE cifras, y la seccion de acciones nombraba dos verbos cuando ya
+    // hay diez. Quien no sabe que algo existe no lo usa nunca. Android y la web
+    // ya lo ensenan; el conector se habia quedado atras.
+    //
+    // ⛔ Y se lee del backend, no se escribe aqui: se deriva de los MISMOS
+    // registros que ejecutan, asi que si algo se lista es porque existe, y un
+    // tema nuevo aparece sin publicar version del modulo.
+
+    async abrirCatalogo(foco) {
+        this.state.catFoco = foco || "watch";
+        // Dos hojas apiladas dejan ver la de abajo por los bordes, que es lo que
+        // ya evita `openInsights` con el panel de detalle. Se recuerda de donde
+        // se vino para devolver ahi al cerrar, en vez de dejar al usuario en el
+        // chat pelado despues de mirar el catalogo.
+        this.state.catVengoDeAvisos = this.state.insightsOpen;
+        this.state.insightsOpen = false;
+        this.state.catOpen = true;
+        // Ya cargado: no se vuelve a pedir. El catalogo no cambia entre dos
+        // aperturas seguidas y volver a esperar por lo mismo se nota.
+        //
+        // ⛔ Solo se cachea lo que llego BIEN. Guardando tambien el fallo, un
+        // corte de red dejaba "no se pudo leer el catalogo" pegado para siempre:
+        // cerrar y abrir no reintentaba y solo se salia recargando la pagina.
+        if (this.state.catCargando) return;
+        if (this.state.catAvisos && this.state.catAvisos.ok) return;
+        this.state.catCargando = true;
+        try {
+            const [avisos, acciones] = await Promise.all([
+                this.orm.call("aski.account.link", "insights_catalog", []),
+                this.orm.call("aski.account.link", "actions_catalog", []),
+            ]);
+            this.state.catAvisos = avisos || { ok: false, groups: [] };
+            this.state.catAcciones = acciones || { ok: false, groups: [] };
+        } catch (e) {
+            this.state.catAvisos = { ok: false, groups: [] };
+            this.state.catAcciones = { ok: false, groups: [] };
+        } finally {
+            this.state.catCargando = false;
+        }
+    }
+
+    cerrarCatalogo() {
+        this.state.catOpen = false;
+        if (this.state.catVengoDeAvisos) {
+            this.state.catVengoDeAvisos = false;
+            this.state.insightsOpen = true;
+        }
+    }
+
+    // Los grupos de avisos, partidos por lado. El backend los sirve juntos y
+    // cada seccion ensena el suyo: las cifras en Vigias, los registros en
+    // Avisos. Un grupo cuyos items son todos del otro lado no se pinta.
+    _gruposAviso(kind) {
+        const gs = (this.state.catAvisos && this.state.catAvisos.groups) || [];
+        return gs
+            .map((g) => ({ ...g, items: (g.items || []).filter((i) => i.kind === kind) }))
+            .filter((g) => g.items.length);
+    }
+
+    get gruposVigia() {
+        return this._gruposAviso("watch");
+    }
+
+    get gruposRecordatorio() {
+        return this._gruposAviso("reminder");
+    }
+
+    get gruposAccion() {
+        return (this.state.catAcciones && this.state.catAcciones.groups) || [];
+    }
+
+    get catVacio() {
+        return (
+            !this.state.catCargando &&
+            !this.gruposVigia.length &&
+            !this.gruposRecordatorio.length &&
+            !this.gruposAccion.length
+        );
+    }
+
+    // "12 de 37 van en esta conexion". Se dice con las dos cifras o no se dice:
+    // solo el total invita a creer que todo aplica, y no es asi —lo que sostiene
+    // una instancia depende de sus modulos.
+    _cuenta(cat) {
+        if (!cat || !cat.ok) return "";
+        const total = cat.total || 0;
+        if (!total) return "";
+        if (cat.available === null || cat.available === undefined) return String(total);
+        return `${cat.available} / ${total}`;
+    }
+
+    get cuentaAvisos() {
+        return this._cuenta(this.state.catAvisos);
+    }
+
+    get cuentaAcciones() {
+        return this._cuenta(this.state.catAcciones);
+    }
+
+    async _cargarAvisos() {
+        this.state.insightsLoading = true;
+        this.state.insightsErr = false;
+        try {
+            const r = await this.orm.call("aski.account.link", "list_insights", []);
+            this.state.insights = r.insights || [];
+            this.state.insightLimit = r.alert_limit ?? null;
+            this.state.insightUsed = r.alert_used || 0;
+            this.state.insightPorPersona = r.by_person || [];
+            this.state.insightsErr = !r.ok;
+        } catch {
+            this.state.insightsErr = true;
+        } finally {
+            this.state.insightsLoading = false;
+        }
+    }
+
+    async toggleInsight(f) {
+        if (this.state.insightBusy) {
+            return;
+        }
+        this.state.insightBusy = f.id;
+        try {
+            await this.orm.call("aski.account.link", "set_insight_enabled",
+                                [f.id, !f.enabled]);
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.insightBusy = null;
+        }
+    }
+
+    async reanudarAviso(f) {
+        this.state.insightBusy = f.id;
+        try {
+            await this.orm.call("aski.account.link", "resume_insight", [f.id]);
+            this.notification.add(_t("Alert resumed."), { type: "success" });
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.insightBusy = null;
+        }
+    }
+
+    async borrarAviso(f) {
+        this.state.insightBusy = f.id;
+        try {
+            await this.orm.call("aski.account.link", "delete_insight", [f.id]);
+            this.notification.add(_t("Alert removed."), { type: "success" });
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.insightBusy = null;
+        }
+    }
+
+    // El alta nace de una respuesta que Aski YA resolvio: se guarda esa consulta
+    // y el aviso la repite cada dia sin volver a pensarla. Por eso el boton vive
+    // en la burbuja y no en un formulario en blanco.
+    abrirAltaAviso(m) {
+        // ⛔ CIERRA el panel de detalle antes de abrir la hoja del aviso. Sin
+        // esto quedaban dos hojas apiladas: la nueva salia por DEBAJO de la que
+        // ya estaba y parecia que el boton no habia hecho nada. Es la misma
+        // regla que siguen el resto de ventanas del widget.
+        this.state.detailFor = null;
+        this.state.insightNewFor = m;
+        this.state.insightHour = 8;
+        this.state.insightFreq = "daily";
+        this.state.insightsOpen = true;
+    }
+
+    async guardarAviso() {
+        const m = this.state.insightNewFor;
+        if (!m || this.state.insightSaving) {
+            return;
+        }
+        this.state.insightSaving = true;
+        try {
+            await this.orm.call("aski.account.link", "create_insight", [{
+                kind: "alert",
+                title: (this._preguntaDe(m) || _t("Alert")).slice(0, 120),
+                prompt: this._preguntaDe(m),
+                message_id: m.backendId,
+                frequency: this.state.insightFreq,
+                send_hour_local: Number(this.state.insightHour) || 8,
+            }]);
+            this.state.insightNewFor = null;
+            this.notification.add(
+                _t("Saved. It will land in your Odoo inbox."), { type: "success" });
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.insightSaving = false;
+        }
+    }
+
+    // -----------------------------------------------------------------
+    //  Los otros tres tipos de aviso
+    // -----------------------------------------------------------------
+    // ⛔ Las etiquetas son las MISMAS que la app y la web, copiadas de sus
+    // catalogos. Tres nombres distintos para el mismo aviso segun donde lo mires
+    // es lo que hace que nadie se fie de lo que lee.
+
+    /** El aviso de ese tipo que ya existe en esta conexion, si lo hay. El resumen
+     *  y el cierre son unicos: se encienden y se apagan, no se crean dos. */
+    _avisoDe(kind) {
+        return (this.state.insights || []).find((f) => f.kind === kind) || null;
+    }
+
+    /** La frecuencia con la MISMA palabra que la app (`insights_freq_*`). La fila
+     *  enseñaba el valor crudo del backend ("daily"): ni traducido, ni lo que el
+     *  usuario habia leido al crear el aviso. */
+    etiquetaFrecuencia(f) {
+        return {
+            daily: _t("Every day"),
+            weekdays: _t("Monday to Friday"),
+            weekly: _t("Once a week"),
+        }[f.frequency] || f.frequency;
+    }
+
+    /** La lista de abajo, SIN el resumen ni el cierre: esos dos son los
+     *  interruptores de arriba y repetirlos era ruido. */
+    get avisosListados() {
+        return (this.state.insights || []).filter(
+            (f) => f.kind !== "digest" && f.kind !== "closing");
+    }
+
+    /** "Hoy: <valor>" en UNA cadena, como en la app: partirla en dos nodos deja
+     *  la mitad fuera del catalogo y sin traducir. */
+    get textoHoy() {
+        const m = this.metricaElegida;
+        return m ? String(_t("Today: %s")).replace("%s", m.value) : "";
+    }
+
+    get resumenDiario() { return this._avisoDe("digest"); }
+    get cierreDelDia() { return this._avisoDe("closing"); }
+
+    async _alternarFijo(kind) {
+        if (this.state.insightBusy) {
+            return;
+        }
+        const fila = this._avisoDe(kind);
+        this.state.insightBusy = fila ? fila.id : -1;
+        try {
+            if (fila) {
+                await this.orm.call("aski.account.link", "set_insight_enabled",
+                                    [fila.id, !fila.enabled]);
+            } else {
+                await this.orm.call("aski.account.link", "create_insight", [{
+                    kind,
+                    // La hora por defecto la eligen igual la app y la web: 8 para
+                    // el resumen, 18 para el cierre. Cambiarla es un toque.
+                    send_hour_local: kind === "closing" ? 18 : 8,
+                    frequency: "daily",
+                }]);
+            }
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.insightBusy = null;
+        }
+    }
+
+    alternarResumen() { return this._alternarFijo("digest"); }
+    alternarCierre() { return this._alternarFijo("closing"); }
+
+    async abrirVigia() {
+        this.state.newKind = "watch";
+        this.state.catalogoCargando = true;
+        this.state.watchMetric = "";
+        this.state.watchOp = ">";
+        this.state.watchValue = "";
+        try {
+            const r = await this.orm.call("aski.account.link", "watch_metrics", []);
+            this.state.metricas = r.metrics || [];
+            if (this.state.metricas.length) {
+                this.state.watchMetric = this.state.metricas[0].id;
+            }
+        } catch {
+            this.state.metricas = [];
+        } finally {
+            this.state.catalogoCargando = false;
+        }
+    }
+
+    async abrirRecordatorio() {
+        this.state.newKind = "reminder";
+        this.state.catalogoCargando = true;
+        this.state.remTopic = "";
+        this.state.remDays = 3;
+        try {
+            const r = await this.orm.call("aski.account.link", "reminder_topics", []);
+            this.state.temas = r.topics || [];
+            if (this.state.temas.length) {
+                this.state.remTopic = this.state.temas[0].id;
+            }
+        } catch {
+            this.state.temas = [];
+        } finally {
+            this.state.catalogoCargando = false;
+        }
+    }
+
+    cerrarAlta() {
+        this.state.newKind = null;
+        this.state.insightNewFor = null;
+    }
+
+    /** La metrica elegida, para poder enseñar su valor de hoy junto al umbral: sin
+     *  eso, el numero que se teclea no tiene contra que compararse. */
+    get metricaElegida() {
+        return (this.state.metricas || []).find((m) => m.id === this.state.watchMetric) || null;
+    }
+
+    get esVariacion() {
+        return ["%>", "%<"].includes(this.state.watchOp);
+    }
+
+    /** La unidad del umbral, pegada al campo. Sin esto se teclea un numero a
+     *  secas contra una cifra que puede venir en dolares, en soles o en dias. */
+    get sufijoLimite() {
+        if (this.esVariacion) {
+            return "%";
+        }
+        const m = this.metricaElegida;
+        if (!m) {
+            return "";
+        }
+        if (m.unit === "pct") {
+            return "%";
+        }
+        if (m.unit === "days") {
+            return _t("days");
+        }
+        // La moneda la decide el BACKEND por metrica; el widget no la adivina ni
+        // la trae de la compania, que puede no ser la de la cifra.
+        return m.currency || "";
+    }
+
+    /** Aviso cuando la cifra se enseña en VARIAS monedas.
+     *
+     *  El backend manda `value` ya formateado con todas ("$ … · S/ … · € …") pero
+     *  `value_num` —y por tanto la comparacion— va en UNA sola, la de `currency`.
+     *  Callarlo lleva a poner un limite pensando en la moneda equivocada. */
+    get avisoMoneda() {
+        if (this.esVariacion) {
+            return "";
+        }
+        const m = this.metricaElegida;
+        if (!m || m.unit !== "money" || !m.currency) {
+            return "";
+        }
+        if (!String(m.value || "").includes("·")) {
+            return "";
+        }
+        return String(_t("This figure comes in several currencies. The limit is compared against %s."))
+            .replace("%s", m.currency);
+    }
+
+    async guardarVigia() {
+        const valor = parseFloat(String(this.state.watchValue).replace(",", "."));
+        if (!this.state.watchMetric || !isFinite(valor)) {
+            this.notification.add(_t("Enter a number"), { type: "warning" });
+            return;
+        }
+        this.state.insightSaving = true;
+        try {
+            const m = this.metricaElegida;
+            await this.orm.call("aski.account.link", "create_insight", [{
+                kind: "watch",
+                title: (m && m.label) || _t("New watch"),
+                watch_metric: this.state.watchMetric,
+                watch_op: this.state.watchOp,
+                watch_value: valor,
+                watch_currency: (m && m.currency) || "",
+                frequency: "daily",
+                send_hour_local: 8,
+            }]);
+            this.state.newKind = null;
+            this.notification.add(_t("Saved. It will land in your Odoo inbox."),
+                                  { type: "success" });
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.insightSaving = false;
+        }
+    }
+
+    async guardarRecordatorio() {
+        const dias = parseInt(this.state.remDays, 10);
+        if (!this.state.remTopic || !isFinite(dias) || dias < 0 || dias > 365) {
+            this.notification.add(_t("A whole number between 0 and 365"),
+                                  { type: "warning" });
+            return;
+        }
+        this.state.insightSaving = true;
+        try {
+            const t = (this.state.temas || []).find((x) => x.id === this.state.remTopic);
+            await this.orm.call("aski.account.link", "create_insight", [{
+                kind: "reminder",
+                title: (t && t.label) || _t("New reminder"),
+                reminder_topic: this.state.remTopic,
+                reminder_days: dias,
+                frequency: "daily",
+                send_hour_local: 8,
+            }]);
+            this.state.newKind = null;
+            this.notification.add(_t("Saved. It will land in your Odoo inbox."),
+                                  { type: "success" });
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.insightSaving = false;
+        }
+    }
+
+    // La pregunta que dio pie a la respuesta: es el mensaje de usuario anterior.
+    // Sin ella el aviso no tiene que repetir.
+    _preguntaDe(m) {
+        const i = this.state.messages.indexOf(m);
+        for (let k = i - 1; k >= 0; k--) {
+            if (this.state.messages[k].role === "user") {
+                // ⛔ El campo es `text`. Buscar `content` devolvia SIEMPRE vacio:
+                // el alta salia sin la pregunta arriba y el backend la rechazaba
+                // con «una alerta necesita su pregunta». Es decir, programar una
+                // respuesta desde el conector no funciono nunca. Se aceptan los
+                // dos nombres por si algun dia llega un mensaje de otra forma.
+                const q = this.state.messages[k];
+                return q.text || q.content || "";
+            }
+        }
+        return "";
+    }
+
+    // =====================================================================
+    //  Acciones sobre el ERP
+    // =====================================================================
+    async _cargarAcciones() {
+        try {
+            const r = await this.orm.call("aski.account.link", "list_actions", []);
+            this.state.actions = r.actions || [];
+            this.state.actionsEnabled = !!r.feature_enabled;
+            this.state.actionsModeOk = r.mode_ok !== false;
+        } catch {
+            this.state.actions = [];
+        }
+    }
+
+    // Confirmar SIEMPRE pregunta antes, y la pregunta es in-app: nunca
+    // window.confirm. Lo que se ejecuta escribe en el ERP de verdad.
+    pedirConfirmacion(a) {
+        this.state.confirmActionId = a.id;
+    }
+
+    cancelarConfirmacion() {
+        this.state.confirmActionId = null;
+    }
+
+    async confirmarAccion(a) {
+        if (this.state.actionBusy) {
+            return;
+        }
+        this.state.actionBusy = a.id;
+        this.state.confirmActionId = null;
+        try {
+            const r = await this.orm.call("aski.account.link", "confirm_action", [a.id]);
+            this.notification.add(r.result_message || _t("Done."), { type: "success" });
+            await this._cargarAcciones();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.actionBusy = null;
+        }
+    }
+
+    async descartarAccion(a) {
+        this.state.actionBusy = a.id;
+        try {
+            await this.orm.call("aski.account.link", "cancel_action", [a.id]);
+            await this._cargarAcciones();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.actionBusy = null;
+        }
+    }
     _scrollToBottom() {
         requestAnimationFrame(() => {
             const el = this.messagesRef.el;
@@ -1976,6 +3106,7 @@ class AskiChatWidget extends Component {
         });
     }
 }
+
 AskiChatWidget.template = "aski_connector.ChatWidget";
 
 return { AskiChatWidget: AskiChatWidget };

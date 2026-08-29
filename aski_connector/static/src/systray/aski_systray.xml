@@ -3,10 +3,23 @@
     <t t-name="aski_connector.Systray" owl="1">
         <div t-if="state.canUse" class="ac-systray">
             <button class="ac-systray-btn" t-on-click="toggle" title="Aski - ask your Odoo">
-                <span class="ac-mark--systray"><t t-call="aski_connector.AskiMark"/></span>
+                <!-- ⛔ Marca PROPIA, no la compartida `AskiMark`. Esa apunta al
+                     maestro de 512px, y reducirlo a 20 en el navegador deshace el
+                     trazo fino de la onda: se ve sucia al lado de los glifos
+                     limpios de la barra. Aqui se sirven las medidas ya hechas con
+                     un filtro bueno y el navegador solo elige. La compartida se
+                     queda igual para la cabecera (30px) y el vacio (66px), donde
+                     el maestro si luce. -->
+                <span class="ac-mark--systray">
+                    <img class="ac-mark-img" alt="Aski"
+                         src="/aski_connector/static/src/img/aski_mark_20.png"
+                         srcset="/aski_connector/static/src/img/aski_mark_20.png 1x,
+                                 /aski_connector/static/src/img/aski_mark_40.png 2x,
+                                 /aski_connector/static/src/img/aski_mark_60.png 3x"/>
+                </span>
             </button>
             <div t-if="state.open" class="ac-floating-panel" t-att-class="state.minimized ? 'minimized' : ''">
-                <AskiChatWidget minimized="state.minimized" onMinimize="onMinimize" onClose="onClose"/>
+                <AskiChatWidget minimized="state.minimized" onMinimize="() => this.minimize()" onClose="() => this.close()"/>
             </div>
         </div>
     </t>

@@ -8,13 +8,24 @@
     // dorada (misma identidad que el icono/app). Las barras usan `background`
     // y NO llevan clase `.fa`, asi que sobreviven a la regla del navbar que
     // fuerza `color:#fff` en `.o_main_navbar .fa`.
+    // Medido en la propia barra, no a ojo: el item de mensajes de Odoo que tiene
+    // al lado ocupa 41x46 con 4.41px de padding a cada lado y un glifo de 16x18;
+    // el avatar del usuario, 26. Aski estaba con una marca de 30 —casi el doble
+    // que sus vecinos— y con ancho fijo, asi que ni el tamaño ni la separacion
+    // seguian la barra. Se iguala el padding y se baja la marca a 20: un cuadrado
+    // relleno pesa mas a la vista que un glifo fino del mismo alto.
     .ac-systray-btn {
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 42px;
-        height: 42px;
+        width: auto;
+        height: 100%;
+        // Asimetrico a proposito: el hueco por la IZQUIERDA es la suma de su
+        // padding y el del vecino, asi que con 6px a los dos lados la marca
+        // quedaba descolgada del grupo. 2px por la izquierda la pega a las
+        // actividades; 6px por la derecha la separan del nombre de la empresa.
+        padding: 0 6px 0 2px;
         border: 0;
         background: transparent;
         color: inherit;
@@ -27,10 +38,14 @@
         // el launcher del celular). Ver el comentario en aski_chat.scss.
         .ac-mark--systray {
             position: relative;
-            width: 30px; height: 30px;
+            width: 20px; height: 20px;
             border-radius: 26%;
             background: #152642;
-            box-shadow: 0 2px 8px rgba(10, 18, 36, .38);
+            // ⛔ SIN sombra a este tamaño. A 30px disimulaba, pero a 20 el halo
+            // oscuro se come el borde del squircle contra el granate de la barra
+            // y la marca se ve sucia, "de baja calidad". El fichero es de 512px,
+            // asi que no es falta de resolucion: era la sombra. El resalte al
+            // pasar el raton se queda, que ese si informa.
             transition: box-shadow .16s ease;
             .ac-mark-img { width: 100%; height: 100%; border-radius: 26%; object-fit: cover; display: block; }
         }
@@ -97,37 +112,5 @@
     @keyframes ac-pop-in {
         from { opacity: 0; transform: translateY(16px) scale(.98); }
         to { opacity: 1; transform: none; }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// ODOO 14 — altura de la pantalla completa (accion cliente legacy).
-// ---------------------------------------------------------------------------
-// El AbstractAction legacy NO le da altura util al contenedor donde se monta el
-// componente: el `height:100%` de .aski-chat no resuelve contra nada y el chat
-// salia a MEDIA PANTALLA (medido: contenedor 854px, chat 427px), con el header
-// flotando en el aire. En 16-19 la accion cliente de wowl ya estira al hijo.
-// Aqui se estira a mano: contenedor en columna con altura completa y el chat
-// como unico item flexible.
-.o_action.o_aski_chat_action {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-
-    // `.o_content` es el area de contenido que ya trae el AbstractAction; el
-    // chat se monta DENTRO de ella (ver aski_systray.js).
-    > .o_content {
-        flex: 1 1 auto;
-        min-height: 0;   // sin esto un item flex no puede encoger y desborda
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .aski-chat {
-        flex: 1 1 auto;
-        min-height: 0;
-        height: auto;    // anula el height:100%, que aqui no resuelve
     }
 }
