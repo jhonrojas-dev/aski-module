@@ -2701,3 +2701,91 @@ msgstr "We konden je stoelen nu niet lezen."
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "and %s more"
 msgstr "en nog %s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s gets it in their panel and turns it on."
+msgstr "%s krijgt het in hun paneel en zet het aan."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Add seats on the web"
+msgstr "Stoelen toevoegen op het web"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for a plan change"
+msgstr "Een abonnementswijziging vragen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for a top-up"
+msgstr "Een bijvulling vragen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for more seats"
+msgstr "Meer stoelen vragen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Change limits"
+msgstr "Limieten wijzigen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "How many credits do you need?"
+msgstr "Hoeveel credits heb je nodig?"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Leave it empty for no cap. With no cap, one person can spend the whole team "
+"pot."
+msgstr ""
+"Laat het leeg voor geen limiet. Zonder limiet kan één persoon de hele "
+"teampot opmaken."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Reading the plans…"
+msgstr "Abonnementen lezen…"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Reading the top-ups…"
+msgstr "Bijvullingen lezen…"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Seats requested"
+msgstr "Stoelen aangevraagd"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Which plan do you want?"
+msgstr "Welk abonnement wil je?"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "cr"
+msgstr "cr"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "· requested"
+msgstr "· aangevraagd"
