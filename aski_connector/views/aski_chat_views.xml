@@ -133,6 +133,18 @@
                     <group>
                         <field name="access_mode"/>
                     </group>
+                    <!-- Se dice ANTES de tocar el desplegable, no solo al
+                         cambiarlo: quien lo lee aqui ya sabe a que atenerse. -->
+                    <div class="alert alert-warning" role="alert">
+                        <b>Changing the access mode closes every Aski connection in this database</b>, yours included. Each mode grants a different level of access, so nobody keeps the one they were given under the previous mode - otherwise they would keep reaching this Odoo from the Aski app after the change. Everyone connects again afterwards.
+                    </div>
+                    <!-- Los asientos y QUIEN de este Odoo esta esperando uno.
+                         La demanda ya esta medida aqui dentro: quien la mira es
+                         justo quien puede resolverla, sin salir a otra pantalla. -->
+                    <div class="alert alert-secondary" role="alert"
+                         invisible="not seats_summary_html">
+                        <field name="seats_summary_html" nolabel="1" readonly="1"/>
+                    </div>
                     <div class="alert alert-info" role="alert" invisible="access_mode != 'per_user'">
                         <b>Per user:</b> each internal user connects their own Aski account from the chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what their own Odoo user can see, and each person spends their own credits - nothing else to set up here.
                     </div>
@@ -156,7 +168,7 @@
                         See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_billing" target="_blank">app.aski.dev/billing</a>.
                     </div>
                     <div class="text-muted" style="margin-top:8px;" invisible="not partner_managed">
-                        Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.
+                        Your Aski plan and credits are managed by your partner - contact them for plan changes or top-ups.
                     </div>
                 </sheet>
                 <footer>

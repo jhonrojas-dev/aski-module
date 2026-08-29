@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Categoria propia para que el grupo aparezca como su propia seccion en
-         Ajustes > Usuarios (una casilla asignable), no perdido entre "Otros". -->
+    <!-- Categoria propia para agrupar el grupo en Ajustes > Usuarios. -->
     <record id="module_category_aski" model="ir.module.category">
         <field name="name">Aski</field>
         <field name="sequence">90</field>
     </record>
+
 
     <!-- Grupo EXCLUSIVO para usar el chat de Aski dentro de Odoo.
          El chat lee a traves de la conexion COMPARTIDA (el token del admin), asi
