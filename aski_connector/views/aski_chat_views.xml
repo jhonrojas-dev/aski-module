@@ -133,6 +133,13 @@
                     <group>
                         <field name="access_mode"/>
                     </group>
+                    <!-- Los asientos y QUIEN de este Odoo esta esperando uno.
+                         La demanda ya esta medida aqui dentro: quien la mira es
+                         justo quien puede resolverla, sin salir a otra pantalla. -->
+                    <div class="alert alert-secondary" role="alert"
+                         invisible="not seats_summary_html">
+                        <field name="seats_summary_html" nolabel="1" readonly="1"/>
+                    </div>
                     <div class="alert alert-info" role="alert" invisible="access_mode != 'per_user'">
                         <b>Per user:</b> each internal user connects their own Aski account from the chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what their own Odoo user can see, and each person spends their own credits - nothing else to set up here.
                     </div>

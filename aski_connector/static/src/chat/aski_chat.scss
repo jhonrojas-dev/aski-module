@@ -107,8 +107,23 @@
         position: absolute; top: 0; left: 0; bottom: 0; width: 86%; max-width: 300px;
         background: var(--ac-surface); z-index: 11; box-shadow: 0 8px 40px rgba(10, 18, 36, .22);
         border-right: 1px solid var(--ac-outline-soft);
-        display: flex; flex-direction: column; overflow-y: auto; padding: 12px 10px;
+        // ⛔ El cajon NO scrollea: scrollea la LISTA. Con `overflow-y: auto`
+        // aqui, veinte hilos empujaban fuera de pantalla la cuenta conectada y
+        // «Desconectar», y los destinos de arriba se iban con ellos. Lo que se
+        // mueve es el historial; los menus se quedan.
+        display: flex; flex-direction: column; overflow: hidden; padding: 12px 10px;
         animation: ac-slide-in .2s ease-out;
+    }
+    .ac-drawer-list {
+        flex: 1; min-height: 0; overflow-y: auto;
+        // Un poco de aire abajo para que el ultimo hilo no quede pegado al pie.
+        padding-bottom: 6px;
+    }
+    // Los destinos fijos, separados del historial por una linea: son otra cosa.
+    .ac-drawer-dest {
+        flex: none; display: flex; flex-direction: column; gap: 2px;
+        padding-bottom: 8px; margin-bottom: 6px;
+        border-bottom: 1px solid var(--ac-outline-soft);
     }
     .ac-drawer-head {
         font-size: 15px; font-weight: 800; color: var(--ac-on-surface) !important; padding: 6px 8px 10px;
@@ -1322,7 +1337,266 @@
         .ac-start-skel-row { animation: none; }
     }
     @keyframes ac-modal-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+
+    // =================================================================
+    //  Asiento de equipo, acciones sobre el ERP y avisos programados
+    // =================================================================
+    // Se apoyan en los tokens y en las clases que ya existen (`.ac-sheet*`,
+    // `.ac-drawer-empty`, `.ac-btn-primary`): una ventana nueva con otro aspecto
+    // se leeria como otra aplicacion metida dentro de esta.
+
+    // El "ya se pidio" del asiento, debajo del boton de la pantalla vacia.
+    .ac-seat-done {
+        margin-top: 8px; font-weight: 600;
+        color: var(--ac-navy) !important;
+    }
+
+    // Botones secundarios. El fantasma es para lo reversible; el rojo, SOLO para
+    // lo que escribe en el ERP: si todo se pinta igual, confirmar un cobro se
+    // parece a cerrar un panel.
+    .ac-btn-ghost {
+        margin-top: 8px; padding: 9px 14px; border-radius: 10px; cursor: pointer;
+        border: 1px solid var(--ac-outline-soft); background: transparent;
+        color: var(--ac-on-variant) !important; font-size: 13px; font-weight: 600;
+        &:hover:not(:disabled) { background: var(--ac-surface-variant); }
+        &:disabled { opacity: .6; cursor: default; }
+    }
+    .ac-btn-ghost-sm {
+        padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 12px;
+        border: 1px solid var(--ac-outline-soft); background: transparent;
+        color: var(--ac-on-variant) !important; font-weight: 600;
+        &:hover:not(:disabled) { background: var(--ac-surface-variant); }
+        &:disabled { opacity: .6; cursor: default; }
+    }
+    .ac-btn-primary-sm {
+        padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 12px;
+        border: 0; background: var(--ac-navy); color: #fff !important; font-weight: 700;
+        &:hover:not(:disabled) { background: var(--ac-navy-dark); }
+        &:disabled { opacity: .6; cursor: default; }
+    }
+    .ac-btn-danger {
+        padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 12px;
+        border: 0; background: #B3261E; color: #fff !important; font-weight: 700;
+        &:hover:not(:disabled) { filter: brightness(1.08); }
+        &:disabled { opacity: .6; cursor: default; }
+    }
+
+    // Acciones pendientes: pegadas al compositor, con banda de color propia para
+    // que no se confundan con una respuesta mas.
+    .ac-actions {
+        display: flex; flex-direction: column; gap: 8px;
+        margin: 0 0 8px; padding: 0 2px;
+    }
+    .ac-action {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; flex-wrap: wrap;
+        padding: 9px 12px; border-radius: 12px;
+        background: var(--ac-surface-variant);
+        border-left: 3px solid var(--ac-gold, #E8C058);
+    }
+    .ac-action-txt {
+        display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;
+        font-size: 13px; color: var(--ac-on-surface) !important;
+        i { color: var(--ac-navy) !important; opacity: .85; }
+        span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
+    .ac-action-btns, .ac-action-confirm {
+        display: flex; align-items: center; gap: 8px; flex: none;
+    }
+    .ac-action-confirm span {
+        font-size: 12px; font-weight: 700; color: var(--ac-on-surface) !important;
+    }
+
+    // Avisos programados dentro de la hoja.
+    .ac-ins-new {
+        display: flex; flex-direction: column; gap: 10px;
+        padding: 12px; margin-bottom: 12px; border-radius: 12px;
+        background: var(--ac-surface-variant);
+    }
+    .ac-ins-q {
+        font-size: 13px; font-weight: 700; line-height: 1.35;
+        color: var(--ac-on-surface) !important;
+    }
+    .ac-ins-row, .ac-ins-campo {
+        display: flex; align-items: center; gap: 10px;
+        label { font-size: 12px; color: var(--ac-on-variant) !important; min-width: 68px; }
+        // ⛔ `select` Y `input` con el MISMO trato. El input se habia quedado sin
+        // estilo y salia con el borde de fabrica del navegador: una caja negra
+        // cuadrada al lado de un desplegable redondeado, en el mismo formulario.
+        select, input {
+            flex: 1; width: 100%; min-width: 0; height: 34px;
+            padding: 0 10px; border-radius: 9px; font-size: 13px;
+            border: 1px solid var(--ac-outline-soft); background: var(--ac-surface);
+            color: var(--ac-on-surface) !important;
+            transition: border-color .14s ease, box-shadow .14s ease;
+            &:focus, &:focus-visible {
+                outline: 0;
+                border-color: var(--ac-navy);
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac-navy) 14%, transparent);
+            }
+            &::placeholder { color: var(--ac-on-variant) !important; opacity: .75; }
+        }
+        select { appearance: none; padding-right: 28px;
+            // Flecha propia: sin `appearance:none` cada navegador pone la suya y
+            // el alto no coincide con el del input de al lado.
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center;
+            background-size: 10px 7px;
+        }
+        // El campo con su unidad pegada: un umbral sin moneda no significa nada
+        // cuando la cifra viene en tres.
+        .ac-ins-field {
+            flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0;
+            // ⛔ Dentro del campo el input NO va al 100%: con un sufijo al lado,
+            // ese ancho lo desborda y la unidad («créditos») cae a la linea de
+            // abajo, como si fuera otra cosa.
+            input, select { width: auto; flex: 1; min-width: 0; }
+        }
+        .ac-ins-suf {
+            flex: none; font-size: 12px; font-weight: 700;
+            color: var(--ac-on-variant) !important;
+            background: var(--ac-surface); border: 1px solid var(--ac-outline-soft);
+            border-radius: 8px; padding: 4px 9px; line-height: 1.2;
+        }
+    }
+    // ⛔ Etiqueta ARRIBA y campo a lo ancho. Con la etiqueta a la izquierda,
+    // todos los campos quedaban escorados a la derecha y de anchos distintos
+    // segun lo larga que fuera su etiqueta: se leia como una tabla, no como un
+    // formulario. Es el mismo orden que usan la app y la web.
+    .ac-ins-campo {
+        flex-direction: column; align-items: stretch; gap: 6px;
+        label { min-width: 0; font-size: 12px; font-weight: 600;
+                color: var(--ac-on-variant) !important; }
+    }
+    // Dos opciones se enseñan, no se esconden detras de un desplegable.
+    .ac-chips { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+    .ac-chip {
+        border: 1px solid var(--ac-outline-soft); background: var(--ac-surface);
+        color: var(--ac-on-surface) !important;
+        border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+        cursor: pointer; transition: background .14s ease, border-color .14s ease;
+        &:hover { border-color: var(--ac-navy); }
+        &.on {
+            background: var(--ac-primary-container);
+            border-color: var(--ac-primary-container);
+            color: var(--ac-on-primary-container) !important;
+        }
+    }
+    .ac-ins-note { font-size: 11.5px; color: var(--ac-on-variant) !important; }
+
+    // --- Mi equipo -------------------------------------------------------
+    // Mismo lenguaje que la tarjeta de resumen de la app y de la web: la cifra
+    // grande manda, el resto acompaña.
+    .ac-team-seat {
+        display: flex; flex-direction: column; gap: 6px;
+        padding: 12px; margin-bottom: 12px; border-radius: 12px;
+        background: var(--ac-surface-variant);
+    }
+    // La MISMA tarjeta que la app y la web: rotulo pequeño, la cifra grande, la
+    // barra por tramos y la leyenda. Un "0 de 3" suelto no dice si el hueco esta
+    // libre o invitado, que es lo que se viene a mirar.
+    .ac-team-cap {
+        display: flex; flex-direction: column; gap: 10px;
+        padding: 14px; margin-bottom: 14px; border-radius: 14px;
+        background: var(--ac-primary-container);
+    }
+    .ac-team-cap-top {
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .ac-team-rotulo {
+        display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .02em;
+        color: var(--ac-on-primary-container) !important; opacity: .75; margin-bottom: 2px;
+    }
+    .ac-team-cifra {
+        b { font-size: 32px; font-weight: 800; line-height: 1;
+            color: var(--ac-on-primary-container) !important; }
+        small { font-size: 13px; margin-left: 5px;
+                color: var(--ac-on-primary-container) !important; opacity: .8; }
+    }
+    .ac-team-bolsa {
+        display: flex; flex-direction: column; align-items: flex-end; gap: 1px;
+        small { font-size: 11.5px; color: var(--ac-on-primary-container) !important; opacity: .8; }
+        b { font-size: 19px; font-weight: 800; line-height: 1.1;
+            color: var(--ac-on-primary-container) !important; }
+    }
+    .ac-team-barra {
+        display: flex; height: 7px; border-radius: 999px; overflow: hidden;
+        background: color-mix(in srgb, var(--ac-on-primary-container) 16%, transparent);
+        i { display: block; height: 100%; }
+        .b-used { background: var(--ac-navy); }
+        // El tramo INVITADO se distingue del ocupado: es sitio comprometido pero
+        // todavia no usado, y confundirlos hace creer que no queda hueco.
+        .b-inv { background: color-mix(in srgb, var(--ac-navy) 42%, transparent); }
+    }
+    .ac-team-leyenda {
+        display: flex; flex-wrap: wrap; gap: 12px; font-size: 11.5px;
+        color: var(--ac-on-primary-container) !important;
+        span { display: inline-flex; align-items: center; gap: 5px; }
+    }
+    .ac-team-dot {
+        width: 7px; height: 7px; border-radius: 999px; display: inline-block;
+        background: color-mix(in srgb, var(--ac-on-primary-container) 30%, transparent);
+        &.used { background: var(--ac-navy); }
+        &.inv { background: color-mix(in srgb, var(--ac-navy) 42%, transparent); }
+    }
+    .ac-ins-item {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; padding: 10px 2px;
+        border-bottom: 1px solid var(--ac-outline-soft);
+        &:last-of-type { border-bottom: 0; }
+    }
+    .ac-ins-main { min-width: 0; flex: 1; }
+    .ac-ins-title {
+        font-size: 13px; font-weight: 700; color: var(--ac-on-surface) !important;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ac-ins-sub { font-size: 11.5px; color: var(--ac-on-variant) !important; }
+    .ac-ins-btns { display: flex; gap: 6px; flex: none; }
+    // El cupo es DE LA CUENTA: decirlo aqui evita el reclamo de "se me acabo y
+    // yo no fui" cuando lo ocupo otra persona del equipo.
+    .ac-ins-quota {
+        margin-top: 12px; padding-top: 10px; font-size: 11.5px;
+        border-top: 1px solid var(--ac-outline-soft);
+        color: var(--ac-on-variant) !important;
+    }
+
     @keyframes ac-win-up { from { transform: translateY(100%); } to { transform: none; } }
     @keyframes ac-slide-in { from { transform: translateX(-100%); } to { transform: none; } }
     @keyframes ac-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-5px); opacity: 1; } }
+
+    // Los dos avisos FIJOS (resumen y cierre): son interruptores, no
+    // formularios, asi que se presentan como filas con su boton — nada de
+    // tarjetas ni de pasos.
+    .ac-ins-fijos { display: flex; flex-direction: column; }
+    .ac-ins-fijo {
+        display: flex; align-items: center; gap: 12px;
+        padding: 11px 2px; border-bottom: 1px solid var(--ac-outline-soft);
+    }
+    .ac-ins-fijo-t {
+        flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;
+        b { font-size: 13.5px; color: var(--ac-on-surface) !important; }
+        small { font-size: 11.5px; color: var(--ac-on-variant) !important; }
+    }
+    .ac-ins-nuevos {
+        display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 4px;
+        button { flex: 1; justify-content: center; min-width: 130px; }
+        i { margin-right: 6px; }
+    }
+    .ac-ins-btns2 { display: flex; gap: 8px; align-items: center; }
+    .ac-ins-oculto { display: none; }
+
+    // Avisos programados dentro del cajon: misma pinta que el resto de filas
+    // del cajon, no la de un boton de accion — es un destino, no una accion.
+    .ac-drawer-insights {
+        display: flex; align-items: center; gap: 10px; width: 100%;
+        padding: 11px 14px; border: 0; background: transparent; cursor: pointer;
+        font-size: 13.5px; font-weight: 600; text-align: left;
+        color: var(--ac-on-surface) !important;
+        border-top: 1px solid var(--ac-outline-soft);
+        i { color: var(--ac-navy) !important; opacity: .85; }
+        &:hover { background: var(--ac-surface-variant); }
+        &:focus { outline: none; }
+        &:focus-visible { outline: 2px solid var(--ac-navy); outline-offset: -2px; }
+    }
+
 }

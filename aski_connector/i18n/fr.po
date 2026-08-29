@@ -42,6 +42,7 @@ msgstr "Cliquez sur <b>Générer le code de connexion</b> ci-dessous."
 
 #. module: aski_connector
 #. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
@@ -75,6 +76,8 @@ msgid "Don't have the app yet? Get it on"
 msgstr "Vous n'avez pas encore l'app ? Téléchargez-la sur"
 
 #. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
 msgid "Done"
 msgstr "Terminé"
@@ -147,6 +150,8 @@ msgstr "Interrogez votre Odoo…"
 #. module: aski_connector
 #. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
+#: code:addons/aski_connector/static/src/systray/aski_systray.xml:0
 #: model:ir.module.category,name:aski_connector.module_category_aski
 #: model:ir.ui.menu,name:aski_connector.menu_aski_root
 msgid "Aski"
@@ -534,12 +539,6 @@ msgstr "lignes"
 
 #. module: aski_connector
 #. odoo-javascript
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Export this answer"
-msgstr "Exporter cette réponse"
-
-#. module: aski_connector
-#. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Untitled"
 msgstr "Sans titre"
@@ -839,6 +838,8 @@ msgid "How do you want to connect?"
 msgstr "Comment voulez-vous vous connecter ?"
 
 #. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_email
 msgid "Email"
 msgstr "E-mail"
@@ -1356,6 +1357,7 @@ msgstr ""
 
 #. module: aski_connector
 #. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Try again"
 msgstr "Réessayer"
@@ -1671,6 +1673,7 @@ msgstr "converti"
 
 #. module: aski_connector
 #. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "name@company.com"
 msgstr "name@company.com"
@@ -1812,3 +1815,905 @@ msgstr "il y a %s h"
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "%s d ago"
 msgstr "il y a %s j"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Actions on your ERP are not included in your plan."
+msgstr "Votre offre n'inclut pas les actions sur votre ERP."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Actions on your ERP are only available when the chat runs in Per user mode, "
+"so that every change is made with the permissions of the person who asked "
+"for it."
+msgstr ""
+"Les actions sur l'ERP ne sont disponibles qu'avec le chat en mode « Par "
+"utilisateur », afin que chaque modification se fasse avec les droits de la "
+"personne qui l'a demandée."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Alert"
+msgstr "Alerte"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Alert me daily"
+msgstr "M'alerter chaque jour"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Alert removed."
+msgstr "Alerte supprimée."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Alert resumed."
+msgstr "Alerte relancée."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asking..."
+msgstr "Demande en cours…"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "At"
+msgstr "À"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Could not load your alerts. Try again in a moment."
+msgstr "Impossible de charger vos alertes. Réessayez dans un instant."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Dismiss"
+msgstr "Ignorer"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Done."
+msgstr "C'est fait."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Done. We passed your request along."
+msgstr "C'est fait. Nous avons transmis votre demande."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Every day"
+msgstr "Chaque jour"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Every week"
+msgstr "Chaque semaine"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "How often"
+msgstr "À quelle fréquence"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "It lands in your Odoo inbox, with your own permissions."
+msgstr "Elle arrive dans votre boîte Odoo, avec vos propres droits."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Loading..."
+msgstr "Chargement…"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "My company already uses Aski — ask for a seat"
+msgstr "Mon entreprise utilise déjà Aski — demander un siège"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"No alerts yet. Ask something, then use the bell on the answer to get it "
+"every morning."
+msgstr ""
+"Pas encore d'alertes. Posez une question, puis utilisez la cloche de la "
+"réponse pour la recevoir chaque matin."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Nobody in this Odoo is using Aski yet, so there is no one to ask. Connect "
+"your own account to get started."
+msgstr ""
+"Personne dans cet Odoo n'utilise encore Aski, il n'y a donc personne à qui "
+"demander. Connectez votre propre compte pour commencer."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Pause"
+msgstr "Mettre en pause"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Resume"
+msgstr "Relancer"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Review"
+msgstr "Vérifier"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Save alert"
+msgstr "Enregistrer l'alerte"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Saved. It will land in your Odoo inbox."
+msgstr "Enregistré. Cela arrivera dans votre boîte Odoo."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Saving..."
+msgstr "Enregistrement…"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Scheduled alerts"
+msgstr "Alertes programmées"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Scheduled alerts are not included in your plan."
+msgstr "Votre offre n'inclut pas les alertes programmées."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Sent to %s, who manages this account."
+msgstr "Envoyé à %s, qui gère ce compte."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Sent to the account owner."
+msgstr "Envoyé au titulaire du compte."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "This writes to your Odoo. Go ahead?"
+msgstr "Cela écrit dans votre Odoo. On continue ?"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Turn on"
+msgstr "Activer"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Yes, do it"
+msgstr "Oui, allez-y"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "You had already asked. We let them know again."
+msgstr "Vous aviez déjà demandé. Nous l'avons rappelé."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Your account has used all its scheduled alerts. Delete one, or ask the "
+"account owner to move up a plan."
+msgstr ""
+"Votre compte a utilisé toutes ses alertes programmées. Supprimez-en une, ou "
+"demandez au titulaire de passer à une offre supérieure."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused"
+msgstr "en pause"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "your provider"
+msgstr "votre prestataire"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Add a reminder"
+msgstr "Ajouter un rappel"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Aski only writes when something new shows up. It never repeats one it "
+"already named."
+msgstr ""
+"Aski n'écrit que lorsqu'il y a du nouveau. Il ne répète jamais ce qu'il a "
+"déjà cité."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Daily digest"
+msgstr "Résumé quotidien"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Day closing"
+msgstr "Clôture de la journée"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Days"
+msgstr "Jours"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Falls below"
+msgstr "Descend sous"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Falls more than"
+msgstr "Baisse de plus de"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Goes above"
+msgstr "Dépasse"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Limit"
+msgstr "Seuil"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "New reminder"
+msgstr "Nouveau rappel"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "New watch"
+msgstr "Nouvelle surveillance"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Reading your ERP…"
+msgstr "Lecture de votre ERP…"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Rises more than"
+msgstr "Monte de plus de"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "There is nothing to remind you about in this connection."
+msgstr "Il n'y a rien à vous rappeler dans cette connexion."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Turn off"
+msgstr "Désactiver"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Watch a figure"
+msgstr "Surveiller un chiffre"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "We found no figure to watch in this connection."
+msgstr "Nous n'avons trouvé aucun chiffre à surveiller dans cette connexion."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What actually moved today, in the evening."
+msgstr "En fin de journée, ce qui a vraiment bougé."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What to remind you about"
+msgstr "Quoi vous rappeler"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What to watch"
+msgstr "Quoi surveiller"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "When"
+msgstr "Quand"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Your key figures, first thing in the morning."
+msgstr "Vos chiffres clés, dès le matin."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s of %s alerts used — the quota belongs to the whole account."
+msgstr "%s alertes sur %s utilisées — le quota est celui de tout le compte."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "A whole number between 0 and 365"
+msgstr "Un nombre entier entre 0 et 365"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Enter a number"
+msgstr "Saisissez un nombre"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Monday to Friday"
+msgstr "Du lundi au vendredi"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Once a week"
+msgstr "Une fois par semaine"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "The first run only takes the baseline."
+msgstr "La première exécution ne fait que prendre la référence."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Today: %s"
+msgstr "Aujourd'hui : %s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"This figure comes in several currencies. The limit is compared against %s."
+msgstr "Ce chiffre arrive en plusieurs devises. Le seuil est comparé à %s."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "days"
+msgstr "jours"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s scheduled alerts on this account."
+msgstr "%s alertes programmées sur ce compte."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You already have that alert on this connection."
+msgstr "Vous avez déjà cette alerte sur cette connexion."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s credits this period"
+msgstr "%s crédits cette période"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s of %s credits this period"
+msgstr "%s crédits sur %s cette période"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for a seat"
+msgstr "Demander un siège"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Invited, not in yet"
+msgstr "Invité, pas encore entré"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "My team"
+msgstr "Mon équipe"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No seat right now"
+msgstr "Sans siège pour l'instant"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "People"
+msgstr "Personnes"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Team pot"
+msgstr "Cagnotte de l'équipe"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "You are on a team"
+msgstr "Vous êtes dans une équipe"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"You are using the account of %s. Your plan and credits are handled by "
+"whoever pays for it."
+msgstr ""
+"Vous utilisez le compte de %s. Votre offre et vos crédits sont gérés par "
+"celui qui paie."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "You have used %s credits this period."
+msgstr "Vous avez utilisé %s crédits cette période."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "You have used %s of %s credits this period."
+msgstr "Vous avez utilisé %s crédits sur %s cette période."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Your plan is for one person"
+msgstr "Votre offre est pour une seule personne"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "of %s"
+msgstr "sur %s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"If your company already pays for Aski, ask them for a seat instead of paying"
+" for a second plan."
+msgstr ""
+"Si votre entreprise paie déjà Aski, demandez-lui un siège au lieu de payer "
+"une deuxième offre."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Account owner"
+msgstr "Titulaire du compte"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"%s will stop being able to ask with this account. You can give the seat back"
+" whenever you want."
+msgstr ""
+"%s ne pourra plus poser de questions avec ce compte. Vous pouvez lui rendre "
+"le siège quand vous voulez."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"A member asks, creates their own alerts and shares answers. An administrator"
+" also invites people and sees everyone's usage."
+msgstr ""
+"Le membre pose des questions, crée ses alertes et partage des réponses. "
+"L'administrateur invite en plus des personnes et voit la consommation de "
+"tous."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Administrator"
+msgstr "Administrateur"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Cancel invitation"
+msgstr "Annuler l'invitation"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Copy link"
+msgstr "Copier le lien"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Each person queries with their own ERP user, so they only see what they "
+"would see logging in there. Credits come out of the shared pot."
+msgstr ""
+"Chaque personne interroge avec son propre utilisateur ERP : elle ne voit que"
+" ce qu'elle verrait en s'y connectant. Les crédits sortent de la cagnotte "
+"commune."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Give the seat back"
+msgstr "Rendre le siège"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Invitation ready."
+msgstr "Invitation prête."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Invite someone"
+msgstr "Inviter quelqu'un"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Member"
+msgstr "Membre"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Monthly cap"
+msgstr "Plafond mensuel"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Optional. With no cap, one person can spend the whole team pot."
+msgstr ""
+"Facultatif. Sans plafond, une personne peut dépenser toute la cagnotte de "
+"l'équipe."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Pass them this link"
+msgstr "Transmettez-lui ce lien"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Seat %s — US$ %s / month"
+msgstr "Siège %s — %s US$ / mois"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Send invitation"
+msgstr "Envoyer l'invitation"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Sending..."
+msgstr "Envoi..."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Take the seat back"
+msgstr "Retirer le siège"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That email address does not look right."
+msgstr "Cette adresse e-mail semble incorrecte."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That invitation was already accepted."
+msgstr "Cette invitation a déjà été acceptée."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That invitation was never accepted."
+msgstr "Cette invitation n'a jamais été acceptée."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That person already has an invitation."
+msgstr "Cette personne a déjà une invitation."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That person already pays for their own Aski plan."
+msgstr "Cette personne paie déjà sa propre offre Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That person is already on your team."
+msgstr "Cette personne fait déjà partie de votre équipe."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That seat no longer exists."
+msgstr "Ce siège n'existe plus."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "There are no free seats. Take one back, or add one from the Aski app."
+msgstr ""
+"Il n'y a plus de sièges libres. Retirez-en un, ou ajoutez-en depuis "
+"l'application Aski."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Type the email of the person you want to invite."
+msgstr "Saisissez l'e-mail de la personne à inviter."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What they can do"
+msgstr "Ce qu'il peut faire"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Your plan does not include team seats."
+msgstr "Votre offre n'inclut pas de sièges d'équipe."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s invited"
+msgstr "%s invité"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s people invited"
+msgstr "%s invités"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seat free"
+msgstr "%s siège libre"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seat taken"
+msgstr "%s siège pris"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seats free"
+msgstr "%s sièges libres"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seats taken"
+msgstr "%s sièges pris"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Seats"
+msgstr "Sièges"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "plan quota: %s"
+msgstr "quota du forfait : %s"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for more credits"
+msgstr "Demander plus de crédits"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asked"
+msgstr "Demandé"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "We told %s."
+msgstr "Nous avons prévenu %s."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused: the account includes fewer alerts now"
+msgstr "en pause : le compte inclut désormais moins d'alertes"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused: the account plan no longer includes it"
+msgstr "en pause : l'offre du compte ne l'inclut plus"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused: the account ran out of credits"
+msgstr "en pause : le compte n'a plus de crédits"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused: we could not reach your ERP"
+msgstr "en pause : nous n'avons pas pu accéder à votre ERP"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused: you ran out of credits"
+msgstr "en pause : vous n'avez plus de crédits"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused: your plan includes fewer alerts"
+msgstr "en pause : votre offre inclut moins d'alertes"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused: your plan no longer includes it"
+msgstr "en pause : votre offre ne l'inclut plus"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "US$ %s today, until it renews"
+msgstr "%s US$ aujourd'hui, jusqu'au renouvellement"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "you"
+msgstr "vous"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "%s of %s seats in use"
+msgstr "%s sièges sur %s utilisés"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "%s people from this Odoo are waiting for a seat."
+msgstr "%s personnes de cet Odoo attendent un siège."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Each extra seat costs US$ %s / month."
+msgstr "Chaque siège supplémentaire coûte %s US$ par mois."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Nobody from this Odoo is waiting for a seat."
+msgstr "Personne de cet Odoo n'attend un siège."
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_account_link__seats_summary_html
+msgid "Seats in use and people from this Odoo waiting for one."
+msgstr "Sièges utilisés et personnes de cet Odoo qui en attendent un."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__seats_summary_html
+msgid "Team seats"
+msgstr "Sièges de l'équipe"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "We could not read your seats right now."
+msgstr "Nous n'avons pas pu lire vos sièges pour le moment."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "and %s more"
+msgstr "et %s de plus"

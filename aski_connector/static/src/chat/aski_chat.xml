@@ -31,6 +31,15 @@
                     </div>
                 </div>
                 <div class="ac-header-r">
+                    <!-- La campana SOLO a pantalla completa. En la burbuja del
+                         systray la cabecera ya lleva marca, creditos, plan,
+                         minimizar y cerrar: ahi no cabe y se saco. A pantalla
+                         completa sobra sitio y es donde se la busca. -->
+                    <button t-if="state.connected and !enBurbuja"
+                            class="ac-icon-btn ac-header-bell" title="Scheduled alerts"
+                            t-on-click.stop="openInsights">
+                        <i class="fa fa-bell-o"/>
+                    </button>
                     <t t-if="state.connected">
                         <button t-if="state.walletCredits === 0 and !state.partnerManaged"
                                 class="ac-credits ac-credits-empty"
@@ -45,7 +54,12 @@
                         <span class="ac-credits" t-else="">
                             <i class="fa fa-bolt"/> <t t-esc="creditosFmt"/>
                         </span>
-                        <span class="ac-plan" t-if="state.planName and !props.minimized" t-esc="state.planName"/>
+                        <!-- El nombre del plan, SOLO a pantalla completa. En la
+                             burbuja no aporta nada —el saldo si— y ademas empuja
+                             a la marca contra el borde. -->
+                        <span class="ac-plan"
+                              t-if="state.planName and !props.minimized and !enBurbuja"
+                              t-esc="state.planName"/>
                     </t>
                     <button t-if="props.onMinimize" class="ac-icon-btn" title="Minimize"
                             t-on-click.stop="props.onMinimize">
@@ -69,6 +83,7 @@
                         <i class="fa fa-plus"/> New conversation
                     </button>
 
+
                     <!-- Buscar DENTRO de los mensajes. Va aqui, pegado a la
                          lista, porque filtra lo que hay debajo y no lo de
                          arriba. Los textos salen de `txt` (JS) y no como
@@ -88,6 +103,11 @@
                         </button>
                     </div>
 
+                    <!-- SOLO la lista scrollea. Con el cajon entero scrolleando,
+                         veinte hilos empujaban fuera de pantalla la cuenta y
+                         «Desconectar»: habia que bajar hasta el fondo para
+                         encontrarlos, y los destinos de arriba desaparecian. -->
+                    <div class="ac-drawer-list">
                     <!-- Con busqueda activa el cajon ensena RESULTADOS en vez
                          de hilos: los cuatro estados, sin dejar ninguno mudo. -->
                     <t t-if="searchActive">
@@ -160,10 +180,21 @@
                         </div>
                     </t>
                     </t>
+                    </div>
 
-                    <!-- Cerrar sesion de la cuenta Aski. Solo a quien le
-                         corresponde: en per_user cada quien la suya, en los
-                         modos compartidos solo el admin (canConnect). -->
+
+                    <!-- Destinos FIJOS, al pie y siempre a la vista: el cajon ya
+                         no scrollea (solo la lista), asi que no se los lleva el
+                         historial por largo que sea. -->
+                    <div t-if="state.connected" class="ac-drawer-dest">
+                        <button class="ac-drawer-insights" t-on-click="openInsights">
+                            <i class="fa fa-bell-o"/> Scheduled alerts
+                        </button>
+                        <button class="ac-drawer-insights ac-drawer-team" t-on-click="openTeam">
+                            <i class="fa fa-users"/> My team
+                        </button>
+                    </div>
+
                     <div t-if="state.connected and state.canConnect" class="ac-drawer-foot">
                         <!-- CON QUE cuenta se esta hablando. En modo "por
                              usuario" cada quien conecta la suya y, sin esto, no
@@ -504,6 +535,18 @@
                     <button class="ac-btn-primary" t-on-click="openConnect">
                         Connect my Aski account
                     </button>
+                    <!-- Pedir asiento. Hasta ahora la unica salida de esta
+                         pantalla era crear una cuenta propia, y el precio de un
+                         plan entero aparecia al final del camino. Si su empresa
+                         ya usa Aski, lo que necesita es que la sienten en esa
+                         cuenta; y si no la usa nadie, el backend lo dice claro. -->
+                    <button class="ac-btn-ghost" t-on-click="pedirAsiento"
+                            t-att-disabled="state.seatBusy">
+                        <t t-if="state.seatBusy">Asking...</t>
+                        <t t-else="">My company already uses Aski — ask for a seat</t>
+                    </button>
+                    <div t-if="state.seatAsked" class="ac-empty-sub ac-seat-done"
+                         t-esc="textoAsientoPedido"/>
                 </t>
                 <t t-else="">
                     <div class="ac-empty-title">Aski isn't set up yet</div>
@@ -703,6 +746,33 @@
                 </div>
 
                 <div class="ac-composer">
+                    <!-- ACCIONES pendientes de confirmar. Van pegadas al
+                         compositor, no en una hoja aparte: son lo unico del chat
+                         que ESCRIBE en el ERP, y algo asi no puede estar a dos
+                         clics de distancia ni descubrirse por accidente. -->
+                    <div t-if="state.actions.length" class="ac-actions">
+                        <div t-foreach="state.actions" t-as="a" t-key="a.id"
+                             class="ac-action">
+                            <div class="ac-action-txt">
+                                <i class="fa fa-bolt"/>
+                                <span t-esc="a.summary || a.kind"/>
+                            </div>
+                            <div t-if="state.confirmActionId === a.id" class="ac-action-confirm">
+                                <span>This writes to your Odoo. Go ahead?</span>
+                                <button class="ac-btn-danger" data-act="confirm"
+                                        t-att-disabled="state.actionBusy"
+                                        t-on-click="() => this.confirmarAccion(a)">Yes, do it</button>
+                                <button class="ac-btn-ghost-sm"
+                                        t-on-click="cancelarConfirmacion">Not now</button>
+                            </div>
+                            <div t-else="" class="ac-action-btns">
+                                <button class="ac-btn-primary-sm" data-act="review"
+                                        t-on-click="() => this.pedirConfirmacion(a)">Review</button>
+                                <button class="ac-btn-ghost-sm"
+                                        t-on-click="() => this.descartarAccion(a)">Dismiss</button>
+                            </div>
+                        </div>
+                    </div>
                     <!-- REGISTRO ABIERTO: sobre que ficha se esta preguntando.
                          Va PEGADO al compositor y no en la cabecera a proposito:
                          es lo que el usuario tiene que ver mientras escribe. Un
@@ -783,6 +853,419 @@
                  Se monta al final de .aski-chat, que ya es `position: relative` con
                  `overflow: hidden`, asi queda contenido igual en pantalla completa
                  que en la burbuja estrecha del systray. -->
+            <!-- AVISOS PROGRAMADOS. Misma hoja que el detalle de una respuesta:
+                 el widget ya tiene ese patron y una ventana nueva con otro
+                 aspecto se leeria como otra aplicacion. -->
+            <div t-if="state.insightsOpen" class="ac-sheet-wrap">
+                <div class="ac-scrim" t-on-click="closeInsights"/>
+                <div class="ac-sheet" role="dialog" aria-modal="true">
+                    <div class="ac-sheet-grip"/>
+                    <div class="ac-sheet-head">
+                        <span class="ac-sheet-title">Scheduled alerts</span>
+                        <button class="ac-sheet-close" title="Close" t-on-click="closeInsights">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+
+                    <!-- Los dos avisos FIJOS: no se crean, se encienden. No
+                         gastan cupo, asi que van arriba y sin ceremonia. Las
+                         etiquetas son las mismas que en la app y la web. -->
+                    <div t-if="!state.newKind and !state.insightNewFor" class="ac-ins-fijos">
+                        <div class="ac-ins-fijo">
+                            <div class="ac-ins-fijo-t">
+                                <b>Daily digest</b>
+                                <small>Your key figures, first thing in the morning.</small>
+                            </div>
+                            <button class="ac-btn-ghost-sm" data-act="digest"
+                                    t-att-disabled="state.insightBusy"
+                                    t-on-click="alternarResumen">
+                                <t t-if="resumenDiario and resumenDiario.enabled">Turn off</t>
+                                <t t-else="">Turn on</t>
+                            </button>
+                        </div>
+                        <div class="ac-ins-fijo">
+                            <div class="ac-ins-fijo-t">
+                                <b>Day closing</b>
+                                <small>What actually moved today, in the evening.</small>
+                            </div>
+                            <button class="ac-btn-ghost-sm" data-act="closing"
+                                    t-att-disabled="state.insightBusy"
+                                    t-on-click="alternarCierre">
+                                <t t-if="cierreDelDia and cierreDelDia.enabled">Turn off</t>
+                                <t t-else="">Turn on</t>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Y los dos que si se configuran. -->
+                    <div t-if="!state.newKind and !state.insightNewFor" class="ac-ins-nuevos">
+                        <button class="ac-btn-ghost-sm" data-act="new-watch"
+                                t-on-click="abrirVigia">
+                            <i class="fa fa-eye"/> Watch a figure
+                        </button>
+                        <button class="ac-btn-ghost-sm" data-act="new-reminder"
+                                t-on-click="abrirRecordatorio">
+                            <i class="fa fa-clock-o"/> Add a reminder
+                        </button>
+                    </div>
+
+                    <!-- VIGIA -->
+                    <div t-if="state.newKind === 'watch'" class="ac-ins-new">
+                        <div class="ac-ins-q">New watch</div>
+                        <div t-if="state.catalogoCargando" class="ac-ins-note">Reading your ERP…</div>
+                        <div t-elif="!state.metricas.length" class="ac-ins-note">
+                            We found no figure to watch in this connection.
+                        </div>
+                        <t t-else="">
+                            <div class="ac-ins-row">
+                                <label>What to watch</label>
+                                <select t-model="state.watchMetric">
+                                    <option t-foreach="state.metricas" t-as="m" t-key="m.id"
+                                            t-att-value="m.id"><t t-esc="m.label"/></option>
+                                </select>
+                            </div>
+                            <!-- El valor de HOY, para que el limite que se teclea
+                                 tenga contra que compararse. -->
+                            <div t-if="metricaElegida" class="ac-ins-note">
+                                <t t-esc="textoHoy"/>
+                            </div>
+                            <div class="ac-ins-row">
+                                <label>When</label>
+                                <select t-model="state.watchOp">
+                                    <option value="&gt;">Goes above</option>
+                                    <option value="&lt;">Falls below</option>
+                                    <option value="%&gt;">Rises more than</option>
+                                    <option value="%&lt;">Falls more than</option>
+                                </select>
+                            </div>
+                            <div class="ac-ins-row">
+                                <label>Limit</label>
+                                <div class="ac-ins-field">
+                                    <input type="text" t-model="state.watchValue"
+                                           t-att-placeholder="esVariacion ? '%' : ''"/>
+                                    <span t-if="sufijoLimite" class="ac-ins-suf"
+                                          t-esc="sufijoLimite"/>
+                                </div>
+                            </div>
+                            <!-- ⛔ Cuando la cifra llega en varias monedas, el umbral
+                                 se compara contra UNA. Sin decirlo, alguien teclea
+                                 pensando en soles un limite que se mide en dolares y
+                                 el aviso salta cuando no debe (o calla cuando si). -->
+                            <div t-if="avisoMoneda" class="ac-ins-note" t-esc="avisoMoneda"/>
+                            <div t-if="esVariacion" class="ac-ins-note">
+                                The first run only takes the baseline.
+                            </div>
+                            <div class="ac-ins-note">
+                                It lands in your Odoo inbox, with your own permissions.
+                            </div>
+                            <div class="ac-ins-btns2">
+                                <button class="ac-btn-primary" t-on-click="guardarVigia"
+                                        t-att-disabled="state.insightSaving">
+                                    <t t-if="state.insightSaving">Saving...</t>
+                                    <t t-else="">Save alert</t>
+                                </button>
+                                <button class="ac-btn-ghost-sm" t-on-click="cerrarAlta">Cancel</button>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- RECORDATORIO -->
+                    <div t-if="state.newKind === 'reminder'" class="ac-ins-new">
+                        <div class="ac-ins-q">New reminder</div>
+                        <div t-if="state.catalogoCargando" class="ac-ins-note">Reading your ERP…</div>
+                        <div t-elif="!state.temas.length" class="ac-ins-note">
+                            There is nothing to remind you about in this connection.
+                        </div>
+                        <t t-else="">
+                            <div class="ac-ins-row">
+                                <label>What to remind you about</label>
+                                <select t-model="state.remTopic">
+                                    <option t-foreach="state.temas" t-as="x" t-key="x.id"
+                                            t-att-value="x.id"><t t-esc="x.label"/></option>
+                                </select>
+                            </div>
+                            <div class="ac-ins-row">
+                                <label>Days</label>
+                                <input type="number" t-model="state.remDays" min="0" max="365"/>
+                            </div>
+                            <div class="ac-ins-note">
+                                Aski only writes when something new shows up. It never repeats one it already named.
+                            </div>
+                            <div class="ac-ins-btns2">
+                                <button class="ac-btn-primary" t-on-click="guardarRecordatorio"
+                                        t-att-disabled="state.insightSaving">
+                                    <t t-if="state.insightSaving">Saving...</t>
+                                    <t t-else="">Save alert</t>
+                                </button>
+                                <button class="ac-btn-ghost-sm" t-on-click="cerrarAlta">Cancel</button>
+                            </div>
+                        </t>
+                    </div>
+
+
+                    <!-- Alta desde una respuesta que Aski YA resolvio. -->
+                    <div t-if="state.insightNewFor" class="ac-ins-new">
+                        <div class="ac-ins-q" t-esc="_preguntaDe(state.insightNewFor)"/>
+                        <div class="ac-ins-row">
+                            <label>How often</label>
+                            <select t-model="state.insightFreq">
+                                <option value="daily">Every day</option>
+                                <option value="weekly">Every week</option>
+                            </select>
+                        </div>
+                        <div class="ac-ins-row">
+                            <label>At</label>
+                            <select t-model="state.insightHour">
+                                <t t-foreach="[6,7,8,9,10,12,15,17,18]" t-as="h" t-key="h">
+                                    <option t-att-value="h"><t t-esc="h"/>:00</option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="ac-ins-note">
+                            It lands in your Odoo inbox, with your own permissions.
+                        </div>
+                        <button class="ac-btn-primary" t-on-click="guardarAviso"
+                                t-att-disabled="state.insightSaving">
+                            <t t-if="state.insightSaving">Saving...</t>
+                            <t t-else="">Save alert</t>
+                        </button>
+                    </div>
+
+                    <div t-if="state.newKind" class="ac-ins-oculto"/>
+                    <div t-elif="state.insightsLoading" class="ac-drawer-empty">Loading...</div>
+                    <div t-elif="state.insightsErr" class="ac-drawer-empty">
+                        Could not load your alerts. Try again in a moment.
+                    </div>
+                    <div t-elif="!avisosListados.length and !state.insightNewFor"
+                         class="ac-drawer-empty">
+                        No alerts yet. Ask something, then use the bell on the answer to get it every morning.
+                    </div>
+
+                    <div t-if="!state.newKind" t-foreach="avisosListados" t-as="f" t-key="f.id" class="ac-ins-item">
+                        <div class="ac-ins-main">
+                            <div class="ac-ins-title" t-esc="f.title || f.kind"/>
+                            <div class="ac-ins-sub">
+                                <t t-esc="etiquetaFrecuencia(f)"/> ·
+                                <t t-esc="f.send_hour_local"/>:00
+                                <t t-if="f.paused_reason"> · <t t-esc="motivoPausa(f)"/></t>
+                            </div>
+                        </div>
+                        <div class="ac-ins-btns">
+                            <button t-if="f.paused_reason" class="ac-btn-ghost-sm" data-act="resume"
+                                    t-att-disabled="state.insightBusy === f.id"
+                                    t-on-click="() => this.reanudarAviso(f)">Resume</button>
+                            <button t-else="" class="ac-btn-ghost-sm" data-act="toggle"
+                                    t-att-disabled="state.insightBusy === f.id"
+                                    t-on-click="() => this.toggleInsight(f)">
+                                <t t-if="f.enabled">Pause</t>
+                                <t t-else="">Turn on</t>
+                            </button>
+                            <button class="ac-btn-ghost-sm" data-act="remove"
+                                    t-att-disabled="state.insightBusy === f.id"
+                                    t-on-click="() => this.borrarAviso(f)">Remove</button>
+                        </div>
+                    </div>
+
+                    <div t-if="state.insightLimit" class="ac-ins-quota"
+                         t-esc="textoCupoAvisos"/>
+                </div>
+            </div>
+
+            <!-- MI EQUIPO. Mismas etiquetas que la app: quien mira esto en
+                 Odoo y en el movil tiene que leer lo mismo. Es de LECTURA —
+                 invitar y quitar se hacen donde ya estaban, en la app o la web—
+                 porque lo que falta aqui es SABER, no gestionar. -->
+            <div t-if="state.equipoOpen" class="ac-sheet-wrap">
+                <div class="ac-scrim" t-on-click="cerrarEquipo"/>
+                <div class="ac-sheet" role="dialog" aria-modal="true">
+                    <div class="ac-sheet-grip"/>
+                    <div class="ac-sheet-head">
+                        <span class="ac-sheet-title">My team</span>
+                        <button class="ac-sheet-close" title="Close" t-on-click="cerrarEquipo">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+
+                    <div t-if="state.equipoCargando" class="ac-ins-note">Loading...</div>
+
+                    <t t-else="">
+                        <!-- Quien se sienta en la cuenta de OTRO se ve a si mismo:
+                             de quien es la cuenta y cuanto lleva gastado. -->
+                        <div t-if="esAsiento" class="ac-team-seat">
+                            <div class="ac-ins-q">You are on a team</div>
+                            <div class="ac-ins-note" t-esc="textoAsientoCuenta"/>
+                            <div class="ac-ins-note" t-esc="textoAsientoConsumo"/>
+                            <!-- Sin precios ni boton de compra: quien paga es el
+                                 titular. Lo que si hace falta es poder pedirselo
+                                 sin salir de aqui. -->
+                            <div class="ac-ins-btns2">
+                                <button class="ac-btn-ghost-sm" t-on-click="pedirMasCreditos"
+                                        t-att-disabled="state.creditosPedidos">
+                                    <t t-if="state.creditosPedidos">Asked</t>
+                                    <t t-else="">Ask for more credits</t>
+                                </button>
+                            </div>
+                        </div>
+
+                        <t t-elif="capacidadEquipo and capacidadEquipo.supported">
+                            <!-- La MISMA tarjeta que la app y la web: rotulo, la
+                                 cifra grande, la barra por tramos y la leyenda.
+                                 Un "0 de 3" suelto no dice si el hueco es libre o
+                                 esta invitado, que es justo lo que se viene a ver. -->
+                            <div class="ac-team-cap">
+                                <div class="ac-team-cap-top">
+                                    <div class="ac-team-cifra">
+                                        <small class="ac-team-rotulo">Seats</small>
+                                        <div>
+                                            <b t-esc="capacidadEquipo.used"/>
+                                            <small t-esc="textoDeTotal"/>
+                                        </div>
+                                    </div>
+                                    <div t-if="state.equipo.pool_total" class="ac-team-bolsa">
+                                        <small>Team pot</small>
+                                        <b t-esc="bolsaFmt"/>
+                                        <small t-esc="textoCuotaPlan"/>
+                                    </div>
+                                </div>
+                                <div class="ac-team-barra">
+                                    <i class="b-used" t-attf-style="width: {{ pctAsientos.usados }}%"/>
+                                    <i class="b-inv" t-attf-style="width: {{ pctAsientos.invitados }}%"/>
+                                </div>
+                                <div class="ac-team-leyenda">
+                                    <span><i class="ac-team-dot used"/><t t-esc="leyendaAsientos.usados"/></span>
+                                    <span t-if="capacidadEquipo.invited"><i class="ac-team-dot inv"/><t t-esc="leyendaAsientos.invitados"/></span>
+                                    <span><i class="ac-team-dot"/><t t-esc="leyendaAsientos.libres"/></span>
+                                </div>
+                            </div>
+
+                            <!-- ALTA. Quien usa Aski dentro de Odoo suele estar
+                                 ahi por no querer llevar sus datos a otra
+                                 pantalla: mandarle a la web a dar de alta a un
+                                 companero es mandarle justo a lo que evita. -->
+                            <div t-if="state.invAbierto" class="ac-ins-new">
+                                <div class="ac-ins-q">Invite someone</div>
+                                <div class="ac-ins-campo">
+                                    <label>Email</label>
+                                    <div class="ac-ins-field">
+                                        <input type="text" t-model="state.invEmail"
+                                               t-att-placeholder="txt.invitePh"/>
+                                    </div>
+                                </div>
+                                <!-- ⛔ Dos botones, no un desplegable nativo: son
+                                     SOLO dos opciones y las dos hay que poder
+                                     leerlas de un vistazo. Un `select` las
+                                     esconde detras de un clic y encima cada
+                                     navegador lo pinta a su manera. Mismo control
+                                     que en la app. -->
+                                <div class="ac-ins-campo">
+                                    <label>What they can do</label>
+                                    <div class="ac-chips">
+                                        <button t-attf-class="ac-chip {{ state.invRol === 'member' ? 'on' : '' }}"
+                                                t-on-click="() => this.state.invRol = 'member'">Member</button>
+                                        <button t-attf-class="ac-chip {{ state.invRol === 'admin' ? 'on' : '' }}"
+                                                t-on-click="() => this.state.invRol = 'admin'">Administrator</button>
+                                    </div>
+                                </div>
+                                <div class="ac-ins-note">
+                                    A member asks, creates their own alerts and shares answers. An administrator also invites people and sees everyone's usage.
+                                </div>
+                                <div class="ac-ins-campo">
+                                    <label>Monthly cap</label>
+                                    <div class="ac-ins-field">
+                                        <input type="number" t-model="state.invTope" min="0"/>
+                                        <span class="ac-ins-suf">credits</span>
+                                    </div>
+                                </div>
+                                <div class="ac-ins-note">
+                                    Optional. With no cap, one person can spend the whole team pot.
+                                </div>
+                                <div t-if="costoAsiento" class="ac-ins-note ac-team-costo"
+                                     t-esc="costoAsiento"/>
+                                <div class="ac-ins-btns2">
+                                    <button class="ac-btn-primary" t-on-click="enviarInvitacion"
+                                            t-att-disabled="state.invBusy">
+                                        <t t-if="state.invBusy">Sending...</t>
+                                        <t t-else="">Send invitation</t>
+                                    </button>
+                                    <button class="ac-btn-ghost-sm" t-on-click="cerrarInvitar">Cancel</button>
+                                </div>
+                            </div>
+
+                            <t t-else="">
+                            <div class="ac-ins-q">People</div>
+                            <div t-foreach="personasEquipo" t-as="p" t-key="p.id" class="ac-ins-item">
+                                <div class="ac-ins-main">
+                                    <div class="ac-ins-title" t-esc="p.email"/>
+                                    <div class="ac-ins-sub" t-esc="subDePersona(p)"/>
+                                </div>
+                                <!-- Las acciones, aqui mismo. Tres estados, como
+                                     en la app: una invitacion sin aceptar se
+                                     anula, un asiento se quita o se devuelve. -->
+                                <div t-if="!p.is_owner" class="ac-ins-btns">
+                                    <button t-if="p.status === 'invited'" class="ac-btn-ghost-sm"
+                                            t-att-disabled="state.seatBusyId === p.id"
+                                            t-on-click="() => this.anularInvitacion(p)">Cancel invitation</button>
+                                    <button t-elif="p.status === 'suspended'" class="ac-btn-ghost-sm"
+                                            t-att-disabled="state.seatBusyId === p.id"
+                                            t-on-click="() => this.devolverAsiento(p)">Give the seat back</button>
+                                    <button t-else="" class="ac-btn-ghost-sm"
+                                            t-att-disabled="state.seatBusyId === p.id"
+                                            t-on-click="() => this.pedirQuitar(p)">Take the seat back</button>
+                                </div>
+                            </div>
+
+                            <!-- Quitar CORTA el acceso de una persona: se pregunta
+                                 antes, aqui dentro, nunca con un confirm del
+                                 navegador. -->
+                            <div t-if="state.seatPorQuitar" class="ac-action-confirm">
+                                <div t-esc="textoQuitarAsiento"/>
+                                <div class="ac-ins-btns2">
+                                    <button class="ac-btn-primary" t-on-click="confirmarQuitar"
+                                            t-att-disabled="state.seatBusyId">Take the seat back</button>
+                                    <button class="ac-btn-ghost-sm" t-on-click="cancelarQuitar">Not now</button>
+                                </div>
+                            </div>
+
+                            <div t-if="state.invEnlace" class="ac-ins-new">
+                                <div class="ac-ins-q">Pass them this link</div>
+                                <div class="ac-ins-note" t-esc="state.invEnlace"/>
+                                <div class="ac-ins-btns2">
+                                    <button class="ac-btn-ghost-sm" t-on-click="copiarEnlaceInvitacion">Copy link</button>
+                                </div>
+                            </div>
+
+                            <div class="ac-ins-nuevos">
+                                <button class="ac-btn-ghost-sm" data-act="invite"
+                                        t-on-click="abrirInvitar">
+                                    <i class="fa fa-user-plus"/> Invite someone
+                                </button>
+                            </div>
+
+                            <div class="ac-ins-note">
+                                Each person queries with their own ERP user, so they only see what they would see logging in there. Credits come out of the shared pot.
+                            </div>
+                            </t>
+                        </t>
+
+                        <!-- Su plan no da equipo: aqui SI tiene sentido ofrecerle
+                             sentarse en la cuenta de su empresa. -->
+                        <t t-else="">
+                            <div class="ac-ins-q">Your plan is for one person</div>
+                            <div class="ac-ins-note">If your company already pays for Aski, ask them for a seat instead of paying for a second plan.</div>
+                            <div class="ac-ins-btns2">
+                                <button class="ac-btn-primary" t-on-click="pedirAsiento"
+                                        t-att-disabled="state.seatBusy">
+                                    <t t-if="state.seatBusy">Asking...</t>
+                                    <t t-else="">Ask for a seat</t>
+                                </button>
+                            </div>
+                            <div t-if="state.seatAsked" class="ac-ins-note ac-seat-done"
+                                 t-esc="textoAsientoPedido"/>
+                        </t>
+                    </t>
+                </div>
+            </div>
+
             <div t-if="detailMsg" class="ac-sheet-wrap">
                 <div class="ac-scrim" t-on-click="closeDetail"/>
                 <div class="ac-sheet" role="dialog" aria-modal="true">
@@ -795,12 +1278,20 @@
                         </button>
                     </div>
                         <div class="ac-detail">
-                            <div class="ac-detail-stats">
-                                <div class="ac-stat">
+                            <!-- ⛔ `!= null` (suelto) a proposito: atrapa null Y
+                                 undefined. Con `!== null` la casilla de filas se
+                                 pintaba tambien cuando el campo no venia —una caja
+                                 gris vacia al lado— y la de creditos enseñaba un
+                                 guion. Una respuesta que no gasta creditos ni
+                                 devuelve filas (una accion sobre el ERP, por
+                                 ejemplo) no tiene nada que contar: la tira entera
+                                 se va, en vez de dejar un hueco que parece roto. -->
+                            <div t-if="m.credits != null or m.rows != null" class="ac-detail-stats">
+                                <div t-if="m.credits != null" class="ac-stat">
                                     <i class="fa fa-bolt"/>
-                                    <div><div class="ac-stat-v" t-esc="m.credits ?? '—'"/><div class="ac-stat-k">credits</div></div>
+                                    <div><div class="ac-stat-v" t-esc="m.credits"/><div class="ac-stat-k">credits</div></div>
                                 </div>
-                                <div t-if="m.rows !== null" class="ac-stat">
+                                <div t-if="m.rows != null" class="ac-stat">
                                     <i class="fa fa-table"/>
                                     <div><div class="ac-stat-v" t-esc="m.rows"/><div class="ac-stat-k">rows</div></div>
                                 </div>
@@ -888,6 +1379,10 @@
                                         t-att-disabled="state.xlsxBusy">
                                     <i t-attf-class="fa {{ state.xlsxBusy ? 'fa-circle-o-notch fa-spin' : 'fa-file-excel-o' }}"/>
                                     <span>Export to Excel</span>
+                                </button>
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="() => this.abrirAltaAviso(m)">
+                                    <i class="fa fa-bell-o"/> <span>Alert me daily</span>
                                 </button>
                                 <button t-if="m.backendId" class="ac-act"
                                         t-on-click="() => this.openEmail(m)">

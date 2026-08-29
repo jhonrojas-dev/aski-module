@@ -8,9 +8,11 @@ tokens) y de ahi en adelante el widget de chat habla con el MISMO backend/
 motor/wallet que la app Android — esto no es un producto nuevo, es un canal
 nuevo para la misma suscripcion.
 """
+import functools
 import logging
 
 import requests
+from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -25,6 +27,34 @@ from .aski_common import (
 )
 
 _logger = logging.getLogger(__name__)
+
+
+def _sin_nulos(valor):
+    """Cambia None por False en toda la respuesta, por hondo que este.
+
+    ⛔ XML-RPC no sabe serializar None: revienta con "cannot marshal None unless
+    allow_none is enabled" y el cliente recibe un fallo del servidor en vez de
+    los datos. El widget habla por JSON-RPC y ahi no se nota, asi que el defecto
+    solo aparece cuando llama otra cosa —un arnes, un script del cliente, otra
+    integracion— y justo cuando el backend devuelve un campo vacio, no siempre.
+    Odoo usa False, no None, para "sin valor": esto deja la respuesta en esa
+    convencion pase lo que pase.
+    """
+    if valor is None:
+        return False
+    if isinstance(valor, dict):
+        return {k: _sin_nulos(v) for k, v in valor.items()}
+    if isinstance(valor, (list, tuple)):
+        return [_sin_nulos(v) for v in valor]
+    return valor
+
+
+def _rpc_seguro(metodo):
+    """Deja la respuesta de un metodo llamable por RPC libre de None."""
+    @functools.wraps(metodo)
+    def envoltura(self, *args, **kwargs):
+        return _sin_nulos(metodo(self, *args, **kwargs))
+    return envoltura
 
 # Estas peticiones ocurren mientras el usuario mira la pantalla y, sobre todo,
 # ocupan un worker de Odoo mientras esperan. `/billing/me` se llama en CADA
@@ -119,6 +149,78 @@ class AskiAccountLink(models.Model):
         # conectada no hace falta aqui: lo escribe _sync_wallet.
         default=lambda self: aski_cobrand_html_from_code(self.env),
         help="Co-brand lockup shown to the partner's clients.")
+
+    seats_summary_html = fields.Html(
+        string="Team seats", compute="_compute_seats_summary_html",
+        sanitize=False, readonly=True,
+        help="Seats in use and people from this Odoo waiting for one.")
+
+    def _compute_seats_summary_html(self):
+        """Cuantos asientos hay, y QUIEN de este Odoo esta esperando uno.
+
+        ⛔ Se enseña lo que de verdad se sabe: quien PIDIO un asiento desde este
+        Odoo, no «quien abrio el chat». Inventar la segunda cifra seria enseñarle
+        al administrador una demanda que nadie ha medido.
+
+        Se calcula al abrir el formulario, con timeout corto y sin levantar: si
+        el backend no contesta, la ficha de configuracion tiene que seguir
+        abriendose — el resto de sus campos no dependen de esto.
+        """
+        for rec in self:
+            rec.seats_summary_html = False
+            # ⛔ La conexion que cuenta es la ACTIVA de quien mira, no la del
+            # registro global: en modo «por usuario» el registro global no esta
+            # conectado —cada quien conecta la suya— y mirando `rec.connected`
+            # este bloque no se enseñaba nunca, justo en el modo por defecto.
+            enlace = rec._active_link(self.env.user) or rec
+            if not enlace.connected or not enlace.pat_enc:
+                continue
+            try:
+                cabeceras = enlace._headers()
+                base = aski_api_base(self.env)
+                eq = requests.get(base + "/seats", headers=cabeceras,
+                                  timeout=_TIMEOUT_FAST).json() or {}
+                peticiones = requests.get(base + "/seats/requests", headers=cabeceras,
+                                          timeout=_TIMEOUT_FAST).json() or []
+            except Exception:  # noqa: BLE001
+                rec.seats_summary_html = (
+                    "<p class='text-muted'>%s</p>"
+                    % _("We could not read your seats right now."))
+                continue
+
+            cap = eq.get("capacity") or {}
+            if not cap.get("supported"):
+                continue
+
+            partes = ["<p><b>%s</b></p>" % (
+                _("%s of %s seats in use")
+                .replace("%s", str(cap.get("used") or 0), 1)
+                .replace("%s", str(cap.get("total") or 0), 1))]
+
+            pendientes = [x for x in peticiones if (x or {}).get("status") == "pending"]
+            if pendientes:
+                nombres = ", ".join(
+                    str(x.get("requester_erp_login") or x.get("email") or "?")
+                    for x in pendientes[:3])
+                if len(pendientes) > 3:
+                    nombres += " " + (_("and %s more")
+                                      .replace("%s", str(len(pendientes) - 3)))
+                partes.append("<p>%s<br/><span class='text-muted'>%s</span></p>" % (
+                    _("%s people from this Odoo are waiting for a seat.")
+                    .replace("%s", str(len(pendientes))),
+                    nombres))
+                # El precio SOLO si lo ponemos nosotros: a un cliente de socio la
+                # tarifa se la pone el socio y el backend le rechaza la compra.
+                precio = eq.get("next_seat_price_usd")
+                if precio:
+                    partes.append(
+                        "<p class='text-muted'>%s</p>"
+                        % (_("Each extra seat costs US$ %s / month.")
+                           .replace("%s", "%.2f" % float(precio))))
+            else:
+                partes.append("<p class='text-muted'>%s</p>"
+                              % _("Nobody from this Odoo is waiting for a seat."))
+            rec.seats_summary_html = "".join(partes)
 
     def _compute_has_partner_code(self):
         configured = bool((aski_partner_code(self.env) or "").strip())
@@ -1249,4 +1351,582 @@ class AskiAccountLink(models.Model):
             raise UserError(_("Could not reach Aski: %s") % e)
         if resp.status_code not in (200, 204):
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return True
+
+    # =================================================================
+    #  Avisos programados, acciones sobre el ERP y asientos de equipo
+    # =================================================================
+    # Las tres funciones que al conector le faltaban. Las dos primeras ya existian
+    # en el backend y solo les faltaba aceptar el token personal; la tercera es
+    # nueva. El orden de este bloque es el de su riesgo: leer, avisar, escribir.
+
+    @_rpc_seguro
+    @api.model
+    def list_insights(self):
+        """Los avisos programados de ESTA conexion.
+
+        Devuelve un dict con `ok` en vez de una lista pelada por lo mismo que la
+        busqueda: una lista vacia no distingue "no tienes ninguno" de "no se pudo
+        preguntar", y son dos pantallas distintas.
+        """
+        self._ensure_chat_access()
+        vacio = {"ok": False, "insights": [], "alert_limit": 0, "free_kinds": []}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            return vacio
+        try:
+            # ⛔ Se PIDE la conexion, no se filtra despues: `digest` y `closing`
+            # viajan de uno en uno, asi que sin el parametro llegaba el de otra
+            # instancia y el de esta no llegaba nunca. Filtrar en el cliente no
+            # podia arreglarlo: el dato no venia.
+            resp = requests.get(aski_api_base(self.env) + "/insights",
+                                params={"credential_id": rec.credential_id},
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return vacio
+        if resp.status_code != 200:
+            return vacio
+        datos = resp.json() or {}
+        # ⛔ El backend NO devuelve una lista `insights`: devuelve los avisos
+        # REPARTIDOS por tipo (`digest` y `closing` sueltos, y `alerts`,
+        # `watches`, `reminders`, `reports` en listas), y el contador se llama
+        # `alerts_used`, no `alert_used`. Leyendo los nombres equivocados, esto
+        # devolvia SIEMPRE una lista vacia y el cupo en None — para todo el
+        # mundo, no solo en un caso raro. La hoja decia «aun no tienes avisos»
+        # con dos avisos encendidos detras, ofrecia encender un resumen que ya
+        # existia, y el 409 que devolvia el backend salia disfrazado de «cupo
+        # lleno». El arnes no lo veia porque simula ESTE metodo, no el backend.
+        crudos = []
+        for unico in ("digest", "closing"):
+            fila = datos.get(unico)
+            if fila:
+                crudos.append(fila)
+        for lista in ("alerts", "watches", "reminders", "reports"):
+            crudos.extend(datos.get(lista) or [])
+        filas = [f for f in crudos if f.get("credential_id") == rec.credential_id]
+        return {
+            "ok": True,
+            "insights": filas,
+            "alert_limit": datos.get("alert_limit"),
+            "alert_used": datos.get("alerts_used"),
+            # QUIEN se lo gasto: con varias personas en la cuenta, un
+            # numero suelto no deja resolver «se me acabo y yo no fui».
+            "by_person": datos.get("alerts_by_person") or [],
+            "free_kinds": datos.get("kinds_free_in_plan") or [],
+            # El plan mas barato que si trae avisos, para cuando el cupo es 0.
+            "upsell": datos.get("alerts_min_plan") or "",
+        }
+
+    @_rpc_seguro
+    @api.model
+    def create_insight(self, vals):
+        """Crea un aviso que se entrega en la BANDEJA de este Odoo.
+
+        `delivery='odoo'` no es opcional aqui: quien lo crea esta dentro del ERP y
+        no tiene la app instalada, asi que un push no llegaria a ningun sitio y un
+        correo lo sacaria de donde ya esta trabajando. El backend lo deja en
+        Discuss escribiendo con la MISMA credencial con la que lo calculo.
+        """
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            raise UserError(self._not_connected_error())
+        cuerpo = dict(vals or {})
+        cuerpo["credential_id"] = rec.credential_id
+        cuerpo["delivery"] = "odoo"
+        # La zona horaria y el idioma salen del propio Odoo: preguntarselos seria
+        # pedirle dos veces algo que su sesion ya sabe.
+        cuerpo.setdefault("tz", self.env.user.tz or "UTC")
+        cuerpo.setdefault("lang", (self.env.user.lang or "es")[:2])
+        try:
+            resp = requests.post(aski_api_base(self.env) + "/insights",
+                                 json=cuerpo, headers=rec._headers(),
+                                 timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 409:
+            # ⛔ 409 NO significa siempre "cupo lleno": el backend lo usa tambien
+            # para "ya lo tienes". Traducirlo todo a cupo mandaba a la persona a
+            # borrar avisos para hacer sitio a uno que YA estaba encendido.
+            codigo = ""
+            try:
+                codigo = str(((resp.json() or {}).get("detail") or {}).get("code") or "")
+            except Exception:  # noqa: BLE001
+                codigo = ""
+            if codigo.endswith("_already_exists"):
+                raise UserError(_("You already have that alert on this connection."))
+            raise UserError(_(
+                "Your account has used all its scheduled alerts. Delete one, or "
+                "ask the account owner to move up a plan."))
+        if resp.status_code == 403:
+            raise UserError(_("Scheduled alerts are not included in your plan."))
+        if resp.status_code not in (200, 201):
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
+
+    @_rpc_seguro
+    @api.model
+    def set_insight_enabled(self, insight_id, enabled):
+        """Enciende o apaga un aviso.
+
+        Lo decide el USUARIO. La pausa por falta de plan, de saldo o de cupo la
+        decide el sistema y no se toca desde aqui: si se tocara, al recuperar el
+        plan se le reactivaria algo que el habia apagado a proposito.
+        """
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.patch(
+                aski_api_base(self.env) + "/insights/%s" % int(insight_id),
+                json={"enabled": bool(enabled)}, headers=rec._headers(),
+                timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
+
+    @api.model
+    def resume_insight(self, insight_id):
+        """Reanuda un aviso que pauso el SISTEMA (sin plan, sin saldo, fallando)."""
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/insights/%s/resume" % int(insight_id),
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
+
+    @api.model
+    def delete_insight(self, insight_id):
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.delete(
+                aski_api_base(self.env) + "/insights/%s" % int(insight_id),
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code not in (200, 204):
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return True
+
+    # -----------------------------------------------------------------
+    #  Acciones sobre el ERP
+    # -----------------------------------------------------------------
+    # SOLO en modo "por usuario", y esta es la frontera que el backend NO puede
+    # vigilar por si solo: una accion escribe en el ERP con la credencial que se le
+    # pase, y en los modos compartidos esa credencial es la del ADMINISTRADOR. Con
+    # el gate aqui, quien escribe lo hace siempre con su propio usuario y sus
+    # propios permisos. Saltarselo exige ser administrador de este Odoo, es decir,
+    # tener ya la llave que se querria robar.
+
+    @api.model
+    def _acciones_permitidas(self):
+        return self._current_mode() == "per_user"
+
+    @_rpc_seguro
+    @api.model
+    def list_actions(self):
+        """Acciones pendientes de confirmar, con el estado de la funcion.
+
+        Responde SIEMPRE, tambien a quien no la tiene: `feature_enabled` y
+        `mode_ok` dicen por que no se ve, que es lo que permite explicarlo en vez
+        de esconder la seccion y dejar a la persona sin saber que existe.
+        """
+        self._ensure_chat_access()
+        base = {"ok": False, "actions": [], "feature_enabled": False,
+                "mode_ok": self._acciones_permitidas()}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not base["mode_ok"]:
+            return base
+        try:
+            resp = requests.get(aski_api_base(self.env) + "/actions",
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return base
+        if resp.status_code != 200:
+            return base
+        datos = resp.json() or {}
+        base.update({
+            "ok": True,
+            "actions": datos.get("actions") or [],
+            "feature_enabled": bool(datos.get("feature_enabled")),
+        })
+        return base
+
+    @_rpc_seguro
+    @api.model
+    def confirm_action(self, action_id):
+        """Ejecuta una accion ya propuesta.
+
+        Doble confirmacion: el widget pregunta y el backend vuelve a comprobar
+        plan, propiedad, vigencia y, sobre todo, que el dato no haya cambiado
+        desde que se propuso. Ese ultimo control es el que evita el peor caso
+        concreto de esta funcion: mandarle un cobro a un cliente que ya pago.
+        """
+        self._ensure_chat_access()
+        if not self._acciones_permitidas():
+            raise UserError(_(
+                "Actions on your ERP are only available when the chat runs in "
+                "Per user mode, so that every change is made with the permissions "
+                "of the person who asked for it."))
+        rec = self._active_link(self.env.user)
+        if not rec:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/actions/%s/confirm" % int(action_id),
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 403:
+            raise UserError(_("Actions on your ERP are not included in your plan."))
+        if resp.status_code not in (200, 201):
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
+
+    @_rpc_seguro
+    @api.model
+    def cancel_action(self, action_id):
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/actions/%s/cancel" % int(action_id),
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code not in (200, 201):
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
+
+    # -----------------------------------------------------------------
+    #  Asientos de equipo
+    # -----------------------------------------------------------------
+    @_rpc_seguro
+    @api.model
+    def seat_status(self):
+        """Si esta persona se sienta en la cuenta de otro, y con que limites.
+
+        Lo consulta el widget para saber que enseñarle a quien abre el chat sin
+        cuenta propia: hasta ahora le decia "conecta tu propia cuenta" y descubria
+        el precio de un plan entero al final del camino.
+        """
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            return {"connected": False, "is_seat": False}
+        try:
+            resp = requests.get(aski_api_base(self.env) + "/seats/me",
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return {"connected": True, "is_seat": False}
+        if resp.status_code != 200:
+            return {"connected": True, "is_seat": False}
+        datos = resp.json() or {}
+        datos["connected"] = True
+        return datos
+
+    @_rpc_seguro
+    @api.model
+    def team_seats(self):
+        """El equipo de la cuenta, para quien es titular. Vacio para los demas."""
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            return {"ok": False, "capacity": {}, "seats": []}
+        try:
+            resp = requests.get(aski_api_base(self.env) + "/seats",
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return {"ok": False, "capacity": {}, "seats": []}
+        if resp.status_code != 200:
+            return {"ok": False, "capacity": {}, "seats": []}
+        datos = resp.json() or {}
+        datos["ok"] = True
+        return datos
+
+    @_rpc_seguro
+    @api.model
+    def request_more_credits(self):
+        """Un asiento le pide a su titular que le suba el tope.
+
+        ⛔ Al asiento no se le enseñan precios ni boton de compra: quien paga es
+        el titular. Pero sin una forma de pedirlo, el tope es un muro sin salida y
+        la persona acaba escribiendo por fuera o dejando de usarlo.
+        """
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.post(aski_api_base(self.env) + "/seats/me/request-credits",
+                                 headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 200:
+            return resp.json()
+        raise UserError(self._error_asiento(resp))
+
+    @_rpc_seguro
+    @api.model
+    def invite_seat(self, vals):
+        """Invita a alguien al equipo DESDE Odoo.
+
+        ⛔ Existe porque quien usa Aski dentro de Odoo suele estar ahi justamente
+        por no querer llevar sus datos a otra pantalla: mandarle a la web o a la
+        app para dar de alta a un companero es mandarle a lo que evita. El
+        backend valida cupo, correo y tope; aqui solo se traslada.
+        """
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        correo = (vals or {}).get("email") or ""
+        cuerpo = {
+            "email": correo.strip(),
+            "role": (vals or {}).get("role") or "member",
+            "monthly_credit_cap": (vals or {}).get("monthly_credit_cap") or None,
+        }
+        try:
+            resp = requests.post(aski_api_base(self.env) + "/seats/invite",
+                                 json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code in (200, 201):
+            datos = resp.json() or {}
+            # ⛔ El enlace lo arma EL MODULO, no el widget: en Odoo
+            # `window.location.origin` es el dominio del cliente, no el de Aski,
+            # y saldria un enlace que no lleva a ninguna parte. La base se puede
+            # cambiar por parametro del sistema para los despliegues propios.
+            base = (self.env["ir.config_parameter"].sudo()
+                    .get_param("aski.web_base") or "https://app.aski.dev").rstrip("/")
+            token = datos.get("invite_token") or ""
+            if token:
+                from urllib.parse import quote
+                datos["invite_link"] = "%s/team/join?token=%s" % (base, quote(token))
+            return datos
+        raise UserError(self._error_asiento(resp))
+
+    @_rpc_seguro
+    @api.model
+    def set_seat_active(self, seat_id, active):
+        """Quita o devuelve el asiento. No borra nada: ver la regla del backend."""
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        destino = "resume" if active else "suspend"
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/seats/%s/%s" % (int(seat_id), destino),
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 200:
+            return resp.json()
+        raise UserError(self._error_asiento(resp))
+
+    @_rpc_seguro
+    @api.model
+    def cancel_seat_invite(self, seat_id):
+        """Retira una invitacion que nadie acepto y libera el asiento."""
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        try:
+            resp = requests.delete(
+                aski_api_base(self.env) + "/seats/%s" % int(seat_id),
+                headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code in (200, 204):
+            return {"ok": True}
+        raise UserError(self._error_asiento(resp))
+
+    def _error_asiento(self, resp):
+        """Traduce el codigo del backend a algo que se pueda leer.
+
+        ⛔ Por CODIGO, no por el estado HTTP: el backend usa 409 para media
+        docena de situaciones distintas y traducirlas todas igual fue lo que hizo
+        que «ya lo tienes» saliera como «cupo lleno».
+        """
+        codigo = ""
+        try:
+            codigo = str(((resp.json() or {}).get("detail") or {}).get("code") or "")
+        except Exception:  # noqa: BLE001
+            codigo = ""
+        return {
+            "no_seats_available": _("There are no free seats. Take one back, or add one from the Aski app."),
+            "plan_without_seats": _("Your plan does not include team seats."),
+            "already_invited": _("That person already has an invitation."),
+            "already_seated": _("That person is already on your team."),
+            "has_own_plan": _("That person already pays for their own Aski plan."),
+            "invalid_email": _("That email address does not look right."),
+            "never_accepted": _("That invitation was never accepted."),
+            "already_accepted": _("That invitation was already accepted."),
+            "seat_not_found": _("That seat no longer exists."),
+        }.get(codigo) or (_("Aski error: %s") % self._error_message(resp))
+
+    @_rpc_seguro
+    @api.model
+    def request_seat(self):
+        """Pide un asiento para el usuario ACTUAL de Odoo.
+
+        No lleva token: quien pide todavia no tiene cuenta en Aski, y crearsela
+        antes de que se la concedan deja cuentas huerfanas de gente que nunca
+        entro. Lo que autentica la peticion es que esta INSTANCIA ya tenga una
+        cuenta conectada; si nadie de aqui usa Aski, no hay a quien pedirselo.
+
+        Devuelve a quien le llego para poder decirlo en pantalla: al socio que
+        lleva la cuenta, o al titular.
+        """
+        user = self.env.user
+        base = self.env["ir.config_parameter"].sudo().get_param("web.base.url") or ""
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/seats/request",
+                json={
+                    "instance_url": base,
+                    "erp_login": user.login,
+                    "name": user.name,
+                    "email": user.email or None,
+                    "erp_type": "odoo",
+                },
+                timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 404:
+            raise UserError(_(
+                "Nobody in this Odoo is using Aski yet, so there is no one to ask. "
+                "Connect your own account to get started."))
+        if resp.status_code not in (200, 201):
+            raise UserError(_("Aski error: %s") % self._error_message(resp))
+        return resp.json()
+
+    @_rpc_seguro
+    @api.model
+    def watch_metrics(self):
+        """Que se puede VIGILAR en esta conexion, con su valor de hoy.
+
+        Lo sirve el backend porque las metricas se derivan del mismo motor que
+        despues las evalua: si una aparece en la lista es porque existe en ESTA
+        instancia, y una nueva sale sin publicar version del modulo.
+
+        Devuelve dict con `ok` y nunca lanza: esto se pide al abrir un formulario
+        y un dialogo de error encima de una hoja es peor que una lista vacia con
+        su explicacion.
+        """
+        self._ensure_chat_access()
+        vacio = {"ok": False, "metrics": []}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            return vacio
+        try:
+            resp = requests.get(
+                aski_api_base(self.env) + "/insights/metrics",
+                params={"credential_id": rec.credential_id,
+                        "lang": (self.env.user.lang or "es")[:2]},
+                headers=rec._headers(), timeout=_TIMEOUT_SUGGESTIONS)
+        except Exception:  # noqa: BLE001
+            return vacio
+        if resp.status_code != 200:
+            return vacio
+        return {"ok": True, "metrics": (resp.json() or {}).get("metrics") or []}
+
+    @_rpc_seguro
+    @api.model
+    def reminder_topics(self):
+        """Que puede RECORDARTE esta conexion (facturas por vencer, etc.)."""
+        self._ensure_chat_access()
+        vacio = {"ok": False, "topics": []}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            return vacio
+        try:
+            resp = requests.get(
+                aski_api_base(self.env) + "/insights/reminder-topics",
+                params={"credential_id": rec.credential_id,
+                        "lang": (self.env.user.lang or "es")[:2]},
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return vacio
+        if resp.status_code != 200:
+            return vacio
+        return {"ok": True, "topics": (resp.json() or {}).get("topics") or []}
+
+
+    # -----------------------------------------------------------------
+    #  Entrega de un aviso en la bandeja de Odoo
+    # -----------------------------------------------------------------
+
+    @_rpc_seguro
+    @api.model
+    def deliver_inbox(self, vals):
+        """Deja un aviso de Aski en la BANDEJA de Odoo de QUIEN LLAMA.
+
+        Lo invoca el backend con la MISMA credencial con la que calculo el
+        aviso, y solo puede escribirle a esa misma persona: desde aqui no hay
+        forma de notificar a un tercero.
+
+        ⛔ No se usa `message_notify`: reparte segun la preferencia del
+        destinatario (`res.users.notification_type`, que de fabrica es "por
+        correo"), asi que el aviso NO aparecia en la campana y encima encolaba
+        un correo de verdad en el Odoo del cliente. Comprobado en Odoo 19: la
+        bandeja no subia ni un mensaje.
+
+        ⛔ Tampoco vale crear el mensaje a pelo desde el backend: eso no toca el
+        bus y el contador de la campana no se movia hasta recargar la pagina.
+        Aqui se reparte con el MISMO metodo interno con el que Odoo llena la
+        bandeja, que crea la notificacion y avisa por el bus de una vez.
+        """
+        if not isinstance(vals, dict):
+            return False
+        cuerpo = (vals.get("body") or "").strip()
+        if not cuerpo:
+            return False
+        usuario = self.env.user
+        socio = usuario.partner_id
+        if not socio:
+            return False
+        mensaje = self.env["mail.message"].sudo().create({
+            "subject": (vals.get("subject") or "Aski")[:200],
+            # Markup, o Odoo escapa el HTML y el aviso sale como un ladrillo con
+            # las etiquetas a la vista.
+            "body": Markup(cuerpo),
+            "message_type": "user_notification",
+            # Sin autor, y con el NOMBRE a secas: con `author_id` puesto el aviso
+            # se leia como si te lo hubieras escrito tu mismo, y con el correo
+            # dentro salia "Aski <avisos@aski.dev>" en vez de "Aski".
+            "author_id": False,
+            "email_from": "Aski",
+            "partner_ids": [(6, 0, socio.ids)],
+        })
+        destinatario = [{
+            "id": socio.id, "uid": usuario.id, "notif": "inbox",
+            "type": "user", "active": True, "share": False,
+            "groups": [], "ushare": False,
+        }]
+        try:
+            self.env["mail.thread"]._notify_thread_by_inbox(mensaje, destinatario)
+        except Exception:  # noqa: BLE001
+            # Si esa via interna no esta en esta serie, que el aviso llegue igual:
+            # lo unico que se pierde es que el contador salte sin recargar.
+            _logger.warning("aski: bandeja repartida por la via corta", exc_info=True)
+            self.env["mail.notification"].sudo().create({
+                "mail_message_id": mensaje.id,
+                "res_partner_id": socio.id,
+                "notification_type": "inbox",
+                "notification_status": "sent",
+                "is_read": False,
+            })
         return True
