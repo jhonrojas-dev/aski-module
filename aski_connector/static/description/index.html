@@ -114,6 +114,36 @@
       </div>
     </div>
     <p style="text-align:center;color:#8a8a8a;font-size:14px;margin:18px 0 0;">New installs start in <b style="color:#875A7B;">Per user</b> &mdash; safe by default: no one sees more than their own Odoo user already can.</p>
+
+    <div style="background-color:#fffbf0;border-left:4px solid #E5C56A;border-radius:0 12px 12px 0;padding:18px 22px;margin:24px 0 0;">
+      <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#2b2b33;">Changing the mode closes every connection</p>
+      <p style="margin:0;font-size:15px;line-height:1.7;color:#2b2b33;">Each mode grants a different level of access, so a connection opened under the previous one cannot stay open &mdash; otherwise whoever connected before would keep reaching this Odoo from the Aski app after the change. Saving a mode change <b>closes every Aski connection in the database</b>, yours included: the credential is archived on the Aski side and the Odoo API key is revoked, so the cut is real. Everyone connects again afterwards, and you are told how many connections are about to close <b>before</b> you save.</p>
+    </div>
+
+    <p style="text-align:center;margin:22px 0 0;"><img style="width:100%;height:auto;border-radius:10px;border:1px solid #e6e6ec;box-shadow:0 8px 26px rgba(20,20,40,0.10);display:block;" src="shot-14.png" alt="Aski chat settings in Odoo: the access mode selector and the notice that changing it closes every connection"/></p>
+    <p style="text-align:center;color:#8a8a8a;font-size:14px;margin:10px 0 0;">One screen: which mode is on, which Aski account this Odoo hangs from, and what happens if you change it.</p>
+  </div>
+
+  <div style="max-width:1000px;margin:0 auto;padding:26px 16px;">
+    <h3 style="font-family:'Caveat','Segoe Script',cursive;font-weight:700;text-align:center;font-size:34px;margin:0 0 6px;">Know what it can do &mdash; and what your Odoo supports</h3>
+    <p style="text-align:center;color:#666;margin:0 0 20px;">A catalog of everything Aski can watch, remind you about and do on your ERP. Read from <b>your</b> connection, so if it is listed, it exists.</p>
+    <div style="text-align:center;">
+      <div style="display:inline-block;box-sizing:border-box;width:290px;max-width:calc(100% - 18px);margin:8px;vertical-align:top;text-align:left;background-color:#fff;border:1px solid #e6e6ec;border-radius:12px;padding:20px 22px;">
+        <p style="margin:0 0 8px;font-size:17px;font-weight:700;color:#875A7B;">Figures it can watch</p>
+        <p style="margin:0;font-size:15px;line-height:1.7;color:#2b2b33;">Sales, overdue debt, stock, margins and more &mdash; each with the sentence you would type to set it up. Aski only writes when the figure crosses the limit you set.</p>
+      </div>
+      <div style="display:inline-block;box-sizing:border-box;width:290px;max-width:calc(100% - 18px);margin:8px;vertical-align:top;text-align:left;background-color:#fff;border:1px solid #e6e6ec;border-radius:12px;padding:20px 22px;">
+        <p style="margin:0 0 8px;font-size:17px;font-weight:700;color:#875A7B;">What it can remind you about</p>
+        <p style="margin:0;font-size:15px;line-height:1.7;color:#2b2b33;">Invoices and quotes coming due, activities to follow up. It all lands in your Odoo inbox, with your own permissions.</p>
+      </div>
+      <div style="display:inline-block;box-sizing:border-box;width:290px;max-width:calc(100% - 18px);margin:8px;vertical-align:top;text-align:left;background-color:#fff;border:1px solid #e6e6ec;border-radius:12px;padding:20px 22px;">
+        <p style="margin:0 0 8px;font-size:17px;font-weight:700;color:#875A7B;">What it can do on your ERP</p>
+        <p style="margin:0;font-size:15px;line-height:1.7;color:#2b2b33;">Chase a payment, schedule a follow-up, send a quote. Nothing runs on its own: Aski proposes it, shows you who it will write to, and you confirm.</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin:22px 0 0;"><img style="width:100%;height:auto;border-radius:10px;border:1px solid #e6e6ec;box-shadow:0 8px 26px rgba(20,20,40,0.10);display:block;" src="shot-13.png" alt="The catalog inside the Odoo chat, listing what Aski can watch and remind you about, with a count of how many apply to this connection"/></p>
+    <p style="text-align:center;color:#8a8a8a;font-size:14px;margin:10px 0 0;">The whole map is shown, and what your instance does not support is marked &mdash; so you also see what you are missing. The count at the top says how many really apply to your connection.</p>
+
   </div>
 
   <div style="width:100%;background-color:#f6f6f8;">
