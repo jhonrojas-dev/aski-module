@@ -2,9 +2,6 @@
 // VARIANTE OWL 1 (ramas 14 y 15) — ver la nota larga en
 // chat/aski_chat.js. OWL va por el global; los hooks bajo owl.hooks.
 const { Component } = owl;
-// `onWillUnmount` lo necesita la baja del oyente de "abre el panel": sin
-// darse de baja, cada recarga del systray deja un oyente muerto tocando el
-// estado de un componente que ya no existe.
 const { useState, onWillStart, onWillUnmount } = owl.hooks;
 import { registry } from "@web/core/registry";
 import { browser } from "@web/core/browser/browser";

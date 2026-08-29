@@ -8,7 +8,7 @@
     # las ramas iban desincronizadas (16/17/18 en 1.1.0 pero 19.0 en 1.4.10).
     # Por eso se unifico todo en 1.5.0: es mayor que la mas alta publicada, asi
     # que ninguna serie ve un downgrade. Mantenerlas iguales de aqui en adelante.
-    "version": "15.0.1.14.0",
+    "version": "15.0.1.21.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -86,6 +86,10 @@ Get the app and learn more at https://aski.dev
             # El boton del chatter y el estado del registro abierto.
             "aski_connector/static/src/record/*.js",
             "aski_connector/static/src/record/*.scss",
+            # Esta serie no tiene bundle oscuro: sin este remove, el glob
+            # de arriba mete la paleta oscura en el bundle de siempre y
+            # pisa la clara. Va DESPUES del glob: se aplican en orden.
+            ("remove", "aski_connector/static/src/chat/aski_chat.dark.scss"),
         ],
         # OJO (esta serie): las plantillas OWL van en su PROPIO bundle. Con el
         # `**/*` de antes, los .xml entraban en assets_backend, donde esta serie

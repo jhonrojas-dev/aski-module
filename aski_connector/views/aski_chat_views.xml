@@ -32,13 +32,14 @@
                                placeholder="Type it again"
                                attrs="{'required': [('mode', '=', 'signup')]}"/>
                         <!-- Si el socio ya lo dejo configurado al instalar, el
-                             campo se OCULTA: el cliente no puede editarlo ni le
-                             sirve verlo, y la co-marca ya le dice quien le da el
-                             servicio. Si NO hay ninguno configurado si se muestra,
-                             editable, por si su socio le dio uno de palabra. -->
+                             campo se OCULTA: el cliente no puede editarlo, no le
+                             sirve verlo, y la co-marca de arriba ya le dice quien
+                             le da el servicio. Si NO hay ninguno configurado si
+                             se muestra, editable, por si el cliente tiene uno que
+                             su socio le dio de palabra. -->
                         <field name="has_configured_code" invisible="1"/>
                         <field name="signup_partner_code"
-                               attrs="{'invisible': [('has_configured_code', '=', True)]}"
+                               attrs="{'invisible': [('has_configured_code', '!=', False)]}"
                                placeholder="Only if a partner gave you one"/>
                     </group>
                     <div class="alert alert-info" role="alert" attrs="{'invisible': [('mode', '!=', 'signup')]}">
@@ -82,12 +83,15 @@
                     <div class="alert alert-info" role="alert"><b>Your data stays private.</b> Who can use the chat - and whose data they see - is set by the administrator in Aski &gt; Chat Settings: share one connection with a group, keep it to administrators only, or let each person connect their own Aski account and see only what their own Odoo user can.</div>
                     <div class="alert alert-warning" role="alert">
                         <field name="partner_managed" invisible="1"/>
-                        <div attrs="{'invisible': ['|', ('partner_managed', '=', True), ('signup_partner_code', '!=', False)]}">
-                            <p class="mb-0">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web. See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
-                        </div>
-                        <div attrs="{'invisible': [('partner_managed', '=', False), ('signup_partner_code', '=', False)]}">
-                            <p class="mb-0">Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.</p>
-                        </div>
+                        <!-- Los precios de lista son para quien se da de alta por
+                             su cuenta. A un cliente de un socio hay que ocultarselos:
+                             el precio se lo pone SU socio, y verlos aqui le quema el
+                             margen delante de su propio cliente.
+                             `partner_managed` solo se sabe con la cuenta ya conectada;
+                             en FRIO la señal es el codigo de socio preconfigurado en
+                             la instancia. -->
+                        <p class="mb-0" attrs="{'invisible': ['|', ('partner_managed', '!=', False), ('signup_partner_code', '!=', False)]}">Chat usage spends credits from that Aski account's wallet - the same plan used by the Aski mobile app and web. See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=chat_wizard_billing" target="_blank">app.aski.dev/billing</a>.</p>
+                        <p class="mb-0" attrs="{'invisible': [('partner_managed', '=', False), ('signup_partner_code', '=', False)]}">Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.</p>
                     </div>
                 </sheet>
                 <footer>
@@ -129,6 +133,18 @@
                     <group>
                         <field name="access_mode"/>
                     </group>
+                    <!-- Se dice ANTES de tocar el desplegable, no solo al
+                         cambiarlo: quien lo lee aqui ya sabe a que atenerse. -->
+                    <div class="alert alert-warning" role="alert">
+                        <b>Changing the access mode closes every Aski connection in this database</b>, yours included. Each mode grants a different level of access, so nobody keeps the one they were given under the previous mode - otherwise they would keep reaching this Odoo from the Aski app after the change. Everyone connects again afterwards.
+                    </div>
+                    <!-- Los asientos y QUIEN de este Odoo esta esperando uno.
+                         La demanda ya esta medida aqui dentro: quien la mira es
+                         justo quien puede resolverla, sin salir a otra pantalla. -->
+                    <div class="alert alert-secondary" role="alert"
+                         attrs="{'invisible': [('seats_summary_html', '=', False)]}">
+                        <field name="seats_summary_html" nolabel="1" readonly="1"/>
+                    </div>
                     <div class="alert alert-info" role="alert" attrs="{'invisible': [('access_mode', '!=', 'per_user')]}">
                         <b>Per user:</b> each internal user connects their own Aski account from the chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what their own Odoo user can see, and each person spends their own credits - nothing else to set up here.
                     </div>
@@ -137,8 +153,7 @@
                         <!-- QUE cuenta Aski esta conectada. Es el dato que faltaba
                              para saber cual paga las preguntas de todo el equipo.
                              Vacio hasta la primera sincronizacion. -->
-                        <field name="email" readonly="1"
-                               attrs="{'invisible': [('email', '=', False)]}"/>
+                        <field name="email" readonly="1" attrs="{'invisible': [('email', '=', False)]}"/>
                         <field name="plan_name" readonly="1"/>
                         <field name="wallet_credits" readonly="1"/>
                         <field name="agent_enabled" widget="boolean_toggle" readonly="1"
@@ -147,15 +162,22 @@
                     </group>
                     <field name="partner_managed" invisible="1"/>
                     <field name="has_partner_code" invisible="1"/>
-                    <div class="text-muted" style="margin-top:8px;" attrs="{'invisible': ['|', ('partner_managed', '=', True), ('has_partner_code', '=', True)]}">
+                    <!-- Mismo criterio que el asistente: los precios de lista solo
+                         para quien se da de alta por su cuenta. -->
+                    <div class="text-muted" style="margin-top:8px;" attrs="{'invisible': ['|', ('partner_managed', '!=', False), ('has_partner_code', '!=', False)]}">
                         See all plans and pricing at <a href="https://aski.dev/?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_pricing#pricing" target="_blank">aski.dev/#pricing</a>, or buy and top up credits at <a href="https://app.aski.dev/billing?utm_source=odoo&amp;utm_medium=aski_connector&amp;utm_campaign=settings_billing" target="_blank">app.aski.dev/billing</a>.
                     </div>
                     <div class="text-muted" style="margin-top:8px;" attrs="{'invisible': [('partner_managed', '=', False)]}">
-                        Your Aski plan and credits are handled by your Aski partner - contact them for plan changes or top-ups.
+                        Your Aski plan and credits are managed by your partner - contact them for plan changes or top-ups.
                     </div>
                 </sheet>
                 <footer>
-                    <!-- Save: persiste el modo en per_user (ahi los demas botones se ocultan); type=object guarda el registro antes de llamar. Sin el, cambiar a per_user se descartaba al Close. -->
+                    <!-- Guardar SIEMPRE visible: es el unico boton que persiste el
+                         modo de acceso en el modo 'per_user' (ahi los botones de
+                         conexion se ocultan). Sin el, cambiar a 'per_user' quedaba
+                         solo con 'Close' (special=cancel) y el cambio se descartaba
+                         al cerrar -> el modo nunca se aplicaba. Como es type=object,
+                         el framework guarda el registro antes de llamar al metodo. -->
                     <button name="action_save_settings" type="object"
                             string="Save" class="btn-primary"/>
                     <button name="action_test_connection" type="object"
