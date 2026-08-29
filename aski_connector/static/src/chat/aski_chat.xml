@@ -1211,6 +1211,45 @@
                                     <button t-else="" class="ac-btn-ghost-sm"
                                             t-att-disabled="state.seatBusyId === p.id"
                                             t-on-click="() => this.pedirQuitar(p)">Take the seat back</button>
+                                    <!-- Cambiar rol y tope sin salir de aqui. El
+                                         backend lo admite; hasta ahora subirle el
+                                         tope a alguien obligaba a irse a la web. -->
+                                    <button class="ac-btn-ghost-sm"
+                                            t-att-disabled="state.seatBusyId === p.id"
+                                            t-on-click="() => this.abrirEditarAsiento(p)">Change limits</button>
+                                </div>
+                            </div>
+
+                            <!-- Editar un asiento. Abre bajo la persona, no en
+                                 otra pantalla: se esta mirando su consumo y el
+                                 tope se decide con esa cifra delante. -->
+                            <div t-if="state.seatEdit and state.seatEdit.id === p.id" class="ac-ins-new">
+                                <div class="ac-ins-q">Change limits</div>
+                                <div class="ac-ins-campo">
+                                    <label>What they can do</label>
+                                    <div class="ac-chips">
+                                        <button t-attf-class="ac-chip {{ state.seatEditRol === 'member' ? 'on' : '' }}"
+                                                t-on-click="() => this.state.seatEditRol = 'member'">Member</button>
+                                        <button t-attf-class="ac-chip {{ state.seatEditRol === 'admin' ? 'on' : '' }}"
+                                                t-on-click="() => this.state.seatEditRol = 'admin'">Administrator</button>
+                                    </div>
+                                </div>
+                                <div class="ac-ins-campo">
+                                    <label>Monthly cap</label>
+                                    <div class="ac-ins-field">
+                                        <input type="number" t-model="state.seatEditTope" min="0"/>
+                                        <span class="ac-ins-suf">credits</span>
+                                    </div>
+                                </div>
+                                <div class="ac-ins-note">
+                                    Leave it empty for no cap. With no cap, one person can spend the whole team pot.
+                                </div>
+                                <div class="ac-ins-btns2">
+                                    <button class="ac-btn-primary"
+                                            t-att-disabled="state.seatBusyId === p.id"
+                                            t-on-click="guardarAsiento">Save</button>
+                                    <button class="ac-btn-ghost-sm"
+                                            t-on-click="cerrarEditarAsiento">Not now</button>
                                 </div>
                             </div>
 
@@ -1239,16 +1278,71 @@
                                         t-on-click="abrirInvitar">
                                     <i class="fa fa-user-plus"/> Invite someone
                                 </button>
-                                <!-- Cliente de un socio: SUMAR asientos no se
-                                     compra aqui (la tarifa la pone el socio y el
-                                     backend rechaza el cobro). Sin esto, en
-                                     cuanto se llena el equipo la hoja no ofrece
-                                     ninguna salida. -->
-                                <a t-if="state.equipo.partner_managed and state.equipo.partner_contact_url"
-                                   class="ac-btn-ghost-sm" target="_blank" rel="noopener noreferrer"
-                                   t-att-href="state.equipo.partner_contact_url">
-                                    <i class="fa fa-comments-o"/> Contact your provider
-                                </a>
+                                <!-- ⛔ Cliente de un socio: aqui NO se compra ni
+                                     se manda a "contactar a ventas". La tarifa la
+                                     pone el socio, y quien usa Aski dentro de
+                                     Odoo esta aqui por no salir a otra pantalla.
+                                     Se deja una peticion REGISTRADA que el socio
+                                     ve en su panel y resuelve de un toque. -->
+                                <button t-if="esDeSocio" class="ac-btn-ghost-sm"
+                                        data-act="ask-seat"
+                                        t-att-disabled="state.pidiendo or yaPedido('seat', '')"
+                                        t-on-click="() => this.pedirAlProveedor('seat', null)">
+                                    <t t-if="yaPedido('seat', '')">
+                                        <i class="fa fa-check"/> Seats requested
+                                    </t>
+                                    <t t-else="">
+                                        <i class="fa fa-user-plus"/> Ask for more seats
+                                    </t>
+                                </button>
+                            </div>
+
+                            <!-- Lo demas que solo puede darle su proveedor. Va
+                                 aqui y no en otra pantalla porque es el mismo
+                                 gesto: pedirle algo a quien lleva tu cuenta. -->
+                            <div t-if="esDeSocio" class="ac-ins-nuevos">
+                                <button class="ac-btn-ghost-sm" data-act="ask-plan"
+                                        t-on-click="() => this.abrirPedir('plan')">
+                                    <i class="fa fa-arrow-up"/> Ask for a plan change
+                                </button>
+                                <button class="ac-btn-ghost-sm" data-act="ask-topup"
+                                        t-on-click="() => this.abrirPedir('topup')">
+                                    <i class="fa fa-bolt"/> Ask for a top-up
+                                </button>
+                            </div>
+
+                            <!-- El cliente elige el producto CONCRETO: pedir "mas"
+                                 a secas obliga al socio a escribirle antes de
+                                 poder resolverlo, y entonces no se ahorra la
+                                 conversacion que esto viene a ahorrar. -->
+                            <div t-if="state.pedirAbierto === 'plan'" class="ac-ins-new">
+                                <div class="ac-ins-q">Which plan do you want?</div>
+                                <div t-if="!state.catalogo" class="ac-ins-note">Reading the plans…</div>
+                                <div t-else="" class="ac-ins-btns">
+                                    <button t-foreach="state.catalogo.plans" t-as="p" t-key="p.id"
+                                            class="ac-btn-ghost-sm"
+                                            t-att-disabled="state.pidiendo or yaPedido('plan', p.id)"
+                                            t-on-click="() => this.pedirAlProveedor('plan', p.id)">
+                                        <t t-esc="p.name"/>
+                                        <t t-if="yaPedido('plan', p.id)"> · requested</t>
+                                    </button>
+                                </div>
+                                <div class="ac-ins-note" t-esc="notaProveedor"/>
+                            </div>
+
+                            <div t-if="state.pedirAbierto === 'topup'" class="ac-ins-new">
+                                <div class="ac-ins-q">How many credits do you need?</div>
+                                <div t-if="!state.catalogo" class="ac-ins-note">Reading the top-ups…</div>
+                                <div t-else="" class="ac-ins-btns">
+                                    <button t-foreach="state.catalogo.packs" t-as="k" t-key="k.id"
+                                            class="ac-btn-ghost-sm"
+                                            t-att-disabled="state.pidiendo or yaPedido('topup', k.id)"
+                                            t-on-click="() => this.pedirAlProveedor('topup', k.id)">
+                                        <t t-esc="k.credits"/> cr
+                                        <t t-if="yaPedido('topup', k.id)"> · requested</t>
+                                    </button>
+                                </div>
+                                <div class="ac-ins-note" t-esc="notaProveedor"/>
                             </div>
 
                             <div class="ac-ins-note">

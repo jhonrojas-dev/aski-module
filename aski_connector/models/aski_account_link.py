@@ -1396,11 +1396,23 @@ class AskiAccountLink(models.Model):
         # con dos avisos encendidos detras, ofrecia encender un resumen que ya
         # existia, y el 409 que devolvia el backend salia disfrazado de «cupo
         # lleno». El arnes no lo veia porque simula ESTE metodo, no el backend.
+        # ⛔ El resumen y el cierre dejaron de ser UNO por cuenta: ahora hay uno
+        # por conexion y el backend los manda en `digests`/`closings`. Los
+        # singulares siguen ahi por las apps ya publicadas, pero traen SOLO el
+        # primero — con dos conexiones, el de esta podia no venir nunca y la hoja
+        # ofrecia encender un resumen que ya existia (el 409 salia disfrazado de
+        # «cupo lleno»). Se leen los plurales y se cae a los singulares.
+        #
+        # Esto NO cambia lo que se ve: el conector sigue enseñando una sola
+        # conexion —la activa— porque dentro de Odoo no hay mas. Lo que arregla es
+        # que la suya no se pierda cuando la cuenta tiene otras.
         crudos = []
-        for unico in ("digest", "closing"):
-            fila = datos.get(unico)
-            if fila:
-                crudos.append(fila)
+        for plural, unico in (("digests", "digest"), ("closings", "closing")):
+            varios = datos.get(plural)
+            if varios:
+                crudos.extend(varios)
+            elif datos.get(unico):
+                crudos.append(datos[unico])
         for lista in ("alerts", "watches", "reminders", "reports"):
             crudos.extend(datos.get(lista) or [])
         filas = [f for f in crudos if f.get("credential_id") == rec.credential_id]
@@ -1752,6 +1764,135 @@ class AskiAccountLink(models.Model):
         if resp.status_code in (200, 204):
             return {"ok": True}
         raise UserError(self._error_asiento(resp))
+
+    @_rpc_seguro
+    @api.model
+    def request_to_partner(self, kind, plan_id=None, pack_id=None):
+        """Le pide a su proveedor un asiento mas, un plan o una recarga.
+
+        ⛔ Aqui NO se enlaza a la pasarela ni se manda a "contactar a ventas":
+        quien usa Aski dentro de Odoo suele estar ahi justamente por no querer
+        salir a otra pantalla, y ademas su tarifa la pone su socio. Se deja una
+        peticion REGISTRADA que el socio ve en su panel y resuelve de un toque —
+        no un mensaje que se pierde fuera del producto.
+
+        No se confunde con `request_seat`: aquel lo usa alguien SIN cuenta que
+        pide sentarse; este lo usa el titular, que ya la tiene y quiere mas sitio.
+        """
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        # ⛔ Se OMITEN los vacios, no se mandan como False: `_sin_nulos` sirve
+        # para la RESPUESTA (XML-RPC no marshalea None) y aplicarla al cuerpo
+        # enviaria `plan_id: false`, que el backend rechaza. Aqui lo que toca es
+        # que el campo no viaje.
+        cuerpo = {"kind": kind}
+        if plan_id:
+            cuerpo["plan_id"] = plan_id
+        if pack_id:
+            cuerpo["pack_id"] = pack_id
+        try:
+            resp = requests.post(aski_api_base(self.env) + "/partner/requests",
+                                 json=cuerpo, headers=rec._headers(),
+                                 timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code in (200, 201):
+            return resp.json() or {}
+        raise UserError(self._error_asiento(resp))
+
+    @_rpc_seguro
+    @api.model
+    def my_partner_requests(self):
+        """Lo que esta cuenta ya pidio y sigue sin resolver.
+
+        Sin esto el boton no sabe que ya se pulso, y quien no ve respuesta
+        inmediata lo pide cinco veces — cinco filas de ruido en el panel del
+        socio por una sola intencion.
+        """
+        vacio = {"ok": False, "requests": []}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            return vacio
+        try:
+            resp = requests.get(aski_api_base(self.env) + "/partner/requests/mine",
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return vacio
+        if resp.status_code != 200:
+            return vacio
+        return {"ok": True, "requests": list(resp.json() or [])}
+
+    @_rpc_seguro
+    @api.model
+    def update_seat(self, seat_id, vals):
+        """Cambia el ROL o el TOPE mensual de un asiento ya creado.
+
+        ⛔ El tope se quita mandando **0**, no vacio: en un PATCH parcial, "no lo
+        mande" y "ponlo en nada" son indistinguibles, y el cero es explicito. Un
+        tope de cero real dejaria a la persona sin poder preguntar, que no es algo
+        que nadie configure a proposito.
+        """
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        # Solo viaja lo que se quiere cambiar: es un PATCH parcial.
+        cuerpo = {}
+        rol = (vals or {}).get("role")
+        tope = (vals or {}).get("monthly_credit_cap")
+        if rol:
+            cuerpo["role"] = rol
+        if tope is not None:
+            cuerpo["monthly_credit_cap"] = int(tope)
+        try:
+            resp = requests.patch(
+                aski_api_base(self.env) + "/seats/%s" % int(seat_id),
+                json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(_("Could not reach Aski: %s") % e)
+        if resp.status_code == 200:
+            return resp.json() or {}
+        raise UserError(self._error_asiento(resp))
+
+    @_rpc_seguro
+    @api.model
+    def billing_catalog(self):
+        """Que planes y recargas se le pueden PEDIR al proveedor.
+
+        Se traen del backend y no se escriben aqui por lo mismo que la tarifa de
+        asientos: una copia de los precios dentro del modulo se separa de la real
+        en el primer cambio, y el cliente veria una cifra que su socio no le va a
+        cobrar. Solo mensuales y sin SAP, igual que la lista que ya ve en la web.
+        """
+        vacio = {"ok": False, "plans": [], "packs": []}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            return vacio
+        try:
+            rp = requests.get(aski_api_base(self.env) + "/billing/plans",
+                              headers=rec._headers(), timeout=_TIMEOUT_FAST)
+            rk = requests.get(aski_api_base(self.env) + "/billing/packs",
+                              headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return vacio
+        if rp.status_code != 200:
+            return vacio
+        planes = [
+            {
+                "id": p.get("id"), "name": p.get("name"),
+                "monthly_credits": p.get("monthly_credits"),
+                "daily_query_limit": p.get("daily_query_limit"),
+            }
+            for p in (rp.json() or [])
+            if p.get("period") != "annual" and not str(p.get("id", "")).startswith("sap_")
+        ]
+        packs = []
+        if rk.status_code == 200:
+            packs = [
+                {"id": k.get("id"), "credits": k.get("credits")}
+                for k in (rk.json() or [])
+            ]
+        return {"ok": True, "plans": planes, "packs": packs}
 
     def _error_asiento(self, resp):
         """Traduce el codigo del backend a algo que se pueda leer.

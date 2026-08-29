@@ -293,6 +293,19 @@ export class AskiChatWidget extends Component {
             invEnlace: "",
             seatPorQuitar: null,
             seatBusyId: null,
+            // --- Pedirle cosas al proveedor, DESDE Odoo ---
+            // ⛔ Aqui no se enlaza a la pasarela ni se manda a "contactar a
+            // ventas": quien usa Aski dentro del ERP esta ahi por no salir a
+            // otra pantalla, y ademas su tarifa la pone su socio. Se deja una
+            // peticion REGISTRADA que el socio ve en su panel.
+            pedidos: [],
+            catalogo: null,
+            pidiendo: "",
+            pedirAbierto: "",
+            // El asiento que se esta editando (rol y tope). Null = ninguno.
+            seatEdit: null,
+            seatEditRol: "member",
+            seatEditTope: "",
             insights: [],
             insightsLoading: false,
             // Distinto de "no tienes ninguno": el backend no contesto. Son dos
@@ -2081,12 +2094,127 @@ export class AskiChatWidget extends Component {
         this.state.detailFor = null;
         this.state.equipoOpen = true;
         this.state.equipoCargando = true;
+        this.state.pedirAbierto = "";
+        this.state.seatEdit = null;
         try {
             this.state.equipo = await this.orm.call("aski.account.link", "team_seats", []);
         } catch {
             this.state.equipo = null;
         } finally {
             this.state.equipoCargando = false;
+        }
+        // Lo pendiente y el catalogo van DESPUES y sin bloquear: la hoja ya se
+        // puede leer con el equipo, y si el catalogo tarda no hay por que dejar
+        // la pantalla en blanco esperandolo.
+        this.cargarPedidos();
+    }
+
+    /** Lo que esta cuenta ya pidio y sigue sin resolver, mas lo que se puede
+     *  pedir. Sin lo primero, el boton no sabe que ya se pulso y la persona lo
+     *  repite — cinco filas de ruido en el panel del socio por una intencion. */
+    async cargarPedidos() {
+        try {
+            const r = await this.orm.call("aski.account.link", "my_partner_requests", []);
+            this.state.pedidos = (r && r.requests) || [];
+        } catch {
+            this.state.pedidos = [];
+        }
+        if (!this.state.catalogo) {
+            try {
+                this.state.catalogo = await this.orm.call(
+                    "aski.account.link", "billing_catalog", []);
+            } catch {
+                this.state.catalogo = null;
+            }
+        }
+    }
+
+    /** ¿Ya se pidió esto y sigue esperando? `id` vacio = cualquiera de ese tipo
+     *  (los asientos no llevan producto: se pide capacidad, no un articulo). */
+    yaPedido(kind, id) {
+        return (this.state.pedidos || []).some(
+            (p) => p.kind === kind && (!id || p.plan_id === id || p.pack_id === id));
+    }
+
+    get esDeSocio() {
+        const e = this.state.equipo || {};
+        return !!e.partner_managed;
+    }
+
+    get nombreProveedor() {
+        const e = this.state.equipo || {};
+        return e.partner_name || _t("your provider");
+    }
+
+    /** Quien va a recibir la peticion. Se dice con NOMBRE: "se lo pedimos a tu
+     *  proveedor" deja a la persona sin saber a quien recordarselo si tarda. */
+    get notaProveedor() {
+        return String(_t("%s gets it in their panel and turns it on."))
+            .replace("%s", this.nombreProveedor);
+    }
+
+    abrirPedir(kind) {
+        this.state.pedirAbierto = this.state.pedirAbierto === kind ? "" : kind;
+    }
+
+    /** Deja la peticion registrada. Un asiento no lleva `id`: lo que se pide es
+     *  capacidad, y el precio del siguiente lo pone el socio. */
+    async pedirAlProveedor(kind, id) {
+        if (this.state.pidiendo) {
+            return;
+        }
+        this.state.pidiendo = kind + (id || "");
+        try {
+            const args = [kind];
+            if (kind === "plan") {
+                args.push(id, null);
+            } else if (kind === "topup") {
+                args.push(null, id);
+            }
+            await this.orm.call("aski.account.link", "request_to_partner", args);
+            this.state.pedirAbierto = "";
+            await this.cargarPedidos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger" });
+        } finally {
+            this.state.pidiendo = "";
+        }
+    }
+
+    // --- Editar un asiento ya creado (rol y tope) ---------------------
+    // El backend lo admite desde hoy; hasta ahora la hoja solo sabia quitar y
+    // devolver, asi que subirle el tope a alguien obligaba a salir a la web.
+
+    abrirEditarAsiento(p) {
+        this.state.seatEdit = p;
+        this.state.seatEditRol = p.role || "member";
+        this.state.seatEditTope = p.monthly_credit_cap ? String(p.monthly_credit_cap) : "";
+    }
+
+    cerrarEditarAsiento() {
+        this.state.seatEdit = null;
+    }
+
+    async guardarAsiento() {
+        const p = this.state.seatEdit;
+        if (!p || this.state.seatBusyId) {
+            return;
+        }
+        this.state.seatBusyId = p.id;
+        try {
+            // ⛔ El tope se quita mandando 0, no vacio: en un PATCH parcial "no
+            // lo mande" y "ponlo en nada" son indistinguibles.
+            const tope = String(this.state.seatEditTope || "").trim();
+            await this.orm.call("aski.account.link", "update_seat", [p.id, {
+                role: this.state.seatEditRol,
+                monthly_credit_cap: tope === "" ? 0 : parseInt(tope, 10),
+            }]);
+            this.state.seatEdit = null;
+            await this.openTeam();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger" });
+        } finally {
+            this.state.seatBusyId = null;
         }
     }
 
