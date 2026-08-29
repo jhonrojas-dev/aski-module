@@ -2843,3 +2843,40 @@ msgstr "O que eu posso fazer no seu ERP"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What I can remind you about"
 msgstr "O que posso lembrar para você"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Changing the access mode closes every Aski connection in this "
+"database</b>, yours included. Each mode grants a different level of access, "
+"so nobody keeps the one they were given under the previous mode - otherwise "
+"they would keep reaching this Odoo from the Aski app after the change. "
+"Everyone connects again afterwards."
+msgstr ""
+"<b>Mudar o modo de acesso fecha todas as conexões do Aski nesta base de "
+"dados</b>, inclusive a sua. Cada modo concede um nível de acesso diferente, "
+"então ninguém mantém o que recebeu no modo anterior; senão continuaria "
+"chegando a este Odoo pelo app do Aski depois da mudança. Depois todos "
+"conectam de novo."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "All Aski connections will be closed"
+msgstr "Todas as conexões do Aski serão fechadas"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
+"\n"
+"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
+"\n"
+"Everyone will have to connect again after saving."
+msgstr ""
+"Salvar esta mudança fecha todas as conexões do Aski nesta base de dados (%s agora mesmo), inclusive a sua.\n"
+"\n"
+"Cada modo concede um nível de acesso diferente, então uma conexão aberta no modo anterior não pode continuar aberta: quem conectou antes continuaria chegando a este Odoo pelo app do Aski mesmo depois da mudança.\n"
+"\n"
+"Todos terão que conectar de novo depois de salvar."

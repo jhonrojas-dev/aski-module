@@ -2876,3 +2876,40 @@ msgstr "Was ich in Ihrem ERP kann"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What I can remind you about"
 msgstr "Woran ich Sie erinnern kann"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Changing the access mode closes every Aski connection in this "
+"database</b>, yours included. Each mode grants a different level of access, "
+"so nobody keeps the one they were given under the previous mode - otherwise "
+"they would keep reaching this Odoo from the Aski app after the change. "
+"Everyone connects again afterwards."
+msgstr ""
+"<b>Ein Wechsel des Zugriffsmodus schließt alle Aski-Verbindungen dieser "
+"Datenbank</b>, auch Ihre. Jeder Modus gewährt eine andere Zugriffsstufe, "
+"deshalb behält niemand die aus dem vorherigen Modus; sonst käme er auch nach"
+" dem Wechsel weiter über die Aski-App an dieses Odoo. Danach verbinden sich "
+"alle erneut."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "All Aski connections will be closed"
+msgstr "Alle Aski-Verbindungen werden geschlossen"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
+"\n"
+"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
+"\n"
+"Everyone will have to connect again after saving."
+msgstr ""
+"Mit dem Speichern werden alle Aski-Verbindungen dieser Datenbank geschlossen (%s im Moment), auch Ihre.\n"
+"\n"
+"Jeder Modus gewährt eine andere Zugriffsstufe: Eine im vorherigen Modus geöffnete Verbindung kann nicht offen bleiben, sonst käme die Person, die sich verbunden hatte, auch nach dem Wechsel weiter über die Aski-App an dieses Odoo.\n"
+"\n"
+"Nach dem Speichern müssen sich alle erneut verbinden."

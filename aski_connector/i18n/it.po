@@ -2847,3 +2847,40 @@ msgstr "Cosa posso fare nel tuo ERP"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What I can remind you about"
 msgstr "Cosa posso ricordarti"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Changing the access mode closes every Aski connection in this "
+"database</b>, yours included. Each mode grants a different level of access, "
+"so nobody keeps the one they were given under the previous mode - otherwise "
+"they would keep reaching this Odoo from the Aski app after the change. "
+"Everyone connects again afterwards."
+msgstr ""
+"<b>Cambiare il modo di accesso chiude tutte le connessioni Aski di questo "
+"database</b>, compresa la tua. Ogni modo concede un livello di accesso "
+"diverso, quindi nessuno conserva quello ricevuto con il modo precedente; "
+"altrimenti continuerebbe a raggiungere questo Odoo dall'app di Aski dopo il "
+"cambio. Poi tutti si ricollegano."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "All Aski connections will be closed"
+msgstr "Tutte le connessioni Aski verranno chiuse"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
+"\n"
+"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
+"\n"
+"Everyone will have to connect again after saving."
+msgstr ""
+"Salvare questa modifica chiude tutte le connessioni Aski di questo database (%s in questo momento), compresa la tua.\n"
+"\n"
+"Ogni modo concede un livello di accesso diverso, quindi una connessione aperta con il modo precedente non può restare aperta: chi si era collegato continuerebbe a raggiungere questo Odoo dall'app di Aski anche dopo il cambio.\n"
+"\n"
+"Tutti dovranno collegarsi di nuovo dopo il salvataggio."

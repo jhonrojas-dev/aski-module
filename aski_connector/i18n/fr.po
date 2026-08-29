@@ -2867,3 +2867,40 @@ msgstr "Ce que je peux faire dans votre ERP"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What I can remind you about"
 msgstr "Ce que je peux vous rappeler"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Changing the access mode closes every Aski connection in this "
+"database</b>, yours included. Each mode grants a different level of access, "
+"so nobody keeps the one they were given under the previous mode - otherwise "
+"they would keep reaching this Odoo from the Aski app after the change. "
+"Everyone connects again afterwards."
+msgstr ""
+"<b>Changer le mode d'accès ferme toutes les connexions Aski de cette "
+"base</b>, la vôtre comprise. Chaque mode accorde un niveau d'accès différent"
+" : personne ne conserve celui du mode précédent, sinon il continuerait "
+"d'atteindre cet Odoo depuis l'application Aski après le changement. Ensuite,"
+" chacun se reconnecte."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "All Aski connections will be closed"
+msgstr "Toutes les connexions Aski vont être fermées"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
+"\n"
+"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
+"\n"
+"Everyone will have to connect again after saving."
+msgstr ""
+"Enregistrer ce changement ferme toutes les connexions Aski de cette base (%s pour l'instant), la vôtre comprise.\n"
+"\n"
+"Chaque mode accorde un niveau d'accès différent : une connexion ouverte sous le mode précédent ne peut pas rester ouverte, sinon la personne qui s'était connectée continuerait d'atteindre cet Odoo depuis l'application Aski après le changement.\n"
+"\n"
+"Tout le monde devra se reconnecter après l'enregistrement."

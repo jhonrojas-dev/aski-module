@@ -2845,3 +2845,40 @@ msgstr "Lo que puedo hacer en tu ERP"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What I can remind you about"
 msgstr "Lo que puedo recordarte"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Changing the access mode closes every Aski connection in this "
+"database</b>, yours included. Each mode grants a different level of access, "
+"so nobody keeps the one they were given under the previous mode - otherwise "
+"they would keep reaching this Odoo from the Aski app after the change. "
+"Everyone connects again afterwards."
+msgstr ""
+"<b>Cambiar el modo de acceso cierra todas las conexiones de Aski de esta "
+"base de datos</b>, la tuya incluida. Cada modo concede un nivel de acceso "
+"distinto, así que nadie conserva el que le dieron con el modo anterior; si "
+"no, seguiría llegando a este Odoo desde la app de Aski después del cambio. "
+"Después todos vuelven a conectar."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "All Aski connections will be closed"
+msgstr "Se cerrarán todas las conexiones de Aski"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
+"\n"
+"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
+"\n"
+"Everyone will have to connect again after saving."
+msgstr ""
+"Guardar este cambio cierra todas las conexiones de Aski de esta base de datos (%s ahora mismo), la tuya incluida.\n"
+"\n"
+"Cada modo concede un nivel de acceso distinto, así que una conexión abierta con el modo anterior no puede seguir abierta: quien conectó antes seguiría llegando a este Odoo desde la app de Aski incluso después del cambio.\n"
+"\n"
+"Todos tendrán que volver a conectar después de guardar."

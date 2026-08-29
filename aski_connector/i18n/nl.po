@@ -2853,3 +2853,40 @@ msgstr "Wat ik kan doen in je ERP"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What I can remind you about"
 msgstr "Waaraan ik je kan herinneren"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Changing the access mode closes every Aski connection in this "
+"database</b>, yours included. Each mode grants a different level of access, "
+"so nobody keeps the one they were given under the previous mode - otherwise "
+"they would keep reaching this Odoo from the Aski app after the change. "
+"Everyone connects again afterwards."
+msgstr ""
+"<b>Het wijzigen van de toegangsmodus sluit alle Aski-verbindingen in deze "
+"database</b>, ook die van jou. Elke modus geeft een ander toegangsniveau, "
+"dus niemand houdt wat hij in de vorige modus kreeg; anders zou hij na de "
+"wijziging via de Aski-app bij deze Odoo blijven komen. Daarna verbindt "
+"iedereen opnieuw."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "All Aski connections will be closed"
+msgstr "Alle Aski-verbindingen worden gesloten"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
+"\n"
+"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
+"\n"
+"Everyone will have to connect again after saving."
+msgstr ""
+"Deze wijziging opslaan sluit alle Aski-verbindingen in deze database (%s op dit moment), ook die van jou.\n"
+"\n"
+"Elke modus geeft een ander toegangsniveau, dus een verbinding die in de vorige modus is geopend kan niet openblijven: wie eerder verbond zou na de wijziging via de Aski-app bij deze Odoo blijven komen.\n"
+"\n"
+"Na het opslaan moet iedereen opnieuw verbinden."

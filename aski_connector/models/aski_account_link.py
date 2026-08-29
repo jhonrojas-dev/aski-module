@@ -310,6 +310,112 @@ class AskiAccountLink(models.Model):
         return self._get_global()
 
     # ------------------------------------------------------------------
+    # Cambiar de modo CIERRA todas las conexiones. No es celo: es que cada modo
+    # concede un acceso distinto, y una conexion abierta bajo el modo anterior
+    # sigue viva despues del cambio.
+    #
+    # Los tres agujeros que cierra, medidos sobre el codigo anterior:
+    #
+    #  1. `per_user` -> `shared_admin`. El admin cree que corta a todo el que no
+    #     sea administrador. No corta nada: cada persona conserva SU credencial
+    #     activa en Aski y sigue consultando este Odoo desde el movil o la web,
+    #     porque el modo solo decide como autentica el chat EMBEBIDO.
+    #  2. `shared_*` -> `per_user`. Se cambia justo para dejar de consultar con
+    #     la llave del admin (que lo ve todo), pero esa credencial global sigue
+    #     viva del lado de Aski.
+    #  3. `shared_group` -> `per_user` -> `shared_group`. Sin reset, volver al
+    #     modo compartido reabre el acceso de TODO el grupo a traves de la llave
+    #     del admin sin que nadie lo vuelva a autorizar; y si entretanto entro
+    #     gente nueva al grupo, hereda esa visibilidad sin un solo paso de
+    #     consentimiento.
+    #
+    # Se cierra de verdad, no se olvida en local: `_disconnect_link` archiva la
+    # credencial del lado de Aski (el corte real) y revoca la API key de Odoo.
+    # ------------------------------------------------------------------
+    @api.model
+    def _conexiones_vivas(self):
+        """Los enlaces con token puesto, mirando el campo en Python.
+
+        ⛔ Nada de `search([("pat_enc", "!=", False)])`: en Odoo un `!=` NO trae
+        solo lo que difiere, y `pat_enc` ademas esta restringido a
+        `base.group_system`, asi que el dominio depende de quien pregunte. Se
+        recorre en sudo y se filtra aqui, que es estable.
+        """
+        return self.sudo().search([]).filtered(lambda r: r.pat_enc)
+
+    @api.model
+    def _cerrar_todas_las_conexiones(self):
+        """Desconecta TODOS los enlaces: el global y el de cada persona.
+
+        Devuelve cuantos se cerraron. Un enlace que falle no detiene a los demas:
+        entre cerrar cuatro de cinco y no cerrar ninguno porque uno dio timeout,
+        lo segundo es peor.
+        """
+        cerrados = 0
+        for rec in self._conexiones_vivas():
+            try:
+                self._disconnect_link(rec)
+                cerrados += 1
+            except Exception:  # noqa: BLE001
+                _logger.warning(
+                    "Aski: no se pudo cerrar el enlace %s al cambiar de modo; "
+                    "se limpia el token en local igual", rec.id, exc_info=True)
+                # Que quede sin token pase lo que pase: un enlace que sobrevive a
+                # un cambio de modo es justo el agujero que esto viene a cerrar.
+                rec.sudo().write({
+                    "pat_enc": False, "credential_id": False, "wallet_credits": 0,
+                    "plan_name": False, "email": False, "last_synced": False,
+                })
+                cerrados += 1
+        return cerrados
+
+    @api.onchange("access_mode")
+    def _onchange_access_mode_aviso(self):
+        """Avisa ANTES de guardar de que el cambio cierra todas las conexiones.
+
+        Va en un `onchange` y no en un dialogo de confirmacion porque salta en
+        cuanto se elige el modo nuevo —antes de guardar— y todavia se puede
+        volver atras sin consecuencias.
+        """
+        origen = self._origin
+        if not origen or origen.user_id or not origen.access_mode:
+            return
+        if origen.access_mode == self.access_mode:
+            return
+        vivas = len(self.env["aski.account.link"]._conexiones_vivas())
+        if not vivas:
+            return
+        return {"warning": {
+            "title": _("All Aski connections will be closed"),
+            "message": _(
+                "Saving this change closes every Aski connection in this "
+                "database (%s right now), including yours.\n\n"
+                "Each mode grants a different level of access, so a connection "
+                "opened under the previous mode cannot stay open: whoever "
+                "connected before would keep reaching this Odoo from the Aski "
+                "app even after the change.\n\n"
+                "Everyone will have to connect again after saving."
+            ) % vivas,
+        }}
+
+    def write(self, vals):
+        """Cambiar `access_mode` en el registro GLOBAL cierra todo.
+
+        ⛔ Se comprueba el valor ANTERIOR: guardar el formulario sin tocar el
+        modo manda `access_mode` igualmente en `vals`, y cerrar las conexiones de
+        todo el mundo por pulsar Guardar seria peor que el agujero.
+        """
+        modo = vals.get("access_mode")
+        cambia = bool(modo) and any(
+            not r.user_id and r.access_mode != modo for r in self.sudo())
+        res = super().write(vals)
+        if cambia:
+            cerrados = self._cerrar_todas_las_conexiones()
+            _logger.info("Aski: modo de acceso -> %s; %s conexion(es) cerradas",
+                         modo, cerrados)
+        return res
+
+    # ------------------------------------------------------------------
     # Quien puede USAR el chat, y quien puede CONECTAR (pegar token) — depende
     # del modo. En modos compartidos el chat lee via la conexion del admin
     # (sudo), asi que solo un grupo/los admin deben poder invocarlo; en per_user

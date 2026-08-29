@@ -133,6 +133,11 @@
                     <group>
                         <field name="access_mode"/>
                     </group>
+                    <!-- Se dice ANTES de tocar el desplegable, no solo al
+                         cambiarlo: quien lo lee aqui ya sabe a que atenerse. -->
+                    <div class="alert alert-warning" role="alert">
+                        <b>Changing the access mode closes every Aski connection in this database</b>, yours included. Each mode grants a different level of access, so nobody keeps the one they were given under the previous mode - otherwise they would keep reaching this Odoo from the Aski app after the change. Everyone connects again afterwards.
+                    </div>
                     <!-- Los asientos y QUIEN de este Odoo esta esperando uno.
                          La demanda ya esta medida aqui dentro: quien la mira es
                          justo quien puede resolverla, sin salir a otra pantalla. -->
