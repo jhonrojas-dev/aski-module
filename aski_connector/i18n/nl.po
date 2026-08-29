@@ -2789,3 +2789,67 @@ msgstr "cr"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "· requested"
 msgstr "· aangevraagd"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Everything is listed. What your connection does not support is\n"
+"                            marked, so you can see what you are missing."
+msgstr ""
+"Alles staat erbij. Wat je verbinding niet ondersteunt is gemarkeerd, zo zie "
+"je wat je mist."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Figures I can watch"
+msgstr "Cijfers die ik kan bewaken"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Not in your connection"
+msgstr "Niet in je verbinding"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Nothing runs on its own: I propose it and you confirm it, with your own "
+"permissions."
+msgstr ""
+"Niets draait vanzelf: ik stel het voor en jij bevestigt het, met je eigen "
+"rechten."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "See everything I can watch and remind you about"
+msgstr "Bekijk alles wat ik kan bewaken en waaraan ik kan herinneren"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "The catalog could not be read. Check the connection and try again."
+msgstr ""
+"De catalogus kon niet worden gelezen. Controleer de verbinding en probeer "
+"het opnieuw."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What I can do"
+msgstr "Wat ik kan doen"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What I can do in your ERP"
+msgstr "Wat ik kan doen in je ERP"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What I can remind you about"
+msgstr "Waaraan ik je kan herinneren"

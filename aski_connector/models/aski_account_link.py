@@ -2015,6 +2015,67 @@ class AskiAccountLink(models.Model):
             return vacio
         return {"ok": True, "topics": (resp.json() or {}).get("topics") or []}
 
+    def _catalogo(self, ruta, params=None):
+        """Lo comun a los dos catalogos: pedirlos y no romper si no llegan.
+
+        ⛔ Ambos responden 200 SIEMPRE (tambien sin el plan y con la funcion
+        apagada) a proposito: quien no sabe que algo existe no lo compra nunca.
+        Asi que aqui NO se filtra por plan — se muestra el mapa entero y cada
+        item dice si va en ESTA conexion.
+        """
+        vacio = {"ok": False, "groups": []}
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            return vacio
+        datos = dict(params or {})
+        datos["lang"] = (self.env.user.lang or "es")[:2]
+        if rec.credential_id:
+            datos["credential_id"] = rec.credential_id
+        try:
+            resp = requests.get(aski_api_base(self.env) + ruta, params=datos,
+                                headers=rec._headers(),
+                                timeout=_TIMEOUT_SUGGESTIONS)
+        except Exception:  # noqa: BLE001
+            return vacio
+        if resp.status_code != 200:
+            return vacio
+        cuerpo = resp.json() or {}
+        salida = {"ok": True, "groups": cuerpo.get("groups") or []}
+        for campo in ("total", "available", "feature_enabled", "connection_name",
+                      "erp_type", "credits_per_run", "credits_per_action",
+                      "in_plan"):
+            if campo in cuerpo:
+                salida[campo] = cuerpo[campo]
+        return salida
+
+    @_rpc_seguro
+    @api.model
+    def insights_catalog(self, kind=None):
+        """El mapa de lo que Aski sabe vigilar y recordar.
+
+        Faltaba: la hoja ofrecia crear un vigia sin decir en ningun sitio QUE se
+        puede vigilar, asi que solo lo descubria quien ya lo sabia. Android y la
+        web llevan este catalogo desde hace tiempo; el conector se quedo atras.
+
+        `kind` acota a un lado ("watch" | "reminder") porque cada seccion ensena
+        el suyo: las cifras en Vigias, los registros en Avisos.
+        """
+        self._ensure_chat_access()
+        return self._catalogo("/insights/catalog", {"kind": kind} if kind else None)
+
+    @_rpc_seguro
+    @api.model
+    def actions_catalog(self):
+        """Que puede HACER Aski sobre este ERP (cobrar, agendar, etc.).
+
+        Mismo hueco que el de avisos y peor: la seccion de acciones nombraba dos
+        verbos de ejemplo cuando ya hay diez, porque el texto estaba escrito a
+        mano. Servido por el backend, un verbo nuevo aparece sin publicar
+        version del modulo.
+        """
+        self._ensure_chat_access()
+        return self._catalogo("/actions/catalog")
+
 
     # -----------------------------------------------------------------
     #  Entrega de un aviso en la bandeja de Odoo

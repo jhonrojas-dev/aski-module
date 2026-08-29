@@ -193,6 +193,10 @@
                         <button class="ac-drawer-insights ac-drawer-team" t-on-click="openTeam">
                             <i class="fa fa-users"/> My team
                         </button>
+                        <button class="ac-drawer-insights ac-drawer-cat"
+                                t-on-click="() => this.abrirCatalogo('action')">
+                            <i class="fa fa-magic"/> What I can do
+                        </button>
                     </div>
 
                     <div t-if="state.connected and state.canConnect" class="ac-drawer-foot">
@@ -909,6 +913,16 @@
                         </button>
                     </div>
 
+                    <!-- Que hay disponible. Sin esto la hoja ofrecia "vigilar
+                         una cifra" sin decir cuales, y solo lo descubria quien
+                         ya lo sabia. -->
+                    <div t-if="!state.newKind and !state.insightNewFor" class="ac-cat-link">
+                        <button data-act="cat-watch"
+                                t-on-click="() => this.abrirCatalogo('watch')">
+                            <i class="fa fa-list-ul"/> See everything I can watch and remind you about
+                        </button>
+                    </div>
+
                     <!-- VIGIA -->
                     <div t-if="state.newKind === 'watch'" class="ac-ins-new">
                         <div class="ac-ins-q">New watch</div>
@@ -959,7 +973,7 @@
                                 It lands in your Odoo inbox, with your own permissions.
                             </div>
                             <div class="ac-ins-btns2">
-                                <button class="ac-btn-primary" t-on-click="guardarVigia"
+                                <button class="ac-btn-primary-sm" t-on-click="guardarVigia"
                                         t-att-disabled="state.insightSaving">
                                     <t t-if="state.insightSaving">Saving...</t>
                                     <t t-else="">Save alert</t>
@@ -992,7 +1006,7 @@
                                 Aski only writes when something new shows up. It never repeats one it already named.
                             </div>
                             <div class="ac-ins-btns2">
-                                <button class="ac-btn-primary" t-on-click="guardarRecordatorio"
+                                <button class="ac-btn-primary-sm" t-on-click="guardarRecordatorio"
                                         t-att-disabled="state.insightSaving">
                                     <t t-if="state.insightSaving">Saving...</t>
                                     <t t-else="">Save alert</t>
@@ -1024,7 +1038,7 @@
                         <div class="ac-ins-note">
                             It lands in your Odoo inbox, with your own permissions.
                         </div>
-                        <button class="ac-btn-primary" t-on-click="guardarAviso"
+                        <button class="ac-btn-primary-sm" t-on-click="guardarAviso"
                                 t-att-disabled="state.insightSaving">
                             <t t-if="state.insightSaving">Saving...</t>
                             <t t-else="">Save alert</t>
@@ -1068,6 +1082,108 @@
 
                     <div t-if="state.insightLimit" class="ac-ins-quota"
                          t-esc="textoCupoAvisos"/>
+                </div>
+            </div>
+
+            <!-- EL CATALOGO: que se puede vigilar, que se puede recordar y
+                 que se puede EJECUTAR sobre el ERP.
+
+                 Se sirve del backend y no se escribe aqui: sale de los mismos
+                 registros que ejecutan, asi que si algo se lista es porque
+                 existe, y un tema nuevo aparece sin publicar version del modulo.
+
+                 Y se ensena ENTERO, marcando lo que no va en esta conexion. Los
+                 catalogos que alimentan el dialogo de crear filtran a lo que la
+                 instancia sostiene -y hacen bien-, pero eso deja al usuario sin
+                 saber que se pierde. Aqui se ve el mapa completo. -->
+            <div t-if="state.catOpen" class="ac-sheet-wrap">
+                <div class="ac-scrim" t-on-click="cerrarCatalogo"/>
+                <div class="ac-sheet ac-sheet-cat" role="dialog" aria-modal="true">
+                    <div class="ac-sheet-grip"/>
+                    <div class="ac-sheet-head">
+                        <span class="ac-sheet-title">What I can do</span>
+                        <button class="ac-sheet-close" title="Close" t-on-click="cerrarCatalogo">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+
+                    <div t-if="state.catCargando" class="ac-ins-note">Reading your ERP…</div>
+                    <div t-elif="catVacio" class="ac-ins-note">
+                        The catalog could not be read. Check the connection and try again.
+                    </div>
+                    <t t-else="">
+                        <div class="ac-cat-leyenda">
+                            Everything is listed. What your connection does not support is
+                            marked, so you can see what you are missing.
+                        </div>
+
+                        <div t-if="gruposVigia.length" class="ac-cat-sec">
+                            <div class="ac-cat-sec-h">
+                                <b><i class="fa fa-eye"/> Figures I can watch</b>
+                                <span t-if="cuentaAvisos" class="ac-cat-count" t-esc="cuentaAvisos"/>
+                            </div>
+                            <div t-foreach="gruposVigia" t-as="g" t-key="g.id" class="ac-cat-grupo">
+                                <div class="ac-cat-grupo-t" t-esc="g.title"/>
+                                <div t-foreach="g.items" t-as="it" t-key="it.id"
+                                     class="ac-cat-item"
+                                     t-att-class="{'ac-cat-no': it.available === false}">
+                                    <div class="ac-cat-item-t">
+                                        <b t-esc="it.name"/>
+                                        <small t-esc="it.what"/>
+                                        <small t-if="it.example" class="ac-cat-ej" t-esc="it.example"/>
+                                    </div>
+                                    <span t-if="it.available === false" class="ac-cat-no-t">
+                                        Not in your connection
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div t-if="gruposRecordatorio.length" class="ac-cat-sec">
+                            <div class="ac-cat-sec-h">
+                                <b><i class="fa fa-clock-o"/> What I can remind you about</b>
+                            </div>
+                            <div t-foreach="gruposRecordatorio" t-as="g" t-key="g.id" class="ac-cat-grupo">
+                                <div class="ac-cat-grupo-t" t-esc="g.title"/>
+                                <div t-foreach="g.items" t-as="it" t-key="it.id"
+                                     class="ac-cat-item"
+                                     t-att-class="{'ac-cat-no': it.available === false}">
+                                    <div class="ac-cat-item-t">
+                                        <b t-esc="it.name"/>
+                                        <small t-esc="it.what"/>
+                                        <small t-if="it.example" class="ac-cat-ej" t-esc="it.example"/>
+                                    </div>
+                                    <span t-if="it.available === false" class="ac-cat-no-t">
+                                        Not in your connection
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div t-if="gruposAccion.length" class="ac-cat-sec">
+                            <div class="ac-cat-sec-h">
+                                <b><i class="fa fa-magic"/> What I can do in your ERP</b>
+                                <span t-if="cuentaAcciones" class="ac-cat-count" t-esc="cuentaAcciones"/>
+                            </div>
+                            <div class="ac-ins-note">Nothing runs on its own: I propose it and you confirm it, with your own permissions.</div>
+                            <div t-foreach="gruposAccion" t-as="g" t-key="g.id" class="ac-cat-grupo">
+                                <div class="ac-cat-grupo-t" t-esc="g.title"/>
+                                <div t-foreach="g.items" t-as="it" t-key="it.verb"
+                                     class="ac-cat-item"
+                                     t-att-class="{'ac-cat-no': it.available === false}">
+                                    <div class="ac-cat-item-t">
+                                        <b t-esc="it.name"/>
+                                        <small t-esc="it.what"/>
+                                        <small t-if="it.examples and it.examples.length" class="ac-cat-ej"
+                                               t-esc="it.examples[0]"/>
+                                    </div>
+                                    <span t-if="it.available === false" class="ac-cat-no-t">
+                                        Not in your connection
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
                 </div>
             </div>
 
@@ -1182,7 +1298,7 @@
                                 <div t-if="costoAsiento" class="ac-ins-note ac-team-costo"
                                      t-esc="costoAsiento"/>
                                 <div class="ac-ins-btns2">
-                                    <button class="ac-btn-primary" t-on-click="enviarInvitacion"
+                                    <button class="ac-btn-primary-sm" t-on-click="enviarInvitacion"
                                             t-att-disabled="state.invBusy">
                                         <t t-if="state.invBusy">Sending...</t>
                                         <t t-else="">Send invitation</t>
@@ -1245,7 +1361,7 @@
                                     Leave it empty for no cap. With no cap, one person can spend the whole team pot.
                                 </div>
                                 <div class="ac-ins-btns2">
-                                    <button class="ac-btn-primary"
+                                    <button class="ac-btn-primary-sm"
                                             t-att-disabled="state.seatBusyId === p.id"
                                             t-on-click="guardarAsiento">Save</button>
                                     <button class="ac-btn-ghost-sm"
@@ -1259,7 +1375,7 @@
                             <div t-if="state.seatPorQuitar" class="ac-action-confirm">
                                 <div t-esc="textoQuitarAsiento"/>
                                 <div class="ac-ins-btns2">
-                                    <button class="ac-btn-primary" t-on-click="confirmarQuitar"
+                                    <button class="ac-btn-primary-sm" t-on-click="confirmarQuitar"
                                             t-att-disabled="state.seatBusyId">Take the seat back</button>
                                     <button class="ac-btn-ghost-sm" t-on-click="cancelarQuitar">Not now</button>
                                 </div>
@@ -1380,7 +1496,7 @@
                             <div class="ac-ins-q">Your plan is for one person</div>
                             <div class="ac-ins-note">If your company already pays for Aski, ask them for a seat instead of paying for a second plan.</div>
                             <div class="ac-ins-btns2">
-                                <button class="ac-btn-primary" t-on-click="pedirAsiento"
+                                <button class="ac-btn-primary-sm" t-on-click="pedirAsiento"
                                         t-att-disabled="state.seatBusy">
                                     <t t-if="state.seatBusy">Asking...</t>
                                     <t t-else="">Ask for a seat</t>

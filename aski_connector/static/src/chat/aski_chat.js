@@ -279,6 +279,17 @@ export class AskiChatWidget extends Component {
             seatPartner: "",
             // --- Avisos programados ---
             insightsOpen: false,
+            // El MAPA de lo que Aski sabe hacer: que puede vigilar, que puede
+            // recordar y que puede ejecutar en el ERP. Vive aparte de la hoja de
+            // avisos porque tambien se llega desde el cajon: las acciones no son
+            // un aviso y no tendrian por que esconderse dentro de esa hoja.
+            catOpen: false,
+            catCargando: false,
+            catAvisos: null,
+            catAcciones: null,
+            // A que bloque se entro, para abrir mirando lo que se vino a ver.
+            catFoco: "watch",
+            catVengoDeAvisos: false,
             // Mi equipo dentro de Odoo: quien mas pregunta con esta cuenta.
             equipoOpen: false,
             equipo: null,
@@ -2505,6 +2516,110 @@ export class AskiChatWidget extends Component {
     closeInsights() {
         this.state.insightsOpen = false;
         this.state.insightNewFor = null;
+    }
+
+    // ------------------------------------------------------------------
+    //  El catalogo: que puede vigilar, recordar y hacer
+    // ------------------------------------------------------------------
+    //
+    // ⛔ Existe porque la hoja ofrecia "vigilar una cifra" sin decir en ningun
+    // sitio QUE cifras, y la seccion de acciones nombraba dos verbos cuando ya
+    // hay diez. Quien no sabe que algo existe no lo usa nunca. Android y la web
+    // ya lo ensenan; el conector se habia quedado atras.
+    //
+    // ⛔ Y se lee del backend, no se escribe aqui: se deriva de los MISMOS
+    // registros que ejecutan, asi que si algo se lista es porque existe, y un
+    // tema nuevo aparece sin publicar version del modulo.
+
+    async abrirCatalogo(foco) {
+        this.state.catFoco = foco || "watch";
+        // Dos hojas apiladas dejan ver la de abajo por los bordes, que es lo que
+        // ya evita `openInsights` con el panel de detalle. Se recuerda de donde
+        // se vino para devolver ahi al cerrar, en vez de dejar al usuario en el
+        // chat pelado despues de mirar el catalogo.
+        this.state.catVengoDeAvisos = this.state.insightsOpen;
+        this.state.insightsOpen = false;
+        this.state.catOpen = true;
+        // Ya cargado: no se vuelve a pedir. El catalogo no cambia entre dos
+        // aperturas seguidas y volver a esperar por lo mismo se nota.
+        //
+        // ⛔ Solo se cachea lo que llego BIEN. Guardando tambien el fallo, un
+        // corte de red dejaba "no se pudo leer el catalogo" pegado para siempre:
+        // cerrar y abrir no reintentaba y solo se salia recargando la pagina.
+        if (this.state.catCargando) return;
+        if (this.state.catAvisos && this.state.catAvisos.ok) return;
+        this.state.catCargando = true;
+        try {
+            const [avisos, acciones] = await Promise.all([
+                this.orm.call("aski.account.link", "insights_catalog", []),
+                this.orm.call("aski.account.link", "actions_catalog", []),
+            ]);
+            this.state.catAvisos = avisos || { ok: false, groups: [] };
+            this.state.catAcciones = acciones || { ok: false, groups: [] };
+        } catch (e) {
+            this.state.catAvisos = { ok: false, groups: [] };
+            this.state.catAcciones = { ok: false, groups: [] };
+        } finally {
+            this.state.catCargando = false;
+        }
+    }
+
+    cerrarCatalogo() {
+        this.state.catOpen = false;
+        if (this.state.catVengoDeAvisos) {
+            this.state.catVengoDeAvisos = false;
+            this.state.insightsOpen = true;
+        }
+    }
+
+    // Los grupos de avisos, partidos por lado. El backend los sirve juntos y
+    // cada seccion ensena el suyo: las cifras en Vigias, los registros en
+    // Avisos. Un grupo cuyos items son todos del otro lado no se pinta.
+    _gruposAviso(kind) {
+        const gs = (this.state.catAvisos && this.state.catAvisos.groups) || [];
+        return gs
+            .map((g) => ({ ...g, items: (g.items || []).filter((i) => i.kind === kind) }))
+            .filter((g) => g.items.length);
+    }
+
+    get gruposVigia() {
+        return this._gruposAviso("watch");
+    }
+
+    get gruposRecordatorio() {
+        return this._gruposAviso("reminder");
+    }
+
+    get gruposAccion() {
+        return (this.state.catAcciones && this.state.catAcciones.groups) || [];
+    }
+
+    get catVacio() {
+        return (
+            !this.state.catCargando &&
+            !this.gruposVigia.length &&
+            !this.gruposRecordatorio.length &&
+            !this.gruposAccion.length
+        );
+    }
+
+    // "12 de 37 van en esta conexion". Se dice con las dos cifras o no se dice:
+    // solo el total invita a creer que todo aplica, y no es asi —lo que sostiene
+    // una instancia depende de sus modulos.
+    _cuenta(cat) {
+        if (!cat || !cat.ok) return "";
+        const total = cat.total || 0;
+        if (!total) return "";
+        if (cat.available === null || cat.available === undefined) return String(total);
+        return `${cat.available} / ${total}`;
+    }
+
+    get cuentaAvisos() {
+        return this._cuenta(this.state.catAvisos);
+    }
+
+    get cuentaAcciones() {
+        return this._cuenta(this.state.catAcciones);
     }
 
     async _cargarAvisos() {
