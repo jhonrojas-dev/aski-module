@@ -1272,8 +1272,30 @@ export class AskiChatWidget extends Component {
         }
     }
 
+    /** Donde vive la web de Aski. La manda el MODULO (parametro del sistema
+     *  `aski.web_base`): en Odoo `window.location.origin` es el dominio del
+     *  cliente, y un despliegue propio no vive en app.aski.dev. */
+    get baseWeb() {
+        return (this.state.equipo && this.state.equipo.web_base) || "https://app.aski.dev";
+    }
+
+    abrirWeb(ruta) {
+        window.open(this.baseWeb + ruta, "_blank", "noopener,noreferrer");
+    }
+
     openBilling() {
-        window.open("https://app.aski.dev/billing", "_blank", "noopener,noreferrer");
+        this.abrirWeb("/billing");
+    }
+
+    /** Cuenta PROPIA: aqui no hay a quien pedirle asientos —no hay socio— asi que
+     *  se lleva a comprarlos.
+     *
+     *  ⛔ Y aqui SI se puede enlazar a la compra: la regla que lo prohibe es de
+     *  Google Play y afecta a la app de Android, no a una pagina dentro de Odoo.
+     *  Copiar alli el "contactar a ventas" habria sido arrastrar una limitacion
+     *  ajena y dejar a esta gente sin salida. */
+    comprarAsientos() {
+        this.abrirWeb("/settings/team");
     }
 
     onInput(ev) {

@@ -1284,6 +1284,16 @@
                                      Odoo esta aqui por no salir a otra pantalla.
                                      Se deja una peticion REGISTRADA que el socio
                                      ve en su panel y resuelve de un toque. -->
+                                <!-- Con socio se PIDE; sin socio se COMPRA.
+                                     ⛔ El comentario va aqui arriba y no entre el
+                                     t-if y el t-else: en medio rompe el
+                                     emparejamiento de QWeb.
+                                     Y comprar SI se puede enlazar desde aqui: la
+                                     regla que lo prohibe es de Google Play y
+                                     afecta a la app de Android, no a una pagina
+                                     dentro de Odoo. Copiar alli el "contactar a
+                                     ventas" habria sido arrastrar una limitacion
+                                     ajena y dejar a esta gente sin salida. -->
                                 <button t-if="esDeSocio" class="ac-btn-ghost-sm"
                                         data-act="ask-seat"
                                         t-att-disabled="state.pidiendo or yaPedido('seat', '')"
@@ -1294,6 +1304,11 @@
                                     <t t-else="">
                                         <i class="fa fa-user-plus"/> Ask for more seats
                                     </t>
+                                </button>
+                                <button t-else="" class="ac-btn-ghost-sm"
+                                        data-act="buy-seat"
+                                        t-on-click="comprarAsientos">
+                                    <i class="fa fa-external-link"/> Add seats on the web
                                 </button>
                             </div>
 

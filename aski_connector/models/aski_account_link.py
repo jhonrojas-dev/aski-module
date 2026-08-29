@@ -1668,7 +1668,18 @@ class AskiAccountLink(models.Model):
             return {"ok": False, "capacity": {}, "seats": []}
         datos = resp.json() or {}
         datos["ok"] = True
+        # ⛔ La base de la WEB la pone el modulo, no el widget: en Odoo
+        # `window.location.origin` es el dominio del cliente. Va aqui dentro y no
+        # en otra llamada porque la hoja ya esta pidiendo esto, y quien NO tiene
+        # socio necesita el enlace para comprar — dentro de Odoo si se puede
+        # llevar a la pasarela (la regla de Google Play es de la app, no de aqui).
+        datos["web_base"] = self._web_base()
         return datos
+
+    def _web_base(self):
+        """Donde vive la web de Aski. Configurable para despliegues propios."""
+        return (self.env["ir.config_parameter"].sudo()
+                .get_param("aski.web_base") or "https://app.aski.dev").rstrip("/")
 
     @_rpc_seguro
     @api.model
@@ -1721,8 +1732,7 @@ class AskiAccountLink(models.Model):
             # `window.location.origin` es el dominio del cliente, no el de Aski,
             # y saldria un enlace que no lleva a ninguna parte. La base se puede
             # cambiar por parametro del sistema para los despliegues propios.
-            base = (self.env["ir.config_parameter"].sudo()
-                    .get_param("aski.web_base") or "https://app.aski.dev").rstrip("/")
+            base = self._web_base()
             token = datos.get("invite_token") or ""
             if token:
                 from urllib.parse import quote
