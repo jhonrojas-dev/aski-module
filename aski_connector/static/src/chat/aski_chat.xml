@@ -1239,6 +1239,16 @@
                                         t-on-click="abrirInvitar">
                                     <i class="fa fa-user-plus"/> Invite someone
                                 </button>
+                                <!-- Cliente de un socio: SUMAR asientos no se
+                                     compra aqui (la tarifa la pone el socio y el
+                                     backend rechaza el cobro). Sin esto, en
+                                     cuanto se llena el equipo la hoja no ofrece
+                                     ninguna salida. -->
+                                <a t-if="state.equipo.partner_managed and state.equipo.partner_contact_url"
+                                   class="ac-btn-ghost-sm" target="_blank" rel="noopener noreferrer"
+                                   t-att-href="state.equipo.partner_contact_url">
+                                    <i class="fa fa-comments-o"/> Contact your provider
+                                </a>
                             </div>
 
                             <div class="ac-ins-note">
