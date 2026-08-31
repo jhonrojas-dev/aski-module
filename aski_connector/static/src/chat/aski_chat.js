@@ -2312,10 +2312,12 @@ export class AskiChatWidget extends Component {
         const linea = String(_t("Seat %s — US$ %s / month"))
             .replace("%s", String((Number(c.total) || 0) + 1))
             .replace("%s", Number(e.next_seat_price_usd).toFixed(2));
-        // ⛔ Y lo que se cobra HOY, que casi nunca es el mes entero: el asiento
-        // se factura con el plan y muere con el, asi que sumarlo tres dias antes
-        // de renovar cuesta tres dias. Enseñar solo el precio del mes hace que
-        // el primer cobro no cuadre con lo que se leyo aqui.
+        // ⛔ Y lo que se cobra HOY cuando de verdad se prorratea. El backend manda
+        // este importe SOLO si la cuenta ya tiene un ciclo de asientos abierto
+        // contra el que prorratear; en la primera compra va vacio porque la
+        // pasarela cobra el periodo entero y abre el ciclo ese dia. Antes se
+        // enseñaba siempre —calculado sobre el periodo del PLAN, que es otra
+        // suscripcion con otro ciclo— y prometia la mitad de lo que se cobraba.
         if (e.next_seat_prorated_usd == null) {
             return linea;
         }
