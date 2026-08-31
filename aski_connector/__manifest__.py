@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 {
     "name": "AI Assistant for Odoo | Free AI Agent & Chatbot | Ask Your Data in Natural Language | Voice Queries, Sales & Receivables",
-    "live_test_url": "https://demo.aski.dev/demo",
     # OJO: el primer par (14.0/15.0/.../19.0) define la serie de Odoo en la
     # tienda. build_releases.py lo estampa por serie automaticamente.
     # OJO al bumpear: la version debe ser MONOTONICA en CADA rama de serie, y
