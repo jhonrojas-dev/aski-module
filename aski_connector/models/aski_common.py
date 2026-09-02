@@ -4,6 +4,8 @@ import hashlib
 import io
 import logging
 
+import requests
+
 from odoo import _, api, models
 from odoo.exceptions import UserError
 from odoo.tools import config
@@ -15,6 +17,12 @@ try:
 except Exception:  # pragma: no cover
     Fernet = None
     InvalidToken = Exception
+
+# Prefijo de los tokens de acceso personal de Aski. Sirve para reconocer si lo
+# que se va a enviar SIGUE siendo un token: cuando cambia la clave de cifrado del
+# modulo (restaurar o duplicar una base), `_aski_decrypt` devuelve el cifrado tal
+# cual, y mandarlo produce un 401 que no tiene nada que ver con el token.
+ASKI_PAT_PREFIX = "ask_pat_"
 
 # Backend real de Aski (mismo motor determinista + narrador + wallet que usa
 # la app Android) — no es una instancia de cliente, es la infraestructura
@@ -63,6 +71,43 @@ def aski_api_base(env):
         except Exception:  # noqa: BLE001
             base = ""
     return (base or ASKI_API_BASE).rstrip("/")
+
+
+def aski_mensaje_red(env, exc):
+    """Por que no se pudo hablar con Aski, en cristiano y diciendo A DONDE se fue.
+
+    Antes se le pegaba al usuario el `repr` de la excepcion de `requests`
+    ("HTTPConnectionPool(host='...', port=8000): Max retries exceeded with url:
+    /billing/me (Caused by NewConnectionError(...))"). Eso no dice que hacer, no
+    dice contra que direccion se intento, y es un traceback en la cara de alguien
+    que solo queria preguntarle algo a su ERP. El detalle tecnico va al log, que
+    es donde sirve; aqui va la causa y el siguiente paso.
+
+    Se clasifica por el NOMBRE de la excepcion y por su texto, no por la clase
+    concreta de `requests`: la jerarquia cambia entre versiones y el modulo tiene
+    que correr en seis series de Odoo con lo que cada una traiga instalado.
+    """
+    base = aski_api_base(env)
+    _logger.warning("Aski: no se pudo hablar con %s", base, exc_info=True)
+    nombre = type(exc).__name__
+    texto = str(exc)
+    if "SSL" in nombre or "SSL" in texto or "CERTIFICATE" in texto.upper():
+        return _("Could not open a secure connection with Aski at %s. If this "
+                 "Odoo goes out through a proxy or a corporate firewall, its "
+                 "certificate is what's getting in the way.") % base
+    if "Timeout" in nombre or "timed out" in texto:
+        return _("Aski took too long to answer at %s. Try again in a moment.") % base
+    if ("NameResolution" in texto or "getaddrinfo" in texto
+            or "Name or service not known" in texto
+            or "nodename nor servname" in texto):
+        return _("The address %s could not be resolved, so this Odoo doesn't "
+                 "know where to find Aski. Check that address and this server's "
+                 "DNS.") % base
+    if "Connection" in nombre or "refused" in texto or "Max retries" in texto:
+        return _("Could not reach Aski at %s. Check that this server has "
+                 "internet access and that nothing is blocking its outgoing "
+                 "traffic.") % base
+    return _("Could not reach Aski at %s.") % base
 
 
 # ---------------------------------------------------------------------------

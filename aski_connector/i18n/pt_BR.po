@@ -294,13 +294,6 @@ msgid "Connected. %s credits available."
 msgstr "Conectado. %s créditos disponíveis."
 
 #. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Could not reach Aski: %s"
-msgstr "Não foi possível contatar a Aski: %s"
-
-#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__create_uid
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__create_uid
 #: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__create_uid
@@ -439,13 +432,6 @@ msgid "You're out of Aski credits. Top up at %s/billing to keep chatting."
 msgstr ""
 "Você está sem créditos da Aski. Adicione créditos em %s/billing para "
 "continuar conversando."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Your Aski connection expired. Reconnect in Aski > Chat Settings."
-msgstr ""
-"Sua conexão com a Aski expirou. Reconecte em Aski > Configurações do chat."
 
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
@@ -1082,22 +1068,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Detected automatically - leave empty"
 msgstr "Detectado automaticamente: deixe vazio"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid ""
-"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
-"\n"
-"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
-"\n"
-"%(detail)s"
-msgstr ""
-"O Aski consulta seu Odoo pela internet e não conseguiu alcançá-lo em %(url)s, que é um endereço da sua rede interna.\n"
-"\n"
-"Escreva abaixo, em «Endereço deste Odoo», o mesmo endereço que você usa para abrir o Odoo de fora do seu escritório (por exemplo https://odoo.minhaempresa.com) e conecte novamente.\n"
-"\n"
-"%(detail)s"
 
 #. module: aski_connector
 #. openerp-web
@@ -2880,3 +2850,137 @@ msgstr ""
 "Cada modo concede um nível de acesso diferente, então uma conexão aberta no modo anterior não pode continuar aberta: quem conectou antes continuaria chegando a este Odoo pelo app do Aski mesmo depois da mudança.\n"
 "\n"
 "Todos terão que conectar de novo depois de salvar."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Aski doesn't know that token: it belongs to another account or to another "
+"environment. Generate one in the Aski account you want to use here."
+msgstr ""
+"A Aski não conhece esse token: ele é de outra conta ou de outro ambiente. "
+"Gere um na conta da Aski que você quer usar aqui."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
+"\n"
+"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
+"\n"
+"If this Odoo has no public address at all, it does not have to get one: Aski can reach it through a secure tunnel, without opening any port. Turn that on from the Aski mobile app or web app when you add the connection (the option that says your ERP is not reachable from the internet), or ask your Aski partner for it.\n"
+"\n"
+"%(detail)s"
+msgstr ""
+"O Aski consulta seu Odoo pela internet e não conseguiu alcançá-lo em %(url)s, que é um endereço da sua rede interna.\n"
+"\n"
+"Escreva abaixo, em «Endereço deste Odoo», o mesmo endereço que você usa para abrir o Odoo de fora do seu escritório (por exemplo https://odoo.minhaempresa.com) e conecte novamente.\n"
+"\n"
+"Se este Odoo não tiver nenhum endereço público, não precisa conseguir um: a Aski pode alcançá-lo por um túnel seguro, sem abrir nenhuma porta. Ative isso pelo app ou pelo site da Aski ao adicionar a conexão (a opção que diz que seu ERP não é alcançável pela internet), ou peça ao seu parceiro Aski.\n"
+"\n"
+"%(detail)s"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Aski took too long to answer at %s. Try again in a moment."
+msgstr ""
+"A Aski demorou demais para responder em %s. Tente de novo em instantes."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"Could not open a secure connection with Aski at %s. If this Odoo goes out "
+"through a proxy or a corporate firewall, its certificate is what's getting "
+"in the way."
+msgstr ""
+"Não foi possível abrir uma conexão segura com a Aski em %s. Se este Odoo sai"
+" para a internet por um proxy ou um firewall corporativo, é o certificado "
+"dele que está atrapalhando."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Could not reach Aski at %s."
+msgstr "Não foi possível alcançar a Aski em %s."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"Could not reach Aski at %s. Check that this server has internet access and "
+"that nothing is blocking its outgoing traffic."
+msgstr ""
+"Não foi possível alcançar a Aski em %s. Verifique se este servidor tem saída"
+" para a internet e se nada está bloqueando o tráfego de saída."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Reconnect in Aski > Chat Settings."
+msgstr "Reconecte em Aski > Configurações do chat."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That token was revoked. Generate a new one in Aski."
+msgstr "Esse token foi revogado. Gere um novo na Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "The Aski account that owns that token is deactivated."
+msgstr "A conta da Aski dona desse token está desativada."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"The address %s could not be resolved, so this Odoo doesn't know where to "
+"find Aski. Check that address and this server's DNS."
+msgstr ""
+"Não foi possível resolver o endereço %s, então este Odoo não sabe onde "
+"encontrar a Aski. Verifique esse endereço e o DNS deste servidor."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"This Odoo asks %(base)s, which is not the Aski service (%(oficial)s), and "
+"that server rejected the token. If you generated the token in the Aski web "
+"app, the token is fine — it's this Odoo that is pointing somewhere else. "
+"Whoever administers this server can change it in the system parameter "
+"aski_connector.api_base."
+msgstr ""
+"Este Odoo consulta %(base)s, que não é o serviço da Aski (%(oficial)s), e "
+"esse servidor rejeitou o token. Se você gerou o token no site da Aski, o "
+"token está certo: é este Odoo que aponta para outro lugar. Quem administra "
+"este servidor pode mudar isso no parâmetro de sistema "
+"aski_connector.api_base."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"That doesn't look like an Aski access token: they all start with %s. You "
+"generate one in the Aski web app, under Settings > Personal access tokens, "
+"and you have to copy it whole — no spaces, no quotes and nothing in front of"
+" it."
+msgstr ""
+"Isso não parece um token de acesso da Aski: todos começam com %s. Gere um no"
+" site da Aski, em Configurações > Tokens de acesso pessoal, e copie ele "
+"inteiro — sem espaços, sem aspas e sem nada na frente."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"The saved token could not be read, so it went out unusable. That happens "
+"when the database is restored or duplicated, or when what got saved was not "
+"a whole token. Paste your Aski access token again."
+msgstr ""
+"O token salvo não pôde ser lido, então saiu inutilizável. Isso acontece "
+"quando o banco de dados é restaurado ou duplicado, ou quando o que foi salvo"
+" não era um token inteiro. Cole novamente seu token de acesso da Aski."
