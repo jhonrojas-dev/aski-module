@@ -5,7 +5,9 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from .aski_common import (
+    ASKI_PAT_PREFIX,
     aski_api_base,
+    aski_mensaje_red,
     aski_cobrand_html_current,
     aski_is_private_url,
     aski_partner_code,
@@ -140,7 +142,13 @@ class AskiChatConnectWizard(models.TransientModel):
             "%(url)s, which is an address of your internal network.\n\n"
             "Type the address you use to open Odoo from outside your office "
             "(for example https://odoo.mycompany.com) in the field \"Address of "
-            "this Odoo\" below, then connect again.\n\n%(detail)s"
+            "this Odoo\" below, then connect again.\n\n"
+            "If this Odoo has no public address at all, it does not have "
+            "to get one: Aski can reach it through a secure tunnel, without "
+            "opening any port. Turn that on from the Aski mobile app or web "
+            "app when you add the connection (the option that says your ERP "
+            "is not reachable from the internet), or ask your Aski partner "
+            "for it.\n\n%(detail)s"
         ) % {"url": url_probada or "-", "detail": message or ""}
 
     def _target_link(self):
@@ -201,7 +209,7 @@ class AskiChatConnectWizard(models.TransientModel):
             resp = requests.post(aski_api_base(self.env) + "/auth/connector-signup",
                                  json=body, timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 409:
             # Ya tiene cuenta: se le dice exactamente que hacer en vez de
             # devolverle un error crudo.
@@ -256,7 +264,7 @@ class AskiChatConnectWizard(models.TransientModel):
                 json={"email": email, "password": password, "token_name": nickname},
                 timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 401:
             raise UserError(_("Wrong email or password. If you just got the account "
                               "from your Aski partner, use the temporary password "
@@ -280,6 +288,19 @@ class AskiChatConnectWizard(models.TransientModel):
         pat = (self.pat or "").strip()
         if not pat:
             raise UserError(_("Paste your Aski personal access token."))
+        # Se comprueba AQUI, antes de mandar nada: lo que se pega a mano no
+        # siempre es el token. Con "Bearer " delante, a medias, o con la clave
+        # de la cuenta en su lugar, Aski responde 401 y el modulo acababa
+        # hablando de bases restauradas — un mensaje que no tiene nada que ver
+        # con lo que la persona acaba de hacer. Decirlo antes de la llamada es
+        # ademas mas rapido y no gasta una peticion.
+        if not pat.startswith(ASKI_PAT_PREFIX):
+            raise UserError(_(
+                "That doesn't look like an Aski access token: they all start "
+                "with %s. You generate one in the Aski web app, under Settings "
+                "> Personal access tokens, and you have to copy it whole — no "
+                "spaces, no quotes and nothing in front of it."
+            ) % ASKI_PAT_PREFIX)
         link = self._target_link()
         nickname = (self.name or "").strip() or self.env.company.name or self.env.cr.dbname
         return self._finish_connection(link, pat, nickname)

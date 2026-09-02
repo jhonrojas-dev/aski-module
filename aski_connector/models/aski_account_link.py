@@ -12,21 +12,29 @@ import functools
 import logging
 
 import requests
+from psycopg2 import IntegrityError
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from .aski_common import (
+    ASKI_API_BASE,
+    ASKI_PAT_PREFIX,
     AskiAgentNotInPlanError,
     AskiCreditsError,
     aski_api_base,
+    aski_mensaje_red,
     aski_cobrand_html,
     aski_cobrand_html_from_code,
     aski_partner_code,
 )
 
 _logger = logging.getLogger(__name__)
+
+# Separador de parrafo dentro de un mensaje al usuario. Aparte para que el
+# texto traducible no arrastre escapes.
+PARRAFO = "\n\n"
 
 
 def _sin_nulos(valor):
@@ -278,12 +286,60 @@ class AskiAccountLink(models.Model):
     # ------------------------------------------------------------------
     _CHAT_GROUP = "aski_connector.group_aski_chat_user"
 
+    def init(self):
+        """UN solo registro global por base, garantizado por la base de datos.
+
+        `_get_global()` hacia search+create sin nada que impidiera que dos
+        peticiones simultaneas crearan dos. Y lo llaman el systray y el widget
+        en CADA carga de pagina, asi que en un Odoo con varios workers la
+        primera visita basta para duplicarlo. Visto en vivo: una base con CINCO
+        registros globales, cuatro con un modo de acceso distinto al que
+        mandaba. Como se usa el de id mas bajo, los sobrantes son invisibles
+        hasta que alguien borra el primero — y entonces el modo de acceso de
+        toda la base cambia solo, sin que nadie lo decida.
+
+        Los duplicados SIN token se borran (no son nada: un registro vacio). Si
+        alguno tiene token es una conexion de verdad y no se toca: se avisa y se
+        deja el indice sin crear, porque perder la conexion de alguien para
+        cumplir una restriccion seria peor que la restriccion.
+        """
+        super().init()
+        self.env.cr.execute("""
+            DELETE FROM aski_account_link a
+             WHERE a.user_id IS NULL
+               AND coalesce(a.pat_enc, '') = ''
+               AND a.id > (SELECT min(b.id) FROM aski_account_link b
+                            WHERE b.user_id IS NULL)
+        """)
+        self.env.cr.execute(
+            "SELECT count(*) FROM aski_account_link WHERE user_id IS NULL")
+        cuantos = self.env.cr.fetchone()[0]
+        if cuantos > 1:
+            _logger.warning(
+                "Aski: quedan %s conexiones globales con token en esta base. "
+                "Revisa cual es la buena: mientras haya mas de una, el modo de "
+                "acceso lo decide el id mas bajo.", cuantos)
+            return
+        # NULL != NULL para un indice unico normal, asi que se indexa una
+        # expresion constante sobre las filas globales: eso si deja pasar una
+        # sola.
+        self.env.cr.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS aski_account_link_global_uniq "
+            "ON aski_account_link ((user_id IS NULL)) WHERE user_id IS NULL")
+
     @api.model
     def _get_global(self):
         rec = self.sudo().search([("user_id", "=", False)], order="id", limit=1)
-        if not rec:
-            rec = self.sudo().create({})
-        return rec
+        if rec:
+            return rec
+        # El savepoint es lo que hace util al indice: sin el, la carrera que el
+        # indice detecta abortaria la transaccion entera y el usuario veria un
+        # error del servidor en vez de su chat.
+        try:
+            with self.env.cr.savepoint():
+                return self.sudo().create({})
+        except IntegrityError:
+            return self.sudo().search([("user_id", "=", False)], order="id", limit=1)
 
     # Compat: el "singleton" historico ES el registro global (config del admin).
     @api.model
@@ -527,6 +583,60 @@ class AskiAccountLink(models.Model):
         except Exception:
             return resp.text or ("HTTP %s" % resp.status_code)
 
+    # ------------------------------------------------------------------
+    # Un 401 no siempre es culpa del token
+    # ------------------------------------------------------------------
+    def _mensaje_401(self, resp=None):
+        """(mensaje, olvidar_token) mirando el CONTEXTO antes de acusar al token.
+
+        Cualquier 401 se leia como "tu token esta revocado", y de las tres cosas
+        que lo provocan solo una lo es:
+
+          1. Este Odoo esta preguntando a OTRO backend (uno de staging, uno
+             local, o una base restaurada que se trajo el parametro del entorno
+             anterior). El token es perfecto: simplemente no vive en esa base.
+          2. El token guardado no se pudo descifrar y se mando el cifrado tal
+             cual — pasa cuando cambia la clave del modulo, tipico al restaurar
+             o duplicar una base. Tampoco es culpa del token.
+          3. El token si esta muerto: revocado, de otra cuenta, o su dueño
+             desactivado.
+
+        Solo en el caso 3 se borra. En los otros dos, borrarlo destruye una
+        conexion sana y encima esconde la causa, que es justo lo unico que
+        habia que contar. Caso fundacional: una instancia apuntando a un backend
+        local mandaba a generar tokens nuevos que fallaban igual, uno tras otro.
+        """
+        self.ensure_one()
+        base = aski_api_base(self.env)
+        if base != ASKI_API_BASE:
+            return _(
+                "This Odoo asks %(base)s, which is not the Aski service "
+                "(%(oficial)s), and that server rejected the token. If you "
+                "generated the token in the Aski web app, the token is fine — "
+                "it's this Odoo that is pointing somewhere else. Whoever "
+                "administers this server can change it in the system parameter "
+                "aski_connector.api_base."
+            ) % {"base": base, "oficial": ASKI_API_BASE}, False
+        if self.pat and not self.pat.startswith(ASKI_PAT_PREFIX):
+            return _(
+                "The saved token could not be read, so it went out unusable. "
+                "That happens when the database is restored or duplicated, or "
+                "when what got saved was not a whole token. Paste your Aski "
+                "access token again."
+            ), False
+        codigo = self._error_code(resp) if resp is not None else ""
+        if codigo == "token_revoked":
+            return _("That token was revoked. Generate a new one in Aski."), True
+        if codigo == "token_unknown":
+            return _("Aski doesn't know that token: it belongs to another account "
+                     "or to another environment. Generate one in the Aski account "
+                     "you want to use here."), True
+        if codigo == "user_inactive":
+            return _("The Aski account that owns that token is deactivated."), True
+        # Backend anterior al detail estructurado: el mensaje de siempre.
+        return _("That token is invalid or was revoked. Generate a new one in "
+                 "Aski."), True
+
     def _sync_wallet(self):
         """Verifica el token contra /billing/me y refresca el saldo/plan en cache.
         Devuelve (ok, message) — sin lanzar, para que tanto el boton interactivo
@@ -539,10 +649,12 @@ class AskiAccountLink(models.Model):
             resp = requests.get(aski_api_base(self.env) + "/billing/me",
                                 headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            return False, _("Could not reach Aski: %s") % e
+            return False, aski_mensaje_red(self.env, e)
         if resp.status_code == 401:
-            rec._olvidar_token()
-            return False, _("That token is invalid or was revoked. Generate a new one in Aski.")
+            mensaje, olvidar = rec._mensaje_401(resp)
+            if olvidar:
+                rec._olvidar_token()
+            return False, mensaje
         if resp.status_code != 200:
             return False, rec._error_message(resp)
         data = resp.json()
@@ -707,7 +819,7 @@ class AskiAccountLink(models.Model):
                 resp = requests.put(aski_api_base(self.env) + "/users/odoo/%s" % rec.credential_id,
                                     json=body, headers=rec._headers(), timeout=_TIMEOUT)
             except Exception as e:  # noqa: BLE001
-                return False, _("Could not reach Aski: %s") % e, ""
+                return False, aski_mensaje_red(self.env, e), ""
             if resp.status_code == 200:
                 return True, "", ""
             if resp.status_code in (403, 404):
@@ -725,7 +837,7 @@ class AskiAccountLink(models.Model):
             resp = requests.post(aski_api_base(self.env) + "/users/odoo", json=body,
                                  headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            return False, _("Could not reach Aski: %s") % e, ""
+            return False, aski_mensaje_red(self.env, e), ""
         if resp.status_code not in (200, 201):
             return False, rec._error_message(resp), rec._error_code(resp)
         data = resp.json()
@@ -766,8 +878,13 @@ class AskiAccountLink(models.Model):
         if resp.status_code == 200:
             return
         if resp.status_code == 401:
-            rec._olvidar_token()
-            raise UserError(_("Your Aski connection expired. Reconnect in Aski > Chat Settings."))
+            mensaje, olvidar = rec._mensaje_401(resp)
+            if olvidar:
+                rec._olvidar_token()
+                raise UserError("%s%s%s" % (
+                    mensaje, PARRAFO,
+                    _("Reconnect in Aski > Chat Settings.")))
+            raise UserError(mensaje)
         if resp.status_code == 402:
             # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
             # backend la rechaza igual) — el saldo lo repone su socio.
@@ -843,7 +960,7 @@ class AskiAccountLink(models.Model):
                 "The deep analysis took longer than this Odoo allows. Try a more "
                 "specific question, or ask it in normal mode."))
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         rec._raise_for_chat_error(resp)
         data = resp.json()
         return {
@@ -882,7 +999,7 @@ class AskiAccountLink(models.Model):
         except requests.exceptions.Timeout:
             raise UserError(_("Aski is taking too long to answer. Try again in a moment."))
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         rec._raise_for_chat_error(resp)
         data = resp.json()
         return {
@@ -1146,7 +1263,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/chat/conversations/%s" % conversation_id,
                 headers=rec.sudo()._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         # 404 = ya no existe (borrada desde la app): para el usuario el resultado
         # es el mismo, no tiene sentido darle un error.
         if resp.status_code not in (200, 204, 404):
@@ -1169,7 +1286,7 @@ class AskiAccountLink(models.Model):
                 json={"title": nombre[:200]},
                 headers=rec.sudo()._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return True
@@ -1237,7 +1354,7 @@ class AskiAccountLink(models.Model):
                 params={"tz_offset_minutes": tz_offset_minutes, "lang": lang},
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 403:
             raise UserError(rec._error_message(resp))
         if resp.status_code != 200:
@@ -1268,7 +1385,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/chat/messages/%s/records" % message_id,
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return resp.json()
@@ -1288,7 +1405,7 @@ class AskiAccountLink(models.Model):
                 params={"lang": self.env.user.lang or ""},
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         data = resp.json()
@@ -1322,7 +1439,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/chat/messages/%s/answer-email" % message_id,
                 json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return resp.json()
@@ -1346,7 +1463,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/chat/messages/%s/share" % message_id,
                 json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         data = resp.json()
@@ -1384,7 +1501,7 @@ class AskiAccountLink(models.Model):
                 + "/chat/conversations/%s/clear-context" % conversation_id,
                 json={}, headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code not in (200, 204):
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return True
@@ -1422,7 +1539,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/chat/conversations/%s/messages" % conversation_id,
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         messages = resp.json()
@@ -1454,7 +1571,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/chat/messages/%s/feedback" % message_id,
                 json=payload, headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code not in (200, 204):
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return True
@@ -1561,7 +1678,7 @@ class AskiAccountLink(models.Model):
                                  json=cuerpo, headers=rec._headers(),
                                  timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 409:
             # ⛔ 409 NO significa siempre "cupo lleno": el backend lo usa tambien
             # para "ya lo tienes". Traducirlo todo a cupo mandaba a la persona a
@@ -1601,7 +1718,7 @@ class AskiAccountLink(models.Model):
                 json={"enabled": bool(enabled)}, headers=rec._headers(),
                 timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return resp.json()
@@ -1618,7 +1735,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/insights/%s/resume" % int(insight_id),
                 headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return resp.json()
@@ -1634,7 +1751,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/insights/%s" % int(insight_id),
                 headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code not in (200, 204):
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return True
@@ -1707,7 +1824,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/actions/%s/confirm" % int(action_id),
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 403:
             raise UserError(_("Actions on your ERP are not included in your plan."))
         if resp.status_code not in (200, 201):
@@ -1726,7 +1843,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/actions/%s/cancel" % int(action_id),
                 headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code not in (200, 201):
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         return resp.json()
@@ -1803,7 +1920,7 @@ class AskiAccountLink(models.Model):
             resp = requests.post(aski_api_base(self.env) + "/seats/me/request-credits",
                                  headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 200:
             return resp.json()
         raise UserError(self._error_asiento(resp))
@@ -1831,7 +1948,7 @@ class AskiAccountLink(models.Model):
             resp = requests.post(aski_api_base(self.env) + "/seats/invite",
                                  json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code in (200, 201):
             datos = resp.json() or {}
             # ⛔ El enlace lo arma EL MODULO, no el widget: en Odoo
@@ -1859,7 +1976,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/seats/%s/%s" % (int(seat_id), destino),
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 200:
             return resp.json()
         raise UserError(self._error_asiento(resp))
@@ -1876,7 +1993,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/seats/%s" % int(seat_id),
                 headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code in (200, 204):
             return {"ok": True}
         raise UserError(self._error_asiento(resp))
@@ -1912,7 +2029,7 @@ class AskiAccountLink(models.Model):
                                  json=cuerpo, headers=rec._headers(),
                                  timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code in (200, 201):
             return resp.json() or {}
         raise UserError(self._error_asiento(resp))
@@ -1965,7 +2082,7 @@ class AskiAccountLink(models.Model):
                 aski_api_base(self.env) + "/seats/%s" % int(seat_id),
                 json=cuerpo, headers=rec._headers(), timeout=_TIMEOUT)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 200:
             return resp.json() or {}
         raise UserError(self._error_asiento(resp))
@@ -2061,7 +2178,7 @@ class AskiAccountLink(models.Model):
                 },
                 timeout=_TIMEOUT_FAST)
         except Exception as e:  # noqa: BLE001
-            raise UserError(_("Could not reach Aski: %s") % e)
+            raise UserError(aski_mensaje_red(self.env, e))
         if resp.status_code == 404:
             raise UserError(_(
                 "Nobody in this Odoo is using Aski yet, so there is no one to ask. "
