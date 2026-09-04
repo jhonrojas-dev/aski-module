@@ -11,6 +11,23 @@
         <img class="ac-mark-img" src="/aski_connector/static/src/img/aski_mark.png?v=4" alt="Aski"/>
     </t>
 
+    <!-- La linea de "a que conexiones cubre este aviso", compartida por el
+         resumen diario y el cierre del dia. `fijo` es el aviso, o nada si aun no
+         existe (entonces no se pinta: no hay nada que cubrir todavia). -->
+    <t t-name="aski_connector.AskiInsightConns" owl="1">
+        <small t-if="fijo" class="ac-ins-conns">
+            <i class="fa fa-database"/>
+            <span class="ac-ins-conns-n" t-esc="etiquetaConexiones(fijo)"/>
+            <span t-if="cubreVarias(fijo)" class="ac-ins-conns-multi"
+                  t-esc="txt.connMany"/>
+            <button t-if="hayVariasConexiones" class="ac-ins-conns-edit"
+                    t-on-click="() => this.abrirConexiones(fijo)"
+                    t-esc="txt.connChange"/>
+        </small>
+        <small t-if="fijo and dejaFueraEsteOdoo(fijo)" class="ac-ins-conns-warn"
+               t-esc="txt.connNotHere"/>
+    </t>
+
     <t t-name="aski_connector.ChatWidget" owl="1">
         <div class="aski-chat">
 
@@ -34,19 +51,41 @@
                     <!-- La campana SOLO a pantalla completa. En la burbuja del
                          systray la cabecera ya lleva marca, creditos, plan,
                          minimizar y cerrar: ahi no cabe y se saco. A pantalla
-                         completa sobra sitio y es donde se la busca. -->
+                         completa sobra sitio y es donde se la busca.
+                         ⛔ VA PRIMERA, antes del nombre de la conexion: es un
+                         BOTON, y el resto de la fila (nombre, saldo, plan) son
+                         etiquetas. Metido en medio de ellas se leia como una mas
+                         y dejaba de invitar a pulsarlo. -->
                     <button t-if="state.connected and !enBurbuja"
                             class="ac-icon-btn ac-header-bell" title="Scheduled alerts"
                             t-on-click.stop="openInsights">
                         <i class="fa fa-bell-o"/>
                     </button>
+                    <!-- QUE conexion se esta consultando. Una cuenta Aski puede
+                         tener varias instancias colgando (produccion, pruebas,
+                         la filial) y sin este nombre dos chats abiertos se ven
+                         exactamente igual. Se oculta minimizado, donde no cabe;
+                         el nombre completo queda en el `title`. -->
+                    <span t-if="state.connected and state.connectionName and !props.minimized"
+                          class="ac-conn" t-att-title="tituloConexion">
+                        <i class="fa fa-database"/>
+                        <span class="ac-conn-n" t-esc="state.connectionName"/>
+                    </span>
                     <t t-if="state.connected">
                         <button t-if="state.walletCredits === 0 and !state.partnerManaged"
                                 class="ac-credits ac-credits-empty"
                                 title="Out of credits - tap to top up" t-on-click.stop="openBilling">
                             <i class="fa fa-exclamation-circle"/> Out of credits
                         </button>
-                        <span t-if="state.walletCredits === 0 and state.partnerManaged"
+                        <!-- ⛔ `t-elif`, NO un segundo `t-if`. El `t-else` de
+                             abajo se empareja con el `t-if` que tiene JUSTO
+                             encima: con dos `t-if` sueltos, a un cliente SIN
+                             socio y con saldo 0 le salian las DOS pildoras a la
+                             vez —"Sin creditos" y "0"— porque el segundo `t-if`
+                             era falso y disparaba su `t-else`. Visto en una
+                             instancia real de QA. Asi la cadena es una sola:
+                             sin saldo y sin socio, sin saldo con socio, o saldo. -->
+                        <span t-elif="state.walletCredits === 0 and state.partnerManaged"
                               class="ac-credits ac-credits-empty"
                               title="Out of credits - your Aski partner tops them up">
                             <i class="fa fa-exclamation-circle"/> Out of credits
@@ -874,11 +913,19 @@
                     <!-- Los dos avisos FIJOS: no se crean, se encienden. No
                          gastan cupo, asi que van arriba y sin ceremonia. Las
                          etiquetas son las mismas que en la app y la web. -->
-                    <div t-if="!state.newKind and !state.insightNewFor" class="ac-ins-fijos">
+                    <div t-if="!state.newKind and !state.insightNewFor and !state.connSelFor"
+                         class="ac-ins-fijos">
                         <div class="ac-ins-fijo">
                             <div class="ac-ins-fijo-t">
                                 <b>Daily digest</b>
                                 <small>Your key figures, first thing in the morning.</small>
+                                <!-- A QUE conexiones cubre. Es UN aviso por
+                                     cuenta que puede hablar de varias empresas en
+                                     el mismo mensaje: sin decirlo, quien tiene dos
+                                     Odoo cree que este resumen es solo de aqui. -->
+                                <t t-call="aski_connector.AskiInsightConns">
+                                    <t t-set="fijo" t-value="resumenDiario"/>
+                                </t>
                             </div>
                             <button class="ac-btn-ghost-sm" data-act="digest"
                                     t-att-disabled="state.insightBusy"
@@ -891,6 +938,9 @@
                             <div class="ac-ins-fijo-t">
                                 <b>Day closing</b>
                                 <small>What actually moved today, in the evening.</small>
+                                <t t-call="aski_connector.AskiInsightConns">
+                                    <t t-set="fijo" t-value="cierreDelDia"/>
+                                </t>
                             </div>
                             <button class="ac-btn-ghost-sm" data-act="closing"
                                     t-att-disabled="state.insightBusy"
@@ -901,8 +951,36 @@
                         </div>
                     </div>
 
+                    <!-- ELEGIR CONEXIONES. Sustituye al contenido de la hoja
+                         mientras esta abierto, igual que hacen el alta de vigia y
+                         la de recordatorio: dos capas apiladas dentro de la misma
+                         hoja se leen como que el boton no hizo nada. -->
+                    <div t-if="state.connSelFor" class="ac-ins-new">
+                        <div class="ac-ins-q" t-esc="txt.connTitle"/>
+                        <div class="ac-ins-note" t-esc="txt.connHelp"/>
+                        <div class="ac-conn-list">
+                            <label t-foreach="state.conexiones" t-as="c" t-key="c.id"
+                                   class="ac-conn-row">
+                                <input type="checkbox"
+                                       t-att-checked="conexionMarcada(c.id)"
+                                       t-on-change="() => this.alternarConexion(c.id)"/>
+                                <span t-esc="nombreConexion(c)"/>
+                            </label>
+                        </div>
+                        <div class="ac-ins-note" t-esc="txt.connLast"/>
+                        <div class="ac-ins-btns2">
+                            <button class="ac-btn-primary-sm" t-on-click="guardarConexiones"
+                                    t-att-disabled="state.connSaving">
+                                <t t-if="state.connSaving"><t t-esc="txt.connSaving"/></t>
+                                <t t-else=""><t t-esc="txt.connSave"/></t>
+                            </button>
+                            <button class="ac-btn-ghost-sm" t-on-click="cerrarConexiones"
+                                    t-esc="txt.connCancel"/>
+                        </div>
+                    </div>
+
                     <!-- Y los dos que si se configuran. -->
-                    <div t-if="!state.newKind and !state.insightNewFor" class="ac-ins-nuevos">
+                    <div t-if="!state.newKind and !state.insightNewFor and !state.connSelFor" class="ac-ins-nuevos">
                         <button class="ac-btn-ghost-sm" data-act="new-watch"
                                 t-on-click="abrirVigia">
                             <i class="fa fa-eye"/> Watch a figure
@@ -916,7 +994,7 @@
                     <!-- Que hay disponible. Sin esto la hoja ofrecia "vigilar
                          una cifra" sin decir cuales, y solo lo descubria quien
                          ya lo sabia. -->
-                    <div t-if="!state.newKind and !state.insightNewFor" class="ac-cat-link">
+                    <div t-if="!state.newKind and !state.insightNewFor and !state.connSelFor" class="ac-cat-link">
                         <button data-act="cat-watch"
                                 t-on-click="() => this.abrirCatalogo('watch')">
                             <i class="fa fa-list-ul"/> See everything I can watch and remind you about
@@ -1045,17 +1123,18 @@
                         </button>
                     </div>
 
-                    <div t-if="state.newKind" class="ac-ins-oculto"/>
+                    <div t-if="state.newKind or state.connSelFor" class="ac-ins-oculto"/>
                     <div t-elif="state.insightsLoading" class="ac-drawer-empty">Loading...</div>
                     <div t-elif="state.insightsErr" class="ac-drawer-empty">
                         Could not load your alerts. Try again in a moment.
                     </div>
-                    <div t-elif="!avisosListados.length and !state.insightNewFor"
+                    <div t-elif="!avisosListados.length and !state.insightNewFor and !state.connSelFor"
                          class="ac-drawer-empty">
                         No alerts yet. Ask something, then use the bell on the answer to get it every morning.
                     </div>
 
-                    <div t-if="!state.newKind" t-foreach="avisosListados" t-as="f" t-key="f.id" class="ac-ins-item">
+                    <div t-if="!state.newKind and !state.connSelFor" t-foreach="avisosListados"
+                         t-as="f" t-key="f.id" class="ac-ins-item">
                         <div class="ac-ins-main">
                             <div class="ac-ins-title" t-esc="f.title || f.kind"/>
                             <div class="ac-ins-sub">
@@ -1080,7 +1159,7 @@
                         </div>
                     </div>
 
-                    <div t-if="state.insightLimit" class="ac-ins-quota"
+                    <div t-if="state.insightLimit and !state.connSelFor" class="ac-ins-quota"
                          t-esc="textoCupoAvisos"/>
                 </div>
             </div>
