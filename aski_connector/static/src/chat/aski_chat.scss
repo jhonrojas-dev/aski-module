@@ -19,6 +19,11 @@
     --ac-gold: #E8C058;
     --ac-gold-light: #F8D060;
     --ac-gold-deep: #B89846;
+    // El dorado con el que se enciende la campana al pasar por encima. Es un
+    // token propio y no `--ac-gold-deep` a secas porque en OSCURO la campana ya
+    // esta dorada en reposo: alli el realce tiene que ir hacia ARRIBA, no hacia
+    // un dorado mas apagado que el de partida (ver aski_chat.dark.scss).
+    --ac-bell-hover: #B89846;
     --ac-on-gold: #2E2200;
     // El texto que va SOBRE el primary. No vale `--ac-on-gold`: ese es el que va
     // sobre el DORADO (un pardo casi negro) y encima del navy no se lee. En
@@ -381,6 +386,39 @@
             background: var(--ac-surface-variant); padding: 5px 11px; border-radius: 999px;
             text-transform: capitalize; white-space: nowrap; font-weight: 700; font-size: 12px;
             color: var(--ac-on-variant) !important;
+        }
+        // La campana de los avisos programados. Va con el MISMO pill redondo que
+        // el resto de la fila (nombre, saldo, plan): como icono pelado parecia
+        // pegado al lado y no formaba parte de la cabecera. Al pasar por encima
+        // se inclina —el gesto que cualquiera asocia a una campana— y se enciende
+        // en dorado, que es el acento de la marca.
+        .ac-header-bell {
+            width: 30px; height: 30px; border-radius: 999px;
+            background: var(--ac-surface-variant);
+            color: var(--ac-navy) !important;
+            i {
+                font-size: 13.5px;
+                // El pivote arriba y al centro: una campana gira colgada de su
+                // eje, no por el medio.
+                transform-origin: 50% 15%;
+            }
+            &:hover {
+                background: color-mix(in srgb, var(--ac-navy) 12%, var(--ac-surface-variant));
+                i { animation: ac-bell-tilt .55s ease; color: var(--ac-bell-hover) !important; }
+            }
+            // ⛔ Quien tenga puesto "menos movimiento" en su sistema no quiere
+            // que la cabecera se le mueva: el color sigue, el meneo no.
+            @media (prefers-reduced-motion: reduce) {
+                &:hover i { animation: none; }
+            }
+        }
+        @keyframes ac-bell-tilt {
+            0%   { transform: rotate(0deg); }
+            20%  { transform: rotate(13deg); }
+            40%  { transform: rotate(-10deg); }
+            60%  { transform: rotate(6deg); }
+            80%  { transform: rotate(-3deg); }
+            100% { transform: rotate(0deg); }
         }
         // QUE conexion se esta consultando. Mismo pill que el plan pero SIN
         // capitalize: el nombre lo escribio el usuario y "Odoo QA" no puede

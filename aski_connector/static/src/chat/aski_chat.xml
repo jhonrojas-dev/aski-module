@@ -59,7 +59,12 @@
                     <button t-if="state.connected and !enBurbuja"
                             class="ac-icon-btn ac-header-bell" title="Scheduled alerts"
                             t-on-click.stop="openInsights">
-                        <i class="fa fa-bell-o"/>
+                        <!-- La campana MACIZA, no la de contorno: dentro de su
+                             pill, el trazo fino de `fa-bell-o` se perdia contra
+                             el fondo y no pesaba lo mismo que el saldo o el plan
+                             de al lado. `fa-bell` existe desde FontAwesome 4, que
+                             es la que traen las seis series. -->
+                        <i class="fa fa-bell"/>
                     </button>
                     <!-- QUE conexion se esta consultando. Una cuenta Aski puede
                          tener varias instancias colgando (produccion, pruebas,
