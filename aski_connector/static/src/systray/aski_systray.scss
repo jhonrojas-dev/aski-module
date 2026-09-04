@@ -99,6 +99,11 @@
 
         .aski-chat { flex: 1; min-height: 0; }
 
+        // En la burbuja la cabecera tiene 448 px y ya lleva marca, saldo,
+        // minimizar y cerrar: el nombre de la conexion entra recortado. A
+        // pantalla completa sobra sitio y se ve entero.
+        .ac-conn { max-width: 118px; }
+
         // Estado minimizado: solo la barra de titulo queda visible, estilo
         // "chat head" de WhatsApp/Messenger — clic en la barra restaura.
         &.minimized {
