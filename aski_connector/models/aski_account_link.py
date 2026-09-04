@@ -109,6 +109,11 @@ class AskiAccountLink(models.Model):
 
     email = fields.Char(string="Aski account", readonly=True)
     credential_id = fields.Integer(string="Aski credential id", readonly=True)
+    # Como se llama ESTA conexion dentro de la cuenta Aski. Se guarda al
+    # registrarla y se refresca al sincronizar, porque es lo que la cabecera del
+    # chat necesita para decir a QUE instancia esta preguntando. Una cuenta con
+    # tres Odoo veia tres chats identicos y no habia forma de distinguirlos.
+    credential_name = fields.Char(string="Connection name", readonly=True)
     wallet_credits = fields.Integer(string="Credits available", readonly=True)
     plan_name = fields.Char(string="Plan", readonly=True)
     last_synced = fields.Datetime(string="Last synced", readonly=True)
@@ -737,7 +742,8 @@ class AskiAccountLink(models.Model):
                              "desconectar; se limpia igual en local", exc_info=True)
         rec._aski_revoke_previous("Aski Chat")
         rec.write({
-            "pat_enc": False, "credential_id": False, "wallet_credits": 0,
+            "pat_enc": False, "credential_id": False, "credential_name": False,
+            "wallet_credits": 0,
             "plan_name": False, "email": False, "last_synced": False,
         })
 
@@ -772,6 +778,95 @@ class AskiAccountLink(models.Model):
             "message": _("Aski account disconnected."),
             "type": "success",
             "next": {"type": "ir.actions.client", "tag": "reload"}}}
+
+    # -----------------------------------------------------------------
+    #  Las conexiones de la CUENTA (no solo la de este Odoo)
+    # -----------------------------------------------------------------
+    # Una cuenta Aski puede tener varias instancias colgando: este Odoo, el de
+    # pruebas, el SAP de la matriz. Dentro de Odoo solo se CHATEA con la de aqui,
+    # pero hay dos cosas que necesitan verlas todas: no dejar que nazcan dos con
+    # el mismo nombre, y decir a cuales cubre el resumen diario.
+
+    @api.model
+    def _conexiones_cuenta(self, rec=None):
+        """Las conexiones de la cuenta Aski conectada. Nunca lanza.
+
+        -> {"ok", "connections": [{"id", "name", "current", "erp_type"}]}
+
+        `current` marca la de ESTE Odoo, que es la unica que el usuario reconoce
+        sin pensar: un selector de tres nombres parecidos sin decir cual es el
+        suyo obliga a adivinar.
+        """
+        rec = rec or self._active_link(self.env.user)
+        vacio = {"ok": False, "connections": []}
+        if not rec or not rec.connected:
+            return vacio
+        try:
+            resp = requests.get(aski_api_base(self.env) + "/users/odoo",
+                                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return vacio
+        if resp.status_code != 200:
+            # Un backend anterior al que admite el token personal aqui responde
+            # 401. No es un fallo del usuario y no se cuenta como tal: quien
+            # llama se queda con la unica conexion que si conoce, la de aqui.
+            return vacio
+        try:
+            filas = resp.json() or []
+        except Exception:  # noqa: BLE001
+            return vacio
+        salida = []
+        for c in filas:
+            if not isinstance(c, dict) or not c.get("id"):
+                continue
+            salida.append({
+                "id": int(c["id"]),
+                "name": c.get("nickname") or "",
+                "erp_type": c.get("erp_type") or "odoo",
+                "current": int(c["id"]) == (rec.credential_id or 0),
+            })
+        # De paso se refresca el nombre de la conexion de aqui: si alguien la
+        # renombro desde la app o la web, la cabecera del chat lo dice sin que
+        # haga falta reconectar. Y es lo que rellena el campo en las
+        # instalaciones que conectaron antes de que este campo existiera.
+        actual = next((c for c in salida if c["current"]), None)
+        if actual and (rec.credential_name or "") != actual["name"]:
+            rec.sudo().write({"credential_name": actual["name"]})
+        return {"ok": True, "connections": salida}
+
+    def _nombre_conexion_libre(self, nombre, rec=None):
+        """(ok, mensaje): si ese nombre ya lo lleva OTRA conexion de la cuenta.
+
+        ⛔ Se comprueba aqui y no en el backend a proposito: el nombre lo elige
+        quien conecta, y el sitio donde se puede DECIR algo util —«ese ya lo usa
+        otra instancia, ponle otro»— es el formulario donde acaba de escribirlo.
+
+        Se compara sin distinguir mayusculas y sin espacios de sobra, que es como
+        lo lee una persona: "Odoo Produccion" y "odoo produccion " son el mismo
+        nombre para cualquiera que mire la lista desde el celular.
+
+        Si no se pueden leer las conexiones (backend viejo, red caida) NO se
+        bloquea: un nombre repetido molesta, pero no dejar conectar por no poder
+        comprobarlo es peor.
+        """
+        limpio = (nombre or "").strip()
+        if not limpio:
+            return True, ""
+        rec = rec or self
+        datos = self._conexiones_cuenta(rec)
+        if not datos.get("ok"):
+            return True, ""
+        mio = rec.credential_id or 0
+        for c in datos["connections"]:
+            if c["id"] == mio:
+                continue
+            if (c["name"] or "").strip().lower() == limpio.lower():
+                return False, _(
+                    "Your Aski account already has a connection called \"%s\". "
+                    "Give this one a different name so you can tell them apart "
+                    "in the app, on the web and in your scheduled alerts."
+                ) % limpio
+        return True, ""
 
     # Errores del backend que significan "esa DIRECCION no sirve, prueba otra".
     # No son fallos del token ni de la clave: reintentar con la siguiente
@@ -821,6 +916,7 @@ class AskiAccountLink(models.Model):
             except Exception as e:  # noqa: BLE001
                 return False, aski_mensaje_red(self.env, e), ""
             if resp.status_code == 200:
+                rec.write({"credential_name": nickname})
                 return True, "", ""
             if resp.status_code in (403, 404):
                 # 404 = esa credential ya no existe (el user la borro desde la
@@ -841,7 +937,8 @@ class AskiAccountLink(models.Model):
         if resp.status_code not in (200, 201):
             return False, rec._error_message(resp), rec._error_code(resp)
         data = resp.json()
-        rec.write({"credential_id": data.get("id")})
+        rec.write({"credential_id": data.get("id"),
+                   "credential_name": data.get("nickname") or nickname})
         return True, "", ""
 
     def _olvidar_token(self):
@@ -1027,18 +1124,29 @@ class AskiAccountLink(models.Model):
         mode = self._current_mode()
         if not self._user_can_use_chat(user):
             return {"allowed": False, "mode": mode, "can_connect": False,
-                    "connected": False, "email": "", "wallet_credits": 0,
+                    "connected": False, "email": "", "connection_name": "",
+                    "wallet_credits": 0,
                     "plan_name": "", "partner_managed": False,
                     "agent_enabled": False}
         rec = self._active_link(user)
         if rec and rec.connected and rec.pat:
             rec._sync_wallet()
+            # Una sola vez, y solo mientras falte: las conexiones que se
+            # registraron antes de guardar el nombre no tienen como saberlo, y
+            # sin el la cabecera se queda muda. En cuanto se rellena, esta
+            # peticion deja de hacerse.
+            if not rec.credential_name and rec.credential_id:
+                self._conexiones_cuenta(rec)
         return {
             "allowed": True,
             "mode": mode,
             "can_connect": self._user_can_connect(user),
             "connected": bool(rec) and rec.connected,
             "email": (rec.email or "") if rec else "",
+            # A QUE instancia se le esta preguntando. Sin esto, alguien con el
+            # Odoo de produccion y el de pruebas abiertos en dos pestañas veia
+            # dos chats identicos y no tenia como saber cual era cual.
+            "connection_name": (rec.credential_name or "") if rec else "",
             "wallet_credits": rec.wallet_credits if rec else 0,
             "plan_name": (rec.plan_name or "") if rec else "",
             # El interruptor de analisis profundo solo se ofrece si el plan lo
@@ -1198,6 +1306,18 @@ class AskiAccountLink(models.Model):
             return dict(vacio, code="erp_down")
         if resp.status_code == 429:
             return dict(vacio, code="rate_limited")
+        # ⛔ Un 404 aqui NO es el ERP caido: es que ESTA conexion ya no existe en
+        # la cuenta Aski (alguien la borro desde la app o la web, o el token que
+        # se pego es de otra cuenta). Traducirlo a "tu ERP no respondio" manda a
+        # revisar el servidor de Odoo —que esta perfectamente vivo— durante el
+        # tiempo que haga falta, y esconde lo unico que arregla el problema:
+        # volver a conectar. Caso real 04/09 en una instancia de demostracion.
+        if resp.status_code == 404:
+            return dict(vacio, code="credential_gone")
+        # Y un 401 es el token, no el ERP. `_mensaje_401` ya distingue los cuatro
+        # motivos en la ficha de configuracion; aqui basta con no mentir.
+        if resp.status_code == 401:
+            return dict(vacio, code="unauthorized")
         if resp.status_code != 200:
             return dict(vacio, code="erp_down")
         try:
@@ -1586,24 +1706,27 @@ class AskiAccountLink(models.Model):
     @_rpc_seguro
     @api.model
     def list_insights(self):
-        """Los avisos programados de ESTA conexion.
+        """Los avisos que le tocan a ESTA conexion, y que conexiones tiene la cuenta.
 
         Devuelve un dict con `ok` en vez de una lista pelada por lo mismo que la
         busqueda: una lista vacia no distingue "no tienes ninguno" de "no se pudo
         preguntar", y son dos pantallas distintas.
         """
         self._ensure_chat_access()
-        vacio = {"ok": False, "insights": [], "alert_limit": 0, "free_kinds": []}
+        vacio = {"ok": False, "insights": [], "alert_limit": 0, "free_kinds": [],
+                 "connections": [], "credential_id": 0}
         rec = self._active_link(self.env.user)
         if not rec or not rec.connected or not rec.credential_id:
             return vacio
         try:
-            # ⛔ Se PIDE la conexion, no se filtra despues: `digest` y `closing`
-            # viajan de uno en uno, asi que sin el parametro llegaba el de otra
-            # instancia y el de esta no llegaba nunca. Filtrar en el cliente no
-            # podia arreglarlo: el dato no venia.
+            # ⛔ SIN `credential_id`. El backend filtra por la conexion PRINCIPAL
+            # del aviso, y el resumen y el cierre pasaron a ser UNO por cuenta que
+            # cubre VARIAS conexiones: la de aqui puede ser una de las
+            # adicionales, y entonces el filtro la dejaba fuera. La hoja ofrecia
+            # encender un resumen que ya existia y el backend contestaba 409.
+            # Lo que es de una sola instancia (alertas, vigias, recordatorios,
+            # informes) se acota abajo, que es donde se puede distinguir.
             resp = requests.get(aski_api_base(self.env) + "/insights",
-                                params={"credential_id": rec.credential_id},
                                 headers=rec._headers(), timeout=_TIMEOUT_FAST)
         except Exception:  # noqa: BLE001
             return vacio
@@ -1619,26 +1742,21 @@ class AskiAccountLink(models.Model):
         # con dos avisos encendidos detras, ofrecia encender un resumen que ya
         # existia, y el 409 que devolvia el backend salia disfrazado de «cupo
         # lleno». El arnes no lo veia porque simula ESTE metodo, no el backend.
-        # ⛔ El resumen y el cierre dejaron de ser UNO por cuenta: ahora hay uno
-        # por conexion y el backend los manda en `digests`/`closings`. Los
-        # singulares siguen ahi por las apps ya publicadas, pero traen SOLO el
-        # primero — con dos conexiones, el de esta podia no venir nunca y la hoja
-        # ofrecia encender un resumen que ya existia (el 409 salia disfrazado de
-        # «cupo lleno»). Se leen los plurales y se cae a los singulares.
-        #
-        # Esto NO cambia lo que se ve: el conector sigue enseñando una sola
-        # conexion —la activa— porque dentro de Odoo no hay mas. Lo que arregla es
-        # que la suya no se pierda cuando la cuenta tiene otras.
-        crudos = []
+        filas = []
+        # El resumen y el cierre son de la CUENTA: se toman vengan de donde
+        # vengan, sin mirar cual es su conexion principal. Cual cubren lo dice su
+        # `connections_label`, y desde la hoja se puede cambiar.
         for plural, unico in (("digests", "digest"), ("closings", "closing")):
             varios = datos.get(plural)
             if varios:
-                crudos.extend(varios)
+                filas.extend(varios)
             elif datos.get(unico):
-                crudos.append(datos[unico])
+                filas.append(datos[unico])
+        # Lo demas SI es de una instancia: una alerta pregunta por los datos de un
+        # ERP concreto y en otro no significa nada.
         for lista in ("alerts", "watches", "reminders", "reports"):
-            crudos.extend(datos.get(lista) or [])
-        filas = [f for f in crudos if f.get("credential_id") == rec.credential_id]
+            filas.extend([f for f in (datos.get(lista) or [])
+                          if f.get("credential_id") == rec.credential_id])
         return {
             "ok": True,
             "insights": filas,
@@ -1650,7 +1768,52 @@ class AskiAccountLink(models.Model):
             "free_kinds": datos.get("kinds_free_in_plan") or [],
             # El plan mas barato que si trae avisos, para cuando el cupo es 0.
             "upsell": datos.get("alerts_min_plan") or "",
+            # Las conexiones de la cuenta, para poder elegir a cuales cubre el
+            # resumen. Marcadas con `current` para no obligar a adivinar cual es
+            # la de este Odoo.
+            "connections": self._conexiones_cuenta(rec).get("connections") or [],
+            "credential_id": rec.credential_id,
         }
+
+    @_rpc_seguro
+    @api.model
+    def set_insight_connections(self, insight_id, connection_ids):
+        """A que conexiones cubre un resumen o un cierre.
+
+        Se manda la lista COMPLETA (`connection_ids`), no un delta: la ventana
+        manda lo que quedo marcado y el backend reparte principal + adicionales.
+        Es la misma llamada que hace la app, para que las dos digan lo mismo.
+
+        ⛔ Cualquiera que use el token de la cuenta puede moverlo, a proposito: el
+        aviso es de la CUENTA y no de la instancia desde la que se creo. Quien
+        quiera que nadie se lo toque, que use su propia cuenta.
+        """
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected:
+            raise UserError(self._not_connected_error())
+        ids = []
+        for c in (connection_ids or []):
+            try:
+                valor = int(c)
+            except (TypeError, ValueError):
+                continue
+            if valor > 0 and valor not in ids:
+                ids.append(valor)
+        if not ids:
+            # Un aviso sin conexiones no tiene de que hablar, y el backend lo
+            # rechaza. Se dice aqui, que es donde se entiende.
+            raise UserError(_("Pick at least one connection."))
+        try:
+            resp = requests.patch(
+                aski_api_base(self.env) + "/insights/%s" % int(insight_id),
+                json={"connection_ids": ids}, headers=rec._headers(),
+                timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(aski_mensaje_red(self.env, e))
+        if resp.status_code != 200:
+            raise UserError(_("Aski error: %s") % rec._error_message(resp))
+        return resp.json()
 
     @_rpc_seguro
     @api.model
