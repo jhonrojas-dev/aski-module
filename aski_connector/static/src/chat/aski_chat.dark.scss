@@ -13,6 +13,10 @@
 // sola regla nueva de maquetacion.
 .aski-chat {
     --ac-navy: #E8C058;              // en oscuro `primary` ES el dorado
+    // La campana ya sale dorada en reposo (hereda `--ac-navy`), asi que el
+    // realce del raton tiene que ACLARAR. Con el `--ac-gold-deep` del tema
+    // claro se oscurecia y el gesto se leia al reves.
+    --ac-bell-hover: #F8D882;
     --ac-navy-dark: #050A14;
     --ac-on-gold: #2E2200;
     // Aqui el primary ES el dorado, asi que lo que va encima es el pardo oscuro

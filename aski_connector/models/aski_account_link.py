@@ -114,6 +114,12 @@ class AskiAccountLink(models.Model):
     # chat necesita para decir a QUE instancia esta preguntando. Una cuenta con
     # tres Odoo veia tres chats identicos y no habia forma de distinguirlos.
     credential_name = fields.Char(string="Connection name", readonly=True)
+    # Cuando se comprobo por ultima vez ese nombre contra la cuenta. Sin esta
+    # marca solo caben dos malas opciones: preguntarlo en CADA apertura del chat
+    # (una peticion mas cada vez, y en las series 14 y 15 eso alarga el velo que
+    # tapa todo Odoo) o no preguntarlo nunca (y entonces renombrar la conexion
+    # desde la app o la web no se refleja aqui jamas).
+    credential_name_at = fields.Datetime(readonly=True)
     wallet_credits = fields.Integer(string="Credits available", readonly=True)
     plan_name = fields.Char(string="Plan", readonly=True)
     last_synced = fields.Datetime(string="Last synced", readonly=True)
@@ -743,7 +749,7 @@ class AskiAccountLink(models.Model):
         rec._aski_revoke_previous("Aski Chat")
         rec.write({
             "pat_enc": False, "credential_id": False, "credential_name": False,
-            "wallet_credits": 0,
+            "credential_name_at": False, "wallet_credits": 0,
             "plan_name": False, "email": False, "last_synced": False,
         })
 
@@ -830,9 +836,23 @@ class AskiAccountLink(models.Model):
         # haga falta reconectar. Y es lo que rellena el campo en las
         # instalaciones que conectaron antes de que este campo existiera.
         actual = next((c for c in salida if c["current"]), None)
-        if actual and (rec.credential_name or "") != actual["name"]:
-            rec.sudo().write({"credential_name": actual["name"]})
+        if actual:
+            vals = {"credential_name_at": fields.Datetime.now()}
+            if (rec.credential_name or "") != actual["name"]:
+                vals["credential_name"] = actual["name"]
+            rec.sudo().write(vals)
         return {"ok": True, "connections": salida}
+
+    # Cuanto vale el nombre cacheado antes de volver a preguntarlo.
+    _NOMBRE_TTL_MIN = 15
+
+    def _nombre_caducado(self):
+        """Si toca volver a preguntar como se llama esta conexion."""
+        self.ensure_one()
+        if not self.credential_name or not self.credential_name_at:
+            return True
+        edad = fields.Datetime.now() - self.credential_name_at
+        return edad.total_seconds() >= self._NOMBRE_TTL_MIN * 60
 
     def _nombre_conexion_libre(self, nombre, rec=None):
         """(ok, mensaje): si ese nombre ya lo lleva OTRA conexion de la cuenta.
@@ -1131,11 +1151,17 @@ class AskiAccountLink(models.Model):
         rec = self._active_link(user)
         if rec and rec.connected and rec.pat:
             rec._sync_wallet()
-            # Una sola vez, y solo mientras falte: las conexiones que se
-            # registraron antes de guardar el nombre no tienen como saberlo, y
-            # sin el la cabecera se queda muda. En cuanto se rellena, esta
-            # peticion deja de hacerse.
-            if not rec.credential_name and rec.credential_id:
+            # El nombre se vuelve a preguntar cuando falta —las conexiones
+            # registradas antes de que este campo existiera no lo tienen— y
+            # cuando lleva rato sin comprobarse: quien renombra su conexion desde
+            # la app o la web espera verlo aqui, y no reconectando.
+            #
+            # No en CADA apertura, a proposito: seria una peticion mas cada vez y
+            # en las series 14 y 15 alarga el velo que Odoo pone sobre toda la
+            # pantalla mientras el chat carga. Un cuarto de hora es el tiempo que
+            # puede tardar en verse un nombre nuevo; abrir la hoja de avisos lo
+            # refresca al instante, porque esa si lee la lista entera.
+            if rec.credential_id and rec._nombre_caducado():
                 self._conexiones_cuenta(rec)
         return {
             "allowed": True,
