@@ -106,7 +106,10 @@ class AskiChatConnectWizard(models.TransientModel):
     name = fields.Char(
         string="Connection name",
         default=lambda self: self.env.company.name,
-        help="How this Odoo will appear in your Aski connections list.")
+        help="How this Odoo will appear in your Aski connections list, in the "
+             "mobile app and in your scheduled alerts. It has to be different "
+             "from the other connections in the same account: two with the same "
+             "name can't be told apart anywhere.")
     # Si la cuenta que YA esta conectada la gestiona un socio, no se muestran los
     # enlaces de precios/compra (su plan lo ve con el socio). En una PRIMERA
     # conexion aun no se sabe -> se muestran, que es lo util para darse de alta.
@@ -326,6 +329,16 @@ class AskiChatConnectWizard(models.TransientModel):
         ok, message = link._sync_wallet()
         if not ok:
             raise UserError(message)
+
+        # DOS conexiones con el mismo nombre en una cuenta es una cuenta que no
+        # se puede usar: el selector del celular, la hoja de avisos y el correo
+        # del resumen las nombran solo por ahi. Se comprueba con el token ya
+        # verificado —antes no se podia preguntar— y ANTES de rotar la API key de
+        # Odoo: si se hiciera despues, un nombre repetido dejaria la key vieja
+        # revocada y el chat sin conexion por un texto.
+        libre, choque = link._nombre_conexion_libre(nickname, link)
+        if not libre:
+            raise UserError(choque)
 
         # La direccion NO la teclea el cliente: se deduce (peticion en curso ->
         # web.base.url -> lo que el haya escrito abajo). Ver aski_url_candidates.

@@ -311,6 +311,10 @@ class AskiChatWidget extends Component {
             connected: false,
             walletCredits: 0,
             planName: "",
+            // Como se llama esta conexion dentro de la cuenta Aski. Va en la
+            // cabecera: una cuenta con el Odoo de produccion y el de pruebas
+            // abria dos chats identicos y no habia forma de saber cual era cual.
+            connectionName: "",
             // Cuenta gestionada por un socio: se le ocultan los accesos a
             // comprar creditos (el backend rechaza esa compra; su saldo lo
             // repone su socio).
@@ -385,6 +389,17 @@ class AskiChatWidget extends Component {
             insightUsed: 0,
             insightPorPersona: [],
             insightBusy: null,
+            // Las conexiones de la CUENTA, no solo la de este Odoo: el resumen y
+            // el cierre son uno por cuenta y pueden cubrir varias empresas. Sin
+            // la lista, desde Odoo solo se podia mover la principal.
+            conexiones: [],
+            // La conexion de ESTE Odoo, para poder marcarla en el selector.
+            credencialActual: 0,
+            // El aviso cuyas conexiones se estan eligiendo (null = ninguno), y
+            // lo que lleva marcado ahora mismo.
+            connSelFor: null,
+            connSel: [],
+            connSaving: false,
             // Alta rapida desde la ultima respuesta: la pregunta ya resuelta se
             // guarda tal cual y el aviso la repite sin volver a pensar nada.
             insightNewFor: null,
@@ -537,6 +552,7 @@ class AskiChatWidget extends Component {
             this.state.connected = !!st.connected;
             this.state.walletCredits = st.wallet_credits || 0;
             this.state.planName = st.plan_name || "";
+            this.state.connectionName = st.connection_name || "";
             this.state.partnerManaged = !!st.partner_managed;
             this.state.email = st.email || "";
             this.state.agentEnabled = !!st.agent_enabled;
@@ -782,6 +798,17 @@ class AskiChatWidget extends Component {
     // habria que pasar en dos sitios y mantener en las seis series.
     get enBurbuja() {
         return !!this.props.onMinimize;
+    }
+
+    /** El `title` del distintivo de la cabecera. Se arma por concatenacion:
+     *  `_t()` con argumentos no funciona en las series 14 y 15. */
+    get tituloConexion() {
+        const n = this.state.connectionName || "";
+        if (!n) {
+            return "";
+        }
+        const correo = this.state.email || "";
+        return _t("Connection") + ": " + n + (correo ? " · " + correo : "");
     }
 
     useSample(text) {
@@ -1084,12 +1111,31 @@ class AskiChatWidget extends Component {
             startTitle: _t("Your figures right now"),
             startRefresh: _t("Refresh"),
             startErpDown: _t("Your ERP did not answer"),
+            // ⛔ Y los dos casos que NO son el ERP. Decir "tu ERP no respondio"
+            // cuando el ERP esta vivo manda a revisar el servidor durante horas
+            // y esconde lo unico que arregla el problema: volver a conectar.
+            startGone: _t("This connection no longer exists in your Aski account. Connect it again from Aski > Connect."),
+            startAuth: _t("Your Aski token is no longer valid. Connect your account again from Aski > Connect."),
             startBusy: _t("Too many refreshes. Try again in a while."),
             startEmpty: _t("No movements to show in this connection yet."),
             startStale: _t("Showing the last known figures."),
             startMore: _t("See more questions"),
             libTitle: _t("What you can ask"),
             close: _t("Close"),
+            // --- A que conexiones cubre el resumen / el cierre ---
+            connTitle: _t("Which connections it covers"),
+            connHelp: _t("One message a day covering all of them, instead of one per company. Anyone who uses this account's token can change it."),
+            connMany: _t("several companies"),
+            // ⛔ NO un "Change" a secas: `_t()` resuelve contra el catalogo de
+            // TODO Odoo, y el core ya traduce esa palabra como sustantivo
+            // ("Cambio"), que aqui se lee como un titulo y no como un boton.
+            // Un msgid propio ademas dice QUE se cambia.
+            connChange: _t("Change connections"),
+            connSave: _t("Save"),
+            connSaving: _t("Saving..."),
+            connCancel: _t("Cancel"),
+            connLast: _t("At least one has to stay selected."),
+            connNotHere: _t("It does not cover this Odoo yet."),
         };
     }
 
@@ -1108,9 +1154,11 @@ class AskiChatWidget extends Component {
     }
 
     get startErrTxt() {
-        return this.state.sugsCode === "rate_limited"
-            ? this.txt.startBusy
-            : this.txt.startErpDown;
+        return {
+            rate_limited: this.txt.startBusy,
+            credential_gone: this.txt.startGone,
+            unauthorized: this.txt.startAuth,
+        }[this.state.sugsCode] || this.txt.startErpDown;
     }
 
     renderMd(text) {
@@ -2715,6 +2763,8 @@ class AskiChatWidget extends Component {
             this.state.insightLimit = r.alert_limit ?? null;
             this.state.insightUsed = r.alert_used || 0;
             this.state.insightPorPersona = r.by_person || [];
+            this.state.conexiones = r.connections || [];
+            this.state.credencialActual = r.credential_id || 0;
             this.state.insightsErr = !r.ok;
         } catch {
             this.state.insightsErr = true;
@@ -2876,6 +2926,112 @@ class AskiChatWidget extends Component {
 
     alternarResumen() { return this._alternarFijo("digest"); }
     alternarCierre() { return this._alternarFijo("closing"); }
+
+    // -----------------------------------------------------------------
+    //  A que conexiones cubre el resumen (y el cierre)
+    // -----------------------------------------------------------------
+    // El resumen y el cierre dejaron de ser de una instancia: son UNO por cuenta
+    // que habla de varias empresas en un solo mensaje. Desde Odoo habia que
+    // poder elegir cuales, o quien tuviera dos Odoo acabaria con un aviso que
+    // solo cuenta la mitad y sin forma de arreglarlo sin salir a la app.
+
+    /** Las conexiones que cubre el aviso, contando la principal. */
+    conexionesDe(f) {
+        if (!f) {
+            return [];
+        }
+        const extras = (f.extra_credential_ids || []).filter((x) => !!x);
+        return [f.credential_id].concat(extras.filter((x) => x !== f.credential_id));
+    }
+
+    /** Como nombrarlas en una linea. La calcula el SERVIDOR para que la app, la
+     *  web, el correo y esto digan lo mismo; solo se cae al nombre de la conexion
+     *  de aqui si un backend anterior no la manda. */
+    etiquetaConexiones(f) {
+        if (!f) {
+            return "";
+        }
+        if (f.connections_label) {
+            return f.connections_label;
+        }
+        return f.credential_nickname || this.state.connectionName || "";
+    }
+
+    /** Que este aviso habla de VARIAS empresas no puede quedar implicito: lo que
+     *  se lea aqui es lo que llega cada mañana en un solo mensaje. */
+    cubreVarias(f) {
+        return this.conexionesDe(f).length > 1;
+    }
+
+    /** El aviso NO incluye la conexion de este Odoo. Pasa cuando se creo desde
+     *  otra instancia de la misma cuenta: sin decirlo, la hoja parece estar
+     *  hablando de aqui y no lo esta. */
+    dejaFueraEsteOdoo(f) {
+        const mia = this.state.credencialActual;
+        if (!f || !mia) {
+            return false;
+        }
+        return !this.conexionesDe(f).includes(mia);
+    }
+
+    /** Solo tiene sentido ofrecer el selector si hay entre que elegir. */
+    get hayVariasConexiones() {
+        return (this.state.conexiones || []).length > 1;
+    }
+
+    abrirConexiones(f) {
+        this.state.connSelFor = f;
+        this.state.connSel = this.conexionesDe(f);
+    }
+
+    cerrarConexiones() {
+        this.state.connSelFor = null;
+        this.state.connSel = [];
+    }
+
+    conexionMarcada(id) {
+        return (this.state.connSel || []).includes(id);
+    }
+
+    alternarConexion(id) {
+        const puestas = this.state.connSel || [];
+        if (puestas.includes(id)) {
+            // ⛔ No se deja quitar la ultima: un aviso sin conexiones no tiene de
+            // que hablar y el backend lo rechaza. Mejor que no se pueda a que
+            // salga un error despues de haberlo intentado.
+            if (puestas.length <= 1) {
+                return;
+            }
+            this.state.connSel = puestas.filter((x) => x !== id);
+        } else {
+            this.state.connSel = puestas.concat([id]);
+        }
+    }
+
+    /** El nombre de una conexion en el selector, con «(este Odoo)» en la que es
+     *  la de aqui: tres nombres parecidos sin esa marca obligan a adivinar. */
+    nombreConexion(c) {
+        return c.current ? c.name + " " + _t("(this Odoo)") : c.name;
+    }
+
+    async guardarConexiones() {
+        const f = this.state.connSelFor;
+        if (!f || this.state.connSaving) {
+            return;
+        }
+        this.state.connSaving = true;
+        try {
+            await this.orm.call("aski.account.link", "set_insight_connections",
+                                [f.id, this.state.connSel]);
+            this.cerrarConexiones();
+            this.notification.add(_t("Saved."), { type: "success" });
+            await this._cargarAvisos();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.connSaving = false;
+        }
+    }
 
     async abrirVigia() {
         this.state.newKind = "watch";
