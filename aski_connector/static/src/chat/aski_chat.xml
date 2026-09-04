@@ -77,7 +77,15 @@
                                 title="Out of credits - tap to top up" t-on-click.stop="openBilling">
                             <i class="fa fa-exclamation-circle"/> Out of credits
                         </button>
-                        <span t-if="state.walletCredits === 0 and state.partnerManaged"
+                        <!-- ⛔ `t-elif`, NO un segundo `t-if`. El `t-else` de
+                             abajo se empareja con el `t-if` que tiene JUSTO
+                             encima: con dos `t-if` sueltos, a un cliente SIN
+                             socio y con saldo 0 le salian las DOS pildoras a la
+                             vez —"Sin creditos" y "0"— porque el segundo `t-if`
+                             era falso y disparaba su `t-else`. Visto en una
+                             instancia real de QA. Asi la cadena es una sola:
+                             sin saldo y sin socio, sin saldo con socio, o saldo. -->
+                        <span t-elif="state.walletCredits === 0 and state.partnerManaged"
                               class="ac-credits ac-credits-empty"
                               title="Out of credits - your Aski partner tops them up">
                             <i class="fa fa-exclamation-circle"/> Out of credits
