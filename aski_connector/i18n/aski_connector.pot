@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0-20260619\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-29 18:16+0000\n"
-"PO-Revision-Date: 2026-08-29 18:16+0000\n"
+"POT-Creation-Date: 2026-09-04 14:03+0000\n"
+"PO-Revision-Date: 2026-09-04 14:03+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -129,6 +129,12 @@ msgstr ""
 msgid ""
 "%s will stop being able to ask with this account. You can give the seat back"
 " whenever you want."
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "(this Odoo)"
 msgstr ""
 
 #. module: aski_connector
@@ -475,6 +481,14 @@ msgid "Aski didn't return an access token. Try again."
 msgstr ""
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Aski doesn't know that token: it belongs to another account or to another "
+"environment. Generate one in the Aski account you want to use here."
+msgstr ""
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__login_email
 msgid "Aski email"
 msgstr ""
@@ -539,8 +553,27 @@ msgid "Aski personal access token"
 msgstr ""
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
+"\n"
+"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
+"\n"
+"If this Odoo has no public address at all, it does not have to get one: Aski can reach it through a secure tunnel, without opening any port. Turn that on from the Aski mobile app or web app when you add the connection (the option that says your ERP is not reachable from the internet), or ask your Aski partner for it.\n"
+"\n"
+"%(detail)s"
+msgstr ""
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__pat_enc
 msgid "Aski token (encrypted)"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Aski took too long to answer at %s. Try again in a moment."
 msgstr ""
 
 #. module: aski_connector
@@ -580,12 +613,19 @@ msgstr ""
 
 #. module: aski_connector
 #. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "At least one has to stay selected."
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Attach the spreadsheet"
 msgstr ""
 
 #. module: aski_connector
 #. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Cancel"
@@ -595,6 +635,12 @@ msgstr ""
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Cancel invitation"
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Change connections"
 msgstr ""
 
 #. module: aski_connector
@@ -738,11 +784,18 @@ msgid "Connected. %s credits available."
 msgstr ""
 
 #. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Connection"
+msgstr ""
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__token
 msgid "Connection code"
 msgstr ""
 
 #. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__credential_name
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
 msgid "Connection name"
 msgstr ""
@@ -817,6 +870,29 @@ msgstr ""
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Could not load your alerts. Try again in a moment."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"Could not open a secure connection with Aski at %s. If this Odoo goes out "
+"through a proxy or a corporate firewall, its certificate is what's getting "
+"in the way."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Could not reach Aski at %s."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"Could not reach Aski at %s. Check that this server has internet access and "
+"that nothing is blocking its outgoing traffic."
 msgstr ""
 
 #. module: aski_connector
@@ -1228,7 +1304,11 @@ msgstr ""
 
 #. module: aski_connector
 #: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
-msgid "How this Odoo will appear in your Aski connections list."
+msgid ""
+"How this Odoo will appear in your Aski connections list, in the mobile app "
+"and in your scheduled alerts. It has to be different from the other "
+"connections in the same account: two with the same name can't be told apart "
+"anywhere."
 msgstr ""
 
 #. module: aski_connector
@@ -1268,6 +1348,12 @@ msgstr ""
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Invited, not in yet"
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "It does not cover this Odoo yet."
 msgstr ""
 
 #. module: aski_connector
@@ -1505,6 +1591,14 @@ msgid "Once a week"
 msgstr ""
 
 #. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"One message a day covering all of them, instead of one per company. Anyone "
+"who uses this account's token can change it."
+msgstr ""
+
+#. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid "Only administrators can set up the shared Aski connection."
@@ -1645,6 +1739,12 @@ msgid "Per user - each person connects their own Aski account"
 msgstr ""
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Pick at least one connection."
+msgstr ""
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__plan_name
 msgid "Plan"
 msgstr ""
@@ -1685,6 +1785,12 @@ msgstr ""
 #. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Reconnect / paste a new token"
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Reconnect in Aski > Chat Settings."
 msgstr ""
 
 #. module: aski_connector
@@ -1766,6 +1872,7 @@ msgstr ""
 
 #. module: aski_connector
 #. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Save"
@@ -1775,6 +1882,12 @@ msgstr ""
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Save alert"
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Saved."
 msgstr ""
 
 #. module: aski_connector
@@ -1796,6 +1909,7 @@ msgstr ""
 
 #. module: aski_connector
 #. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Saving..."
 msgstr ""
@@ -1987,6 +2101,16 @@ msgstr ""
 
 #. module: aski_connector
 #. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"That doesn't look like an Aski access token: they all start with %s. You "
+"generate one in the Aski web app, under Settings > Personal access tokens, "
+"and you have to copy it whole — no spaces, no quotes and nothing in front of"
+" it."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "That email address does not look right."
 msgstr ""
@@ -2048,11 +2172,31 @@ msgid "That token is invalid or was revoked. Generate a new one in Aski."
 msgstr ""
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That token was revoked. Generate a new one in Aski."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "The Aski account that owns that token is deactivated."
+msgstr ""
+
+#. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid ""
 "The account is created with that email and this Odoo is connected right "
 "away. It's the <b>same</b> account you can also use in the Aski mobile app "
 "and on the web, with the same credits - nothing else to sign up for."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"The address %s could not be resolved, so this Odoo doesn't know where to "
+"find Aski. Check that address and this server's DNS."
 msgstr ""
 
 #. module: aski_connector
@@ -2081,6 +2225,15 @@ msgstr ""
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "The first run only takes the baseline."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"The saved token could not be read, so it went out unusable. That happens "
+"when the database is restored or duplicated, or when what got saved was not "
+"a whole token. Paste your Aski access token again."
 msgstr ""
 
 #. module: aski_connector
@@ -2129,12 +2282,31 @@ msgid ""
 msgstr ""
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"This Odoo asks %(base)s, which is not the Aski service (%(oficial)s), and "
+"that server rejected the token. If you generated the token in the Aski web "
+"app, the token is fine — it's this Odoo that is pointing somewhere else. "
+"Whoever administers this server can change it in the system parameter "
+"aski_connector.api_base."
+msgstr ""
+
+#. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
 msgid ""
 "This code grants API access to this Odoo as your user.\n"
 "                        Don't share it. You can revoke it anytime in\n"
 "                        Settings &gt; Users &amp; Companies &gt; your user &gt;\n"
 "                        Account Security &gt; API Keys."
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"This connection no longer exists in your Aski account. Connect it again from"
+" Aski > Connect."
 msgstr ""
 
 #. module: aski_connector
@@ -2368,6 +2540,12 @@ msgstr ""
 
 #. module: aski_connector
 #. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Which connections it covers"
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Which plan do you want?"
 msgstr ""
@@ -2469,6 +2647,15 @@ msgstr ""
 
 #. module: aski_connector
 #. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Your Aski account already has a connection called \"%s\". Give this one a "
+"different name so you can tell them apart in the app, on the web and in your"
+" scheduled alerts."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-python
 #: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
 msgid ""
 "Your Aski account was created (%(email)s), but connecting this Odoo failed: %(reason)s\n"
@@ -2507,6 +2694,14 @@ msgstr ""
 msgid ""
 "Your Aski plan and credits are managed by your partner - contact them for "
 "plan changes or top-ups."
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"Your Aski token is no longer valid. Connect your account again from Aski > "
+"Connect."
 msgstr ""
 
 #. module: aski_connector
@@ -2703,6 +2898,12 @@ msgstr ""
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "several companies"
+msgstr ""
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "you"
 msgstr ""
 
@@ -2721,110 +2922,4 @@ msgstr ""
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "· requested"
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"Aski doesn't know that token: it belongs to another account or to another "
-"environment. Generate one in the Aski account you want to use here."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid ""
-"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
-"\n"
-"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
-"\n"
-"If this Odoo has no public address at all, it does not have to get one: Aski can reach it through a secure tunnel, without opening any port. Turn that on from the Aski mobile app or web app when you add the connection (the option that says your ERP is not reachable from the internet), or ask your Aski partner for it.\n"
-"\n"
-"%(detail)s"
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid "Aski took too long to answer at %s. Try again in a moment."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid ""
-"Could not open a secure connection with Aski at %s. If this Odoo goes out "
-"through a proxy or a corporate firewall, its certificate is what's getting "
-"in the way."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid "Could not reach Aski at %s."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid ""
-"Could not reach Aski at %s. Check that this server has internet access and "
-"that nothing is blocking its outgoing traffic."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Reconnect in Aski > Chat Settings."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "That token was revoked. Generate a new one in Aski."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "The Aski account that owns that token is deactivated."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid ""
-"The address %s could not be resolved, so this Odoo doesn't know where to "
-"find Aski. Check that address and this server's DNS."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"This Odoo asks %(base)s, which is not the Aski service (%(oficial)s), and "
-"that server rejected the token. If you generated the token in the Aski web "
-"app, the token is fine — it's this Odoo that is pointing somewhere else. "
-"Whoever administers this server can change it in the system parameter "
-"aski_connector.api_base."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid ""
-"That doesn't look like an Aski access token: they all start with %s. You "
-"generate one in the Aski web app, under Settings > Personal access tokens, "
-"and you have to copy it whole — no spaces, no quotes and nothing in front of"
-" it."
-msgstr ""
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"The saved token could not be read, so it went out unusable. That happens "
-"when the database is restored or duplicated, or when what got saved was not "
-"a whole token. Paste your Aski access token again."
 msgstr ""

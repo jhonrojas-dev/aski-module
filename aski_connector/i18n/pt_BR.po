@@ -15,130 +15,311 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%(shown)s of %(total)s"
+msgstr "%(shown)s de %(total)s"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s credits this period"
+msgstr "%s créditos neste período"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s d ago"
+msgstr "há %s d"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s days"
+msgstr "%s dias"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s gets it in their panel and turns it on."
+msgstr "%s recebe no painel dele e ativa."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s h ago"
+msgstr "há %s h"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s invited"
+msgstr "%s convidado"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s min ago"
+msgstr "há %s min"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s of %s alerts used — the quota belongs to the whole account."
+msgstr "%s de %s avisos usados — a cota é de toda a conta."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s of %s credits this period"
+msgstr "%s de %s créditos neste período"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "%s of %s seats in use"
+msgstr "%s de %s assentos em uso"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "%s people from this Odoo are waiting for a seat."
+msgstr "%s pessoas deste Odoo estão esperando um assento."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s people invited"
+msgstr "%s convidados"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s scheduled alerts on this account."
+msgstr "%s avisos programados nesta conta."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seat free"
+msgstr "%s assento livre"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seat taken"
+msgstr "%s assento ocupado"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seats free"
+msgstr "%s assentos livres"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "%s seats taken"
+msgstr "%s assentos ocupados"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"%s will stop being able to ask with this account. You can give the seat back"
+" whenever you want."
+msgstr ""
+"%s deixará de poder perguntar com esta conta. Você pode devolver o assento "
+"quando quiser."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ", or buy and top up credits at"
+msgstr ", ou compre e recarregue créditos em"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"<b>Aski</b> is an AI assistant that answers questions about your Odoo in "
+"plain language - sales, receivables, top products and more. Ask from your "
+"phone, from the web, or right here inside Odoo."
+msgstr ""
+"<b>Aski</b> é um assistente de IA que responde perguntas sobre o seu Odoo em"
+" linguagem simples - vendas, contas a receber, produtos mais vendidos e "
+"mais. Pergunte pelo celular, pela web ou aqui mesmo dentro do Odoo."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"<b>Changing the access mode closes every Aski connection in this "
+"database</b>, yours included. Each mode grants a different level of access, "
+"so nobody keeps the one they were given under the previous mode - otherwise "
+"they would keep reaching this Odoo from the Aski app after the change. "
+"Everyone connects again afterwards."
+msgstr ""
+"<b>Mudar o modo de acesso fecha todas as conexões do Aski nesta base de "
+"dados</b>, inclusive a sua. Cada modo concede um nível de acesso diferente, "
+"então ninguém mantém o que recebeu no modo anterior; senão continuaria "
+"chegando a este Odoo pelo app do Aski depois da mudança. Depois todos "
+"conectam de novo."
+
+#. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
 msgid "<b>How to connect:</b>"
 msgstr "<b>Como conectar:</b>"
 
 #. module: aski_connector
-#: model:ir.model,name:aski_connector.model_aski_connect_wizard
-msgid "Aski connection assistant"
-msgstr "Assistente de conexão do Aski"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid ""
-"Aski lets you ask your ERP in plain language and get real\n"
-"                        figures in seconds — sales, receivables, top products and\n"
-"                        more — from your phone, even by voice."
+"<b>Per user:</b> each internal user connects their own Aski account from the"
+" chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what "
+"their own Odoo user can see, and each person spends their own credits - "
+"nothing else to set up here."
 msgstr ""
-"O Aski permite perguntar ao seu ERP em linguagem natural e obter números "
-"reais em segundos — vendas, contas a receber, produtos mais vendidos e mais "
-"— pelo celular, até por voz."
+"<b>Por usuário:</b> cada usuário interno conecta a própria conta Aski pelo "
+"botão <b>Conectar</b> do chat (Aski &gt; Chat). A Aski então só vê o que o "
+"próprio usuário do Odoo pode ver, e cada pessoa gasta os próprios créditos -"
+" não há mais nada a configurar aqui."
 
 #. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Click <b>Generate connection code</b> below."
-msgstr "Clique em <b>Gerar código de conexão</b> abaixo."
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"<b>Your data stays private.</b> Who can use the chat - and whose data they "
+"see - is set by the administrator in Aski &gt; Chat Settings: share one "
+"connection with a group, keep it to administrators only, or let each person "
+"connect their own Aski account and see only what their own Odoo user can."
+msgstr ""
+"<b>Seus dados continuam privados.</b> Quem pode usar o chat - e quais dados "
+"vê - é definido pelo administrador em Aski &gt; Configurações do chat: "
+"compartilhar uma conexão com um grupo, restringi-la apenas a "
+"administradores, ou deixar que cada pessoa conecte a própria conta Aski e "
+"veja somente o que o próprio usuário do Odoo pode ver."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"A member asks, creates their own alerts and shares answers. An administrator"
+" also invites people and sees everyone's usage."
+msgstr ""
+"O membro pergunta, cria seus próprios avisos e compartilha respostas. O "
+"administrador também convida pessoas e vê o consumo de todos."
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Close"
-msgstr "Fechar"
-
-#. module: aski_connector
-#: model:ir.ui.menu,name:aski_connector.menu_aski_connect
-msgid "Connect"
-msgstr "Conectar"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Connect this Odoo with Aski"
-msgstr "Conecte este Odoo ao Aski"
-
-#. module: aski_connector
-#: model:ir.actions.act_window,name:aski_connector.action_aski_connect
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Connect with Aski"
-msgstr "Conectar com o Aski"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__token
-msgid "Connection code"
-msgstr "Código de conexão"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Don't have the app yet? Get it on"
-msgstr "Ainda não tem o app? Baixe na"
+msgid "A whole number between 0 and 365"
+msgstr "Um número inteiro entre 0 e 365"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
-msgid "Done"
-msgstr "Concluído"
+msgid "AI assistant · read-only"
+msgstr "Assistente de IA · somente leitura"
 
 #. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Generate connection code"
-msgstr "Gerar código de conexão"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid ""
-"Open the <b>Aski</b> app on your phone and choose\n"
-"                            <b>Scan code</b>."
-msgstr ""
-"Abra o app <b>Aski</b> no seu celular e escolha <b>Escanear código</b>."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
-msgid "Or paste this code manually in the app:"
-msgstr "Ou cole este código manualmente no app:"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Point the camera at the QR. Done — no typing."
-msgstr "Aponte a câmera para o QR. Pronto — sem digitar."
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__qr_image
-msgid "QR code"
-msgstr "Código QR"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
-msgid "Scan this code in the Aski app"
-msgstr "Escaneie este código no app Aski"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
-msgid ""
-"This code grants API access to this Odoo as your user.\n"
-"                        Don't share it. You can revoke it anytime in\n"
-"                        Settings &gt; Users &amp; Companies &gt; your user &gt;\n"
-"                        Account Security &gt; API Keys."
-msgstr ""
-"Este código concede acesso de API a este Odoo como seu usuário. Não o "
-"compartilhe. Você pode revogá-lo a qualquer momento em Configurações &gt; "
-"Usuários e empresas &gt; seu usuário &gt; Segurança da conta &gt; Chaves de "
-"API."
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Account owner"
+msgstr "Titular da conta"
 
 #. module: aski_connector
 #. odoo-python
-#: code:addons/aski_connector/models/aski_connect_wizard.py:0
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
-msgid "Your Aski connection code"
-msgstr "Seu código de conexão do Aski"
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Actions on your ERP are not included in your plan."
+msgstr "Seu plano não inclui ações no ERP."
 
 #. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "or learn more at"
-msgstr "ou saiba mais em"
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Actions on your ERP are only available when the chat runs in Per user mode, "
+"so that every change is made with the permissions of the person who asked "
+"for it."
+msgstr ""
+"As ações no ERP só ficam disponíveis com o chat no modo «Por usuário», para "
+"que cada alteração seja feita com as permissões de quem a pediu."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Add a reminder"
+msgstr "Adicionar um lembrete"
+
+#. module: aski_connector
+#. openerp-web
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Add at least one email address."
+msgstr "Adicione pelo menos um endereço de e-mail."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Add seats on the web"
+msgstr "Adicionar assentos na web"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__public_url
+msgid "Address of this Odoo (optional)"
+msgstr "Endereço deste Odoo (opcional)"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Administrator"
+msgstr "Administrador"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Alert"
+msgstr "Aviso"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Alert me daily"
+msgstr "Avise-me todo dia"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Alert removed."
+msgstr "Aviso removido."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Alert resumed."
+msgstr "Aviso retomado."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "All Aski connections will be closed"
+msgstr "Todas as conexões do Aski serão fechadas"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Answer copied."
+msgstr "Resposta copiada."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Anyone with the link can read this answer. It expires on its own."
+msgstr ""
+"Qualquer pessoa com o link pode ler esta resposta. Ele expira sozinho."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
+msgid "Ask Aski about this record"
+msgstr "Perguntar à Aski sobre este registro"
 
 #. module: aski_connector
 #. openerp-web
@@ -149,12 +330,96 @@ msgstr "Pergunte sobre seu Odoo…"
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask about everything again, not just this record"
+msgstr "Voltar a perguntar sobre tudo, não só este registro"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Ask about your business in plain language — sales, receivables, top "
+"customers and more. Read-only by default."
+msgstr ""
+"Pergunte sobre o seu negócio em linguagem simples — vendas, contas a "
+"receber, principais clientes e mais. Somente leitura por padrão."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Ask an administrator to add you to the \"Use the Aski chat\" group to start "
+"asking your Odoo in plain language."
+msgstr ""
+"Peça a um administrador para adicionar você ao grupo \"Usar o chat da Aski\""
+" para começar a perguntar ao seu Odoo em linguagem simples."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask an administrator to connect Aski for your team."
+msgstr "Peça a um administrador para conectar a Aski para a sua equipe."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for a plan change"
+msgstr "Pedir uma mudança de plano"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for a seat"
+msgstr "Pedir um assento"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for a top-up"
+msgstr "Pedir uma recarga"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for more credits"
+msgstr "Pedir mais créditos"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Ask for more seats"
+msgstr "Pedir mais assentos"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Ask your Odoo in plain language, right here — sales, receivables,\n"
+"                        top products and more."
+msgstr ""
+"Pergunte ao seu Odoo em linguagem natural, aqui mesmo: vendas, contas a "
+"receber, produtos mais vendidos e mais."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asked"
+msgstr "Pedido"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
 #: code:addons/aski_connector/static/src/systray/aski_systray.xml:0
 #: model:ir.module.category,name:aski_connector.module_category_aski
 #: model:ir.ui.menu,name:aski_connector.menu_aski_root
 msgid "Aski"
 msgstr "Aski"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/systray/aski_systray.xml:0
+msgid "Aski - ask your Odoo"
+msgstr "Aski - pergunte ao seu Odoo"
 
 #. module: aski_connector
 #: model:ir.model,name:aski_connector.model_aski_key_mixin
@@ -172,9 +437,28 @@ msgid "Aski account connected to this Odoo (in-Odoo chat)"
 msgstr "Conta Aski conectada a este Odoo (chat dentro do Odoo)"
 
 #. module: aski_connector
+#. openerp-web
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Aski account disconnected."
+msgstr "Conta Aski desconectada."
+
+#. module: aski_connector
+#: model:res.groups.privilege,name:aski_connector.privilege_aski_chat
+msgid "Aski chat"
+msgstr "Chat da Aski"
+
+#. module: aski_connector
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Aski chat connection"
 msgstr "Conexão do chat Aski"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Aski chat isn't enabled for your user"
+msgstr "O chat da Aski não está habilitado para o seu usuário"
 
 #. module: aski_connector
 #. odoo-python
@@ -191,15 +475,50 @@ msgid "Aski connection"
 msgstr "Conexão Aski"
 
 #. module: aski_connector
+#: model:ir.model,name:aski_connector.model_aski_connect_wizard
+msgid "Aski connection assistant"
+msgstr "Assistente de conexão do Aski"
+
+#. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "Aski connection issue"
 msgstr "Problema de conexão com a Aski"
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Aski couldn't process that request. Check what you typed and try again."
+msgstr ""
+"A Aski não conseguiu processar essa solicitação. Verifique o que você "
+"escreveu e tente novamente."
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__credential_id
 msgid "Aski credential id"
 msgstr "ID da credencial Aski"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Aski didn't return an access token. Try again."
+msgstr "A Aski não retornou um token de acesso. Tente novamente."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Aski doesn't know that token: it belongs to another account or to another "
+"environment. Generate one in the Aski account you want to use here."
+msgstr ""
+"A Aski não conhece esse token: ele é de outra conta ou de outro ambiente. "
+"Gere um na conta da Aski que você quer usar aqui."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__login_email
+msgid "Aski email"
+msgstr "E-mail da Aski"
 
 #. module: aski_connector
 #. odoo-python
@@ -225,10 +544,67 @@ msgstr ""
 "seu token de acesso pessoal."
 
 #. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Aski isn't responding right now"
+msgstr "A Aski não está respondendo neste momento"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Aski isn't set up yet"
+msgstr "A Aski ainda não está configurada"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid ""
+"Aski lets you ask your ERP in plain language and get real\n"
+"                        figures in seconds — sales, receivables, top products and\n"
+"                        more — from your phone, even by voice."
+msgstr ""
+"O Aski permite perguntar ao seu ERP em linguagem natural e obter números "
+"reais em segundos — vendas, contas a receber, produtos mais vendidos e mais "
+"— pelo celular, até por voz."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Aski only writes when something new shows up. It never repeats one it "
+"already named."
+msgstr ""
+"O Aski só escreve quando aparece algo novo. Nunca repete um que já citou."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__login_password
+msgid "Aski password"
+msgstr "Senha da Aski"
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__pat
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__pat
 msgid "Aski personal access token"
 msgstr "Token de acesso pessoal da Aski"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
+"\n"
+"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
+"\n"
+"If this Odoo has no public address at all, it does not have to get one: Aski can reach it through a secure tunnel, without opening any port. Turn that on from the Aski mobile app or web app when you add the connection (the option that says your ERP is not reachable from the internet), or ask your Aski partner for it.\n"
+"\n"
+"%(detail)s"
+msgstr ""
+"O Aski consulta seu Odoo pela internet e não conseguiu alcançá-lo em %(url)s, que é um endereço da sua rede interna.\n"
+"\n"
+"Escreva abaixo, em «Endereço deste Odoo», o mesmo endereço que você usa para abrir o Odoo de fora do seu escritório (por exemplo https://odoo.minhaempresa.com) e conecte novamente.\n"
+"\n"
+"Se este Odoo não tiver nenhum endereço público, não precisa conseguir um: a Aski pode alcançá-lo por um túnel seguro, sem abrir nenhuma porta. Ative isso pelo app ou pelo site da Aski ao adicionar a conexão (a opção que diz que seu ERP não é alcançável pela internet), ou peça ao seu parceiro Aski.\n"
+"\n"
+"%(detail)s"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__pat_enc
@@ -236,11 +612,78 @@ msgid "Aski token (encrypted)"
 msgstr "Token da Aski (criptografado)"
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Aski took too long to answer at %s. Try again in a moment."
+msgstr ""
+"A Aski demorou demais para responder em %s. Tente de novo em instantes."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Aski was already disconnected."
+msgstr "A Aski já estava desconectada."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Aski's technology, delivered by your partner."
+msgstr "Tecnologia da Aski, entregue pelo seu parceiro."
+
+#. module: aski_connector
 #. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asking about"
+msgstr "Sobre"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Asking..."
+msgstr "Pedindo…"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "At"
+msgstr "Às"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "At least 8 characters"
+msgstr "Pelo menos 8 caracteres"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Attach the spreadsheet"
+msgstr "Anexar a planilha"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Cancel"
 msgstr "Cancelar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Cancel invitation"
+msgstr "Cancelar convite"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Change limits"
+msgstr "Alterar limites"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Chart"
+msgstr "Gráfico"
 
 #. module: aski_connector
 #: model:ir.actions.client,name:aski_connector.action_aski_chat
@@ -254,9 +697,71 @@ msgid "Chat Settings"
 msgstr "Configurações do chat"
 
 #. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__access_mode
+msgid "Chat access mode"
+msgstr "Modo de acesso ao chat"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Chat usage spends credits from that Aski account's wallet - the same plan "
+"used by the Aski mobile app and web. See all plans and pricing at"
+msgstr ""
+"O uso do chat gasta créditos da carteira dessa conta Aski — o mesmo plano "
+"usado pelo aplicativo móvel Aski e pela web. Veja todos os planos e preços "
+"em"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Choose a password with at least 8 characters."
+msgstr "Escolha uma senha com pelo menos 8 caracteres."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Clear search"
+msgstr "Limpar busca"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Click <b>Generate connection code</b> below."
+msgstr "Clique em <b>Gerar código de conexão</b> abaixo."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Close"
+msgstr "Fechar"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_account_link__cobrand_html
+msgid "Co-brand lockup shown to the partner's clients."
+msgstr "Bloco de comarca exibido aos clientes do parceiro."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__cobrand_html
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__cobrand_html
+msgid "Cobrand Html"
+msgstr "HTML de comarca"
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__company_id
 msgid "Company"
 msgstr "Empresa"
+
+#. module: aski_connector
+#: model:ir.ui.menu,name:aski_connector.menu_aski_connect
+msgid "Connect"
+msgstr "Conectar"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Connect Aski"
+msgstr "Conectar Aski"
 
 #. module: aski_connector
 #: model:ir.actions.act_window,name:aski_connector.action_aski_chat_connect
@@ -283,6 +788,26 @@ msgid "Connect the Aski chat"
 msgstr "Conectar o chat da Aski"
 
 #. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Connect this Odoo with Aski"
+msgstr "Conecte este Odoo ao Aski"
+
+#. module: aski_connector
+#: model:ir.actions.act_window,name:aski_connector.action_aski_connect
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Connect with Aski"
+msgstr "Conectar com o Aski"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Connect your own Aski account first: open Aski > Chat and click Connect."
+msgstr ""
+"Conecte primeiro a sua própria conta Aski: abra Aski > Chat e clique em "
+"Conectar."
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__connected
 msgid "Connected"
 msgstr "Conectado"
@@ -292,6 +817,151 @@ msgstr "Conectado"
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "Connected. %s credits available."
 msgstr "Conectado. %s créditos disponíveis."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__token
+msgid "Connection code"
+msgstr "Código de conexão"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__credential_name
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
+msgid "Connection name"
+msgstr "Nome da conexão"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Context cleared. The next question starts fresh."
+msgstr "Contexto esquecido. A próxima pergunta começa do zero."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Conversation name"
+msgstr "Nome da conversa"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Conversation removed."
+msgstr "Conversa removida."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Conversations"
+msgstr "Conversas"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Copy"
+msgstr "Copiar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Copy link"
+msgstr "Copiar link"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Copy text"
+msgstr "Copiar o texto"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Could not connect: %s"
+msgstr "Não foi possível conectar: %s"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Could not copy. Select the link and copy it manually."
+msgstr "Não foi possível copiar. Selecione o link e copie manualmente."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Could not copy. Select the text and copy it manually."
+msgstr "Não foi possível copiar. Selecione o texto e copie manualmente."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Could not create the account: %s"
+msgstr "Não foi possível criar a conta: %s"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Could not load your alerts. Try again in a moment."
+msgstr "Não foi possível carregar seus avisos. Tente de novo em instantes."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"Could not open a secure connection with Aski at %s. If this Odoo goes out "
+"through a proxy or a corporate firewall, its certificate is what's getting "
+"in the way."
+msgstr ""
+"Não foi possível abrir uma conexão segura com a Aski em %s. Se este Odoo sai"
+" para a internet por um proxy ou um firewall corporativo, é o certificado "
+"dele que está atrapalhando."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid "Could not reach Aski at %s."
+msgstr "Não foi possível alcançar a Aski em %s."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"Could not reach Aski at %s. Check that this server has internet access and "
+"that nothing is blocking its outgoing traffic."
+msgstr ""
+"Não foi possível alcançar a Aski em %s. Verifique se este servidor tem saída"
+" para a internet e se nada está bloqueando o tráfego de saída."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Could not send to: %s"
+msgstr "Não foi possível enviar para: %s"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Couldn't complete the search."
+msgstr "Não foi possível concluir a busca."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Couldn't send your note. Please try again."
+msgstr "Não foi possível enviar sua observação. Tente novamente."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Create link"
+msgstr "Criar o link"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__signup
+msgid "Create my Aski account"
+msgstr "Criar minha conta Aski"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Create my account and connect"
+msgstr "Criar minha conta e conectar"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__create_uid
@@ -313,814 +983,22 @@ msgid "Credits available"
 msgstr "Créditos disponíveis"
 
 #. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__display_name
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__display_name
-#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__display_name
-#: model:ir.model.fields,field_description:aski_connector.field_aski_key_mixin__display_name
-msgid "Display Name"
-msgstr "Nome de exibição"
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_account_link__pat
-msgid ""
-"Generated in the Aski web app, under Settings > Personal access tokens. "
-"Encrypted at rest here; the plaintext is never stored nor logged."
-msgstr ""
-"Gerado no aplicativo web da Aski, em Configurações > Tokens de acesso "
-"pessoal. Criptografado em repouso aqui; o texto original nunca é armazenado "
-"nem registrado em log."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "Google Play"
-msgstr "Google Play"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__id
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__id
-#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__id
-#: model:ir.model.fields,field_description:aski_connector.field_aski_key_mixin__id
-msgid "ID"
-msgstr "ID"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__write_uid
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__write_uid
-#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__write_uid
-msgid "Last Updated by"
-msgstr "Última atualização por"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__write_date
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__write_date
-#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__write_date
-msgid "Last Updated on"
-msgstr "Última atualização em"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__last_synced
-msgid "Last synced"
-msgstr "Última sincronização"
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Daily digest"
+msgstr "Resumo diário"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Loading…"
-msgstr "Carregando…"
+msgid "Day closing"
+msgstr "Fechamento do dia"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Out of credits"
-msgstr "Sem créditos"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Paste your Aski personal access token first."
-msgstr "Cole primeiro seu token de acesso pessoal da Aski."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Paste your Aski personal access token."
-msgstr "Cole seu token de acesso pessoal da Aski."
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__plan_name
-msgid "Plan"
-msgstr "Plano"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid "Reconnect / paste a new token"
-msgstr "Reconectar / colar um novo token"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Retry"
-msgstr "Tentar novamente"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Something went wrong. Try again."
-msgstr "Algo deu errado. Tente novamente."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid "Test connection"
-msgstr "Testar conexão"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "That token is invalid or was revoked. Generate a new one in Aski."
-msgstr "Esse token é inválido ou foi revogado. Gere um novo na Aski."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Top up credits"
-msgstr "Adicionar créditos"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "You're out of Aski credits. Top up at %s/billing to keep chatting."
-msgstr ""
-"Você está sem créditos da Aski. Adicione créditos em %s/billing para "
-"continuar conversando."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "ask_pat_..."
-msgstr "ask_pat_..."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
-msgid "aski.dev"
-msgstr "aski.dev"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Export last answer to PDF"
-msgstr "Exportar a última resposta em PDF"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "There's no Aski answer to export yet."
-msgstr "Ainda não há nenhuma resposta da Aski para exportar."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "credits"
-msgstr "créditos"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Conversations"
-msgstr "Conversas"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Details"
-msgstr "Detalhes"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Minimize"
-msgstr "Minimizar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "New conversation"
-msgstr "Nova conversa"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "No conversations yet."
-msgstr "Ainda não há conversas."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "How much did I sell this month?"
-msgstr "Quanto vendi este mês?"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "My top 10 customers"
-msgstr "Meus 10 melhores clientes"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Overdue invoices"
-msgstr "Faturas vencidas"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "How many customers do I have?"
-msgstr "Quantos clientes eu tenho?"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "rows"
-msgstr "linhas"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Untitled"
-msgstr "Sem título"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Out of credits - tap to top up"
-msgstr "Sem créditos - toque para recarregar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Export this answer to PDF"
-msgstr "Exportar esta resposta em PDF"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "Connect Aski"
-msgstr "Conectar Aski"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "AI assistant · read-only"
-msgstr "Assistente de IA · somente leitura"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/systray/aski_systray.xml:0
-msgid "Aski - ask your Odoo"
-msgstr "Aski - pergunte ao seu Odoo"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Hi, I'm Aski"
-msgstr "Olá, sou o Aski"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"Ask about your business in plain language — sales, receivables, top "
-"customers and more. Read-only by default."
-msgstr ""
-"Pergunte sobre o seu negócio em linguagem simples — vendas, contas a "
-"receber, principais clientes e mais. Somente leitura por padrão."
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
-msgid "Connection name"
-msgstr "Nome da conexão"
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
-msgid "How this Odoo will appear in your Aski connections list."
-msgstr "Como este Odoo aparecerá na sua lista de conexões do Aski."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "e.g. Production - Head office"
-msgstr "ex. Produção - Matriz"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"The connection name is how this Odoo shows up in your Aski connections list,"
-" on your phone and on the web - so you can tell it apart from your other "
-"instances."
-msgstr ""
-"O nome da conexão é como este Odoo aparece na sua lista de conexões do Aski,"
-" no celular e na web, para você diferenciá-lo das suas outras instâncias."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"<b>Aski</b> is an AI assistant that answers questions about your Odoo in "
-"plain language - sales, receivables, top products and more. Ask from your "
-"phone, from the web, or right here inside Odoo."
-msgstr ""
-"<b>Aski</b> é um assistente de IA que responde perguntas sobre o seu Odoo em"
-" linguagem simples - vendas, contas a receber, produtos mais vendidos e "
-"mais. Pergunte pelo celular, pela web ou aqui mesmo dentro do Odoo."
-
-#. module: aski_connector
-#: model:res.groups,name:aski_connector.group_aski_chat_user
-msgid "Use the Aski chat"
-msgstr "Usar o chat da Aski"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"<b>Your data stays private.</b> Who can use the chat - and whose data they "
-"see - is set by the administrator in Aski &gt; Chat Settings: share one "
-"connection with a group, keep it to administrators only, or let each person "
-"connect their own Aski account and see only what their own Odoo user can."
-msgstr ""
-"<b>Seus dados continuam privados.</b> Quem pode usar o chat - e quais dados "
-"vê - é definido pelo administrador em Aski &gt; Configurações do chat: "
-"compartilhar uma conexão com um grupo, restringi-la apenas a "
-"administradores, ou deixar que cada pessoa conecte a própria conta Aski e "
-"veja somente o que o próprio usuário do Odoo pode ver."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Aski chat isn't enabled for your user"
-msgstr "O chat da Aski não está habilitado para o seu usuário"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"Ask an administrator to add you to the \"Use the Aski chat\" group to start "
-"asking your Odoo in plain language."
-msgstr ""
-"Peça a um administrador para adicionar você ao grupo \"Usar o chat da Aski\""
-" para começar a perguntar ao seu Odoo em linguagem simples."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"You don't have access to the Aski chat. Ask an administrator for access."
-msgstr "Você não tem acesso ao chat da Aski. Peça acesso a um administrador."
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__access_mode
-msgid "Chat access mode"
-msgstr "Modo de acesso ao chat"
-
-#. module: aski_connector
-#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__shared_group
-msgid "Shared - the Aski Chat group uses my connection"
-msgstr "Compartilhada - o grupo do chat da Aski usa minha conexão"
-
-#. module: aski_connector
-#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__shared_admin
-msgid "Private - only administrators use my connection"
-msgstr "Privada - somente administradores usam minha conexão"
-
-#. module: aski_connector
-#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__per_user
-msgid "Per user - each person connects their own Aski account"
-msgstr "Por usuário - cada pessoa conecta a própria conta Aski"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__user_id
-msgid "User"
-msgstr "Usuário"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Aski isn't set up yet"
-msgstr "A Aski ainda não está configurada"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Ask an administrator to connect Aski for your team."
-msgstr "Peça a um administrador para conectar a Aski para a sua equipe."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid ""
-"<b>Per user:</b> each internal user connects their own Aski account from the"
-" chat's <b>Connect</b> button (Aski &gt; Chat). Aski then only sees what "
-"their own Odoo user can see, and each person spends their own credits - "
-"nothing else to set up here."
-msgstr ""
-"<b>Por usuário:</b> cada usuário interno conecta a própria conta Aski pelo "
-"botão <b>Conectar</b> do chat (Aski &gt; Chat). A Aski então só vê o que o "
-"próprio usuário do Odoo pode ver, e cada pessoa gasta os próprios créditos -"
-" não há mais nada a configurar aqui."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"Connect your own Aski account first: open Aski > Chat and click Connect."
-msgstr ""
-"Conecte primeiro a sua própria conta Aski: abra Aski > Chat e clique em "
-"Conectar."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "You can't use the Aski chat. Ask an administrator for access."
-msgstr "Você não pode usar o chat da Aski. Peça acesso a um administrador."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Only administrators can set up the shared Aski connection."
-msgstr ""
-"Somente administradores podem configurar a conexão compartilhada da Aski."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Disconnect my Aski account"
-msgstr "Desconectar minha conta Aski"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid ""
-"Disconnect this Aski account? You can reconnect anytime with your token."
-msgstr ""
-"Desconectar esta conta Aski? Você pode reconectar quando quiser com o seu "
-"token."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid "Disconnect"
-msgstr "Desconectar"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "You can't disconnect this Aski connection. Ask an administrator."
-msgstr ""
-"Você não pode desconectar esta conexão da Aski. Fale com um administrador."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Aski was already disconnected."
-msgstr "A Aski já estava desconectada."
-
-#. module: aski_connector
-#. openerp-web
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Aski account disconnected."
-msgstr "Conta Aski desconectada."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid "Save"
-msgstr "Salvar"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid "See all plans and pricing at"
-msgstr "Veja todos os planos e preços em"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ", or buy and top up credits at"
-msgstr ", ou compre e recarregue créditos em"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid ""
-"Your Aski plan and credits are managed by your partner - contact them for "
-"plan changes or top-ups."
-msgstr ""
-"Seu plano e seus créditos Aski são gerenciados pelo seu parceiro - fale com "
-"ele para mudar de plano ou recarregar."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "You're out of Aski credits. Contact your Aski partner to top up."
-msgstr ""
-"Você ficou sem créditos Aski. Fale com seu parceiro Aski para recarregar."
-
-#. module: aski_connector
-#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__signup
-msgid "Create my Aski account"
-msgstr "Criar minha conta Aski"
-
-#. module: aski_connector
-#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__login
-msgid "I already have an account"
-msgstr "Já tenho uma conta"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__mode
-msgid "How do you want to connect?"
-msgstr "Como você quer se conectar?"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_email
-msgid "Email"
-msgstr "E-mail"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_password
-msgid "Password"
-msgstr "Senha"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_password_confirm
-msgid "Repeat password"
-msgstr "Repita a senha"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
-msgid "Partner code (optional)"
-msgstr "Código de parceiro (opcional)"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "At least 8 characters"
-msgstr "Pelo menos 8 caracteres"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "Type it again"
-msgstr "Digite novamente"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "you@company.com"
-msgstr "voce@empresa.com"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "Only if a partner gave you one"
-msgstr "Somente se um parceiro lhe deu um"
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__signup_email
-msgid ""
-"Your Aski account will be created with this email. You can use it afterwards"
-" in the Aski mobile app and on the web, with the same credits."
-msgstr ""
-"Sua conta Aski será criada com este e-mail. Depois você poderá usá-la no "
-"aplicativo móvel Aski e na web, com os mesmos créditos."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "Create my account and connect"
-msgstr "Criar minha conta e conectar"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Enter the email for your new Aski account."
-msgstr "Digite o e-mail da sua nova conta Aski."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "That email doesn't look valid."
-msgstr "Esse e-mail não parece válido."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Choose a password with at least 8 characters."
-msgstr "Escolha uma senha com pelo menos 8 caracteres."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "The two passwords don't match."
-msgstr "As duas senhas não coincidem."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Too many attempts. Wait a minute and try again."
-msgstr "Muitas tentativas. Espere um minuto e tente novamente."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Could not create the account: %s"
-msgstr "Não foi possível criar a conta: %s"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Aski didn't return an access token. Try again."
-msgstr "A Aski não retornou um token de acesso. Tente novamente."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"Chat usage spends credits from that Aski account's wallet - the same plan "
-"used by the Aski mobile app and web. See all plans and pricing at"
-msgstr ""
-"O uso do chat gasta créditos da carteira dessa conta Aski — o mesmo plano "
-"usado pelo aplicativo móvel Aski e pela web. Veja todos os planos e preços "
-"em"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"Generate a <b>Personal access token</b> in the Aski web app "
-"(<b>app.aski.dev</b> &gt; Settings &gt; Personal access tokens) and paste it"
-" above. This Odoo is then registered as a connection under your Aski "
-"account."
-msgstr ""
-"Gere um <b>token de acesso pessoal</b> no aplicativo web da Aski "
-"(<b>app.aski.dev</b> &gt; Configurações &gt; Tokens de acesso pessoal) e "
-"cole-o acima. Este Odoo fica então registrado como uma conexão da sua conta "
-"Aski."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"The account is created with that email and this Odoo is connected right "
-"away. It's the <b>same</b> account you can also use in the Aski mobile app "
-"and on the web, with the same credits - nothing else to sign up for."
-msgstr ""
-"A conta é criada com esse e-mail e este Odoo fica conectado na hora. É a "
-"<b>mesma</b> conta que você também pode usar no aplicativo Aski e na web, "
-"com os mesmos créditos — não precisa se cadastrar em nenhum outro lugar."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid ""
-"Your Aski account was created (%(email)s), but connecting this Odoo failed: %(reason)s\n"
-"\n"
-"Your account is fine — nothing was charged and you don't need to sign up again. To finish: sign in at app.aski.dev with that email and the password you just chose, generate a personal access token under Settings, then come back here and pick \"I already have an account\"."
-msgstr ""
-"Sua conta Aski foi criada (%(email)s), mas a conexão deste Odoo falhou: %(reason)s\n"
-"\n"
-"Sua conta está bem — nada foi cobrado e você não precisa se cadastrar de novo. Para terminar: entre em app.aski.dev com esse e-mail e a senha que você acabou de escolher, gere um token de acesso pessoal em Configurações, e volte aqui e escolha \"Já tenho uma conta\"."
-
-#. module: aski_connector
-#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__token
-msgid "Paste an access token"
-msgstr "Colar um token de acesso"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__login_email
-msgid "Aski email"
-msgstr "E-mail da Aski"
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__login_password
-msgid "Aski password"
-msgstr "Senha da Aski"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "Your Aski password"
-msgstr "Sua senha da Aski"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "Sign in and connect"
-msgstr "Entrar e conectar"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Enter the email of your Aski account."
-msgstr "Digite o e-mail da sua conta Aski."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Enter the password of your Aski account."
-msgstr "Digite a senha da sua conta Aski."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid ""
-"Wrong email or password. If you just got the account from your Aski partner,"
-" use the temporary password they gave you."
-msgstr ""
-"E-mail ou senha incorretos. Se o seu parceiro Aski acabou de lhe dar a "
-"conta, use a senha temporária que ele lhe entregou."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid "Could not connect: %s"
-msgstr "Não foi possível conectar: %s"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid ""
-"There's already an Aski account with that email. Pick \"I already have an "
-"account\" above and sign in with its password — no need to leave Odoo."
-msgstr ""
-"Já existe uma conta Aski com esse e-mail. Escolha \"Já tenho uma conta\" "
-"acima e entre com a senha dela — sem sair do Odoo."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"Use the same email and password you use in the Aski app or on the web. If "
-"your <b>Aski partner</b> created the account for you, use the temporary "
-"password they gave you — you can change it later from Aski."
-msgstr ""
-"Use o mesmo e-mail e senha que usa no aplicativo da Aski ou na web. Se o seu"
-" <b>parceiro Aski</b> criou a conta para você, use a senha temporária que "
-"ele lhe deu — você pode trocá-la depois na Aski."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid "Aski's technology, delivered by your partner."
-msgstr "Tecnologia da Aski, entregue pelo seu parceiro."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid ""
-"Your Aski plan and credits are handled by your Aski partner - contact them "
-"for plan changes or top-ups."
-msgstr ""
-"Seu plano e seus créditos da Aski são gerenciados pelo seu parceiro Aski: "
-"fale com ele para mudar de plano ou recarregar."
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__public_url
-msgid "Address of this Odoo (optional)"
-msgstr "Endereço deste Odoo (opcional)"
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__public_url
-msgid ""
-"Leave it empty and Aski will detect it. Fill it in only if Aski can't reach "
-"this Odoo: type the same address you use to open it from outside your "
-"office, for example https://odoo.mycompany.com"
-msgstr ""
-"Deixe vazio e o Aski vai detectá-lo. Preencha somente se o Aski não "
-"conseguir alcançar este Odoo: digite o mesmo endereço que você usa para "
-"abri-lo de fora do seu escritório, por exemplo https://odoo.minhaempresa.com"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "Detected automatically - leave empty"
-msgstr "Detectado automaticamente: deixe vazio"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"Ask your Odoo in plain language, right here — sales, receivables,\n"
-"                        top products and more."
-msgstr ""
-"Pergunte ao seu Odoo em linguagem natural, aqui mesmo: vendas, contas a "
-"receber, produtos mais vendidos e mais."
-
-#. module: aski_connector
-#: model:res.groups.privilege,name:aski_connector.privilege_aski_chat
-msgid "Aski chat"
-msgstr "Chat da Aski"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"Aski couldn't process that request. Check what you typed and try again."
-msgstr ""
-"A Aski não conseguiu processar essa solicitação. Verifique o que você "
-"escreveu e tente novamente."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Aski isn't responding right now"
-msgstr "A Aski não está respondendo neste momento"
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_account_link__cobrand_html
-msgid "Co-brand lockup shown to the partner's clients."
-msgstr "Bloco de comarca exibido aos clientes do parceiro."
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__cobrand_html
-#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__cobrand_html
-msgid "Cobrand Html"
-msgstr "HTML de comarca"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Conversation name"
-msgstr "Nome da conversa"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Conversation removed."
-msgstr "Conversa removida."
+msgid "Days"
+msgstr "Dias"
 
 #. module: aski_connector
 #. openerp-web
@@ -1148,8 +1026,109 @@ msgstr "Análise profunda: mais lenta, mas examina mais dados"
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Details"
+msgstr "Detalhes"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Detected automatically - leave empty"
+msgstr "Detectado automaticamente: deixe vazio"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Digging deeper — this one takes a while."
 msgstr "Analisando a fundo: isso leva um tempo."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid "Disconnect"
+msgstr "Desconectar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Disconnect my Aski account"
+msgstr "Desconectar minha conta Aski"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"Disconnect this Aski account? You can reconnect anytime with your token."
+msgstr ""
+"Desconectar esta conta Aski? Você pode reconectar quando quiser com o seu "
+"token."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Dismiss"
+msgstr "Descartar"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__display_name
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__display_name
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__display_name
+#: model:ir.model.fields,field_description:aski_connector.field_aski_key_mixin__display_name
+msgid "Display Name"
+msgstr "Nome de exibição"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Don't have the app yet? Get it on"
+msgstr "Ainda não tem o app? Baixe na"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Done"
+msgstr "Concluído"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Done."
+msgstr "Pronto."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Done. We passed your request along."
+msgstr "Pronto. Encaminhamos seu pedido."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "E.g.: the total doesn't match what I see in my ERP"
+msgstr "Ex.: o total não corresponde ao que vejo no meu ERP"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Each extra seat costs US$ %s / month."
+msgstr "Cada assento adicional custa US$ %s por mês."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Each person queries with their own ERP user, so they only see what they "
+"would see logging in there. Credits come out of the shared pot."
+msgstr ""
+"Cada pessoa consulta com seu próprio usuário do ERP, então só vê o que já "
+"veria entrando lá. Os créditos saem da bolsa comum."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_email
+msgid "Email"
+msgstr "E-mail"
 
 #. module: aski_connector
 #: model:ir.model.fields,help:aski_connector.field_aski_account_link__user_id
@@ -1161,6 +1140,146 @@ msgstr ""
 "o modo de acesso é \"Por usuário\"."
 
 #. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Enter a number"
+msgstr "Digite um número"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Enter the email for your new Aski account."
+msgstr "Digite o e-mail da sua nova conta Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Enter the email of your Aski account."
+msgstr "Digite o e-mail da sua conta Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Enter the password of your Aski account."
+msgstr "Digite a senha da sua conta Aski."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Every day"
+msgstr "Todo dia"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Every week"
+msgstr "Toda semana"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Everything is listed. What your connection does not support is\n"
+"                            marked, so you can see what you are missing."
+msgstr ""
+"Está tudo listado. O que a sua conexão não suporta vem marcado, assim você "
+"vê o que está perdendo."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Expires:"
+msgstr "Expira:"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Export last answer to PDF"
+msgstr "Exportar a última resposta em PDF"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Export this answer to PDF"
+msgstr "Exportar esta resposta em PDF"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Export to Excel"
+msgstr "Exportar para Excel"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Falls below"
+msgstr "Cai abaixo de"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Falls more than"
+msgstr "Cai mais de"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Figures I can watch"
+msgstr "Números que posso vigiar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Forget what we talked about, without deleting the thread"
+msgstr "Esquecer o que conversamos, sem excluir a conversa"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Generate a <b>Personal access token</b> in the Aski web app "
+"(<b>app.aski.dev</b> &gt; Settings &gt; Personal access tokens) and paste it"
+" above. This Odoo is then registered as a connection under your Aski "
+"account."
+msgstr ""
+"Gere um <b>token de acesso pessoal</b> no aplicativo web da Aski "
+"(<b>app.aski.dev</b> &gt; Configurações &gt; Tokens de acesso pessoal) e "
+"cole-o acima. Este Odoo fica então registrado como uma conexão da sua conta "
+"Aski."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Generate connection code"
+msgstr "Gerar código de conexão"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_account_link__pat
+msgid ""
+"Generated in the Aski web app, under Settings > Personal access tokens. "
+"Encrypted at rest here; the plaintext is never stored nor logged."
+msgstr ""
+"Gerado no aplicativo web da Aski, em Configurações > Tokens de acesso "
+"pessoal. Criptografado em repouso aqui; o texto original nunca é armazenado "
+"nem registrado em log."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Give the seat back"
+msgstr "Devolver o assento"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Goes above"
+msgstr "Passa de"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Google Play"
+msgstr "Google Play"
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__has_configured_code
 msgid "Has Configured Code"
 msgstr "Tem código configurado"
@@ -1169,6 +1288,59 @@ msgstr "Tem código configurado"
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__has_partner_code
 msgid "Has Partner Code"
 msgstr "Tem código de parceiro"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Helpful answer"
+msgstr "Resposta útil"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Helpful?"
+msgstr "Útil?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Hi, I'm Aski"
+msgstr "Olá, sou o Aski"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__mode
+msgid "How do you want to connect?"
+msgstr "Como você quer se conectar?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "How long it lasts"
+msgstr "Quanto tempo dura"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "How many credits do you need?"
+msgstr "De quantos créditos você precisa?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "How many customers do I have?"
+msgstr "Quantos clientes eu tenho?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "How much did I sell this month?"
+msgstr "Quanto vendi este mês?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "How often"
+msgstr "Com que frequência"
 
 #. module: aski_connector
 #: model:ir.model.fields,help:aski_connector.field_aski_account_link__access_mode
@@ -1184,9 +1356,142 @@ msgstr ""
 "- Por usuário: cada usuário interno conecta a própria conta da Aski, então a Aski só vê o que o usuário do Odoo dele vê e cada um gasta os próprios créditos."
 
 #. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__login
+msgid "I already have an account"
+msgstr "Já tenho uma conta"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__id
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__id
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__id
+#: model:ir.model.fields,field_description:aski_connector.field_aski_key_mixin__id
+msgid "ID"
+msgstr "ID"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"If your company already pays for Aski, ask them for a seat instead of paying"
+" for a second plan."
+msgstr ""
+"Se a sua empresa já paga o Aski, peça um assento em vez de pagar um segundo "
+"plano."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Invitation ready."
+msgstr "Convite pronto."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Invite someone"
+msgstr "Convidar alguém"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Invited, not in yet"
+msgstr "Convidado, ainda não entrou"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"It goes out with your address as reply-to, so whoever receives it can answer"
+" you."
+msgstr ""
+"Sai com o seu endereço como resposta, assim quem recebe pode responder a "
+"você."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "It lands in your Odoo inbox, with your own permissions."
+msgstr "Chega na sua caixa do Odoo, com as suas permissões."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__write_uid
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__write_uid
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Última atualização por"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__write_date
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__write_date
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__write_date
+msgid "Last Updated on"
+msgstr "Última atualização em"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__last_synced
+msgid "Last synced"
+msgstr "Última sincronização"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__public_url
+msgid ""
+"Leave it empty and Aski will detect it. Fill it in only if Aski can't reach "
+"this Odoo: type the same address you use to open it from outside your "
+"office, for example https://odoo.mycompany.com"
+msgstr ""
+"Deixe vazio e o Aski vai detectá-lo. Preencha somente se o Aski não "
+"conseguir alcançar este Odoo: digite o mesmo endereço que você usa para "
+"abri-lo de fora do seu escritório, por exemplo https://odoo.minhaempresa.com"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Leave it empty for no cap. With no cap, one person can spend the whole team "
+"pot."
+msgstr ""
+"Deixe vazio para não ter limite. Sem limite, uma pessoa pode gastar todo o "
+"saldo da equipe."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Limit"
+msgstr "Limite"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Link copied."
+msgstr "Link copiado."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Link ready"
+msgstr "Link pronto"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Loading..."
+msgstr "Carregando…"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Loading…"
+msgstr "Carregando…"
+
+#. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__partner_managed
 msgid "Managed by a partner"
 msgstr "Gerenciada por um parceiro"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Member"
+msgstr "Membro"
 
 #. module: aski_connector
 #: model:res.groups,comment:aski_connector.group_aski_chat_user
@@ -1206,8 +1511,154 @@ msgstr ""
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Minimize"
+msgstr "Minimizar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Monday to Friday"
+msgstr "De segunda a sexta"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Monthly cap"
+msgstr "Limite mensal"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "My company already uses Aski — ask for a seat"
+msgstr "Minha empresa já usa o Aski — pedir um assento"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "My team"
+msgstr "Minha equipe"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "My top 10 customers"
+msgstr "Meus 10 melhores clientes"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "New conversation"
+msgstr "Nova conversa"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "New reminder"
+msgstr "Novo lembrete"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "New watch"
+msgstr "Novo vigia"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"No alerts yet. Ask something, then use the bell on the answer to get it "
+"every morning."
+msgstr ""
+"Você ainda não tem avisos. Pergunte algo e use o sino da resposta para "
+"recebê-lo toda manhã."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "No conversations yet."
+msgstr "Ainda não há conversas."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No movements to show in this connection yet."
+msgstr "Ainda não há movimentos para mostrar nesta conexão."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "No records to show for this answer."
+msgstr "Não há registros para mostrar nesta resposta."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No results for"
+msgstr "Sem resultados para"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "No seat right now"
+msgstr "Sem assento no momento"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Nobody from this Odoo is waiting for a seat."
+msgstr "Ninguém deste Odoo está esperando um assento."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Nobody in this Odoo is using Aski yet, so there is no one to ask. Connect "
+"your own account to get started."
+msgstr ""
+"Ninguém deste Odoo usa o Aski ainda, então não há a quem pedir. Conecte a "
+"sua própria conta para começar."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Not in your connection"
+msgstr "Não vai na sua conexão"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Not now"
 msgstr "Agora não"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid ""
+"Nothing runs on its own: I propose it and you confirm it, with your own "
+"permissions."
+msgstr ""
+"Nada roda sozinho: eu proponho e você confirma, com as suas próprias "
+"permissões."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Once a week"
+msgstr "Uma vez por semana"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Only administrators can set up the shared Aski connection."
+msgstr ""
+"Somente administradores podem configurar a conexão compartilhada da Aski."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Only if a partner gave you one"
+msgstr "Somente se um parceiro lhe deu um"
 
 #. module: aski_connector
 #: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
@@ -1219,10 +1670,47 @@ msgstr ""
 "instância, ele já está definido e você não precisa digitá-lo."
 
 #. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid ""
+"Open the <b>Aski</b> app on your phone and choose\n"
+"                            <b>Scan code</b>."
+msgstr ""
+"Abra o app <b>Aski</b> no seu celular e escolha <b>Escanear código</b>."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Optional. With no cap, one person can spend the whole team pot."
+msgstr "Opcional. Sem limite, uma pessoa pode gastar toda a bolsa da equipe."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Or paste this code manually in the app:"
+msgstr "Ou cole este código manualmente no app:"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Out of credits"
+msgstr "Sem créditos"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Out of credits - tap to top up"
+msgstr "Sem créditos - toque para recarregar"
+
+#. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Out of credits - your Aski partner tops them up"
 msgstr "Sem créditos: seu parceiro da Aski faz a recarga"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Overdue invoices"
+msgstr "Faturas vencidas"
 
 #. module: aski_connector
 #: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__partner_name
@@ -1255,10 +1743,127 @@ msgid "Partner Show Cobrand"
 msgstr "Exibir comarca do parceiro"
 
 #. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_partner_code
+msgid "Partner code (optional)"
+msgstr "Código de parceiro (opcional)"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Pass them this link"
+msgstr "Passe este link"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_password
+msgid "Password"
+msgstr "Senha"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__token
+msgid "Paste an access token"
+msgstr "Colar um token de acesso"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Paste your Aski personal access token first."
+msgstr "Cole primeiro seu token de acesso pessoal da Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Paste your Aski personal access token."
+msgstr "Cole seu token de acesso pessoal da Aski."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Pause"
+msgstr "Pausar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "People"
+msgstr "Pessoas"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__per_user
+msgid "Per user - each person connects their own Aski account"
+msgstr "Por usuário - cada pessoa conecta a própria conta Aski"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__plan_name
+msgid "Plan"
+msgstr "Plano"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "Point the camera at the QR. Done — no typing."
+msgstr "Aponte a câmera para o QR. Pronto — sem digitar."
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__shared_admin
+msgid "Private - only administrators use my connection"
+msgstr "Privada - somente administradores usam minha conexão"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_connect_wizard__qr_image
+msgid "QR code"
+msgstr "Código QR"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Reading the plans…"
+msgstr "Lendo os planos…"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Reading the top-ups…"
+msgstr "Lendo as recargas…"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Reading your ERP…"
+msgstr "Lendo seu ERP…"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid "Reconnect / paste a new token"
+msgstr "Reconectar / colar um novo token"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Reconnect in Aski > Chat Settings."
+msgstr "Reconecte em Aski > Configurações do chat."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Records"
+msgstr "Registros"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Refresh"
+msgstr "Atualizar"
+
+#. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Remove"
 msgstr "Remover"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Remove record scope"
+msgstr "Remover o registro"
 
 #. module: aski_connector
 #. openerp-web
@@ -1273,643 +1878,15 @@ msgid "Rename"
 msgstr "Renomear"
 
 #. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Run it"
-msgstr "Executar"
-
-#. module: aski_connector
-#. openerp-web
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "That question is too long. Make it shorter and ask again."
-msgstr "Essa pergunta é muito longa. Deixe-a mais curta e pergunte de novo."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"The deep analysis took longer than this Odoo allows. Try a more specific "
-"question, or ask it in normal mode."
-msgstr ""
-"A análise profunda demorou mais do que este Odoo permite. Tente uma pergunta"
-" mais específica ou faça-a no modo normal."
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_account_link__partner_managed
-msgid ""
-"This Aski account is managed by a partner: your plan and payments are "
-"handled by them, so the purchase links are hidden."
-msgstr ""
-"Esta conta da Aski é gerenciada por um parceiro: seu plano e seus pagamentos"
-" são tratados com ele, por isso os links de compra ficam ocultos."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "This one needs a heavier analysis. Run it anyway?"
-msgstr "Esta consulta exige uma análise mais pesada. Executar mesmo assim?"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Try again"
-msgstr "Tentar de novo"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Type a name for the conversation."
-msgstr "Digite um nome para a conversa."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Working on it…"
-msgstr "Trabalhando nisso…"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "You appear to be offline. Check your connection and try again."
-msgstr ""
-"Parece que você está sem conexão. Verifique sua rede e tente novamente."
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "app.aski.dev/billing"
-msgstr "app.aski.dev/billing"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
-msgid "aski.dev/#pricing"
-msgstr "aski.dev/#pricing"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "s"
-msgstr "s"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Couldn't send your note. Please try again."
-msgstr "Não foi possível enviar sua observação. Tente novamente."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "E.g.: the total doesn't match what I see in my ERP"
-msgstr "Ex.: o total não corresponde ao que vejo no meu ERP"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Helpful answer"
-msgstr "Resposta útil"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Send"
-msgstr "Enviar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Sending…"
-msgstr "Enviando…"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Thanks. Now we know what to fix."
-msgstr "Obrigado. Agora sabemos o que corrigir."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Unhelpful answer"
-msgstr "Resposta não útil"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "What went wrong? (optional)"
-msgstr "O que deu errado? (opcional)"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Helpful?"
-msgstr "Útil?"
+#: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__signup_password_confirm
+msgid "Repeat password"
+msgstr "Repita a senha"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Response details"
 msgstr "Detalhes da resposta"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%(shown)s of %(total)s"
-msgstr "%(shown)s de %(total)s"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s days"
-msgstr "%s dias"
-
-#. module: aski_connector
-#. openerp-web
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Add at least one email address."
-msgstr "Adicione pelo menos um endereço de e-mail."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Answer copied."
-msgstr "Resposta copiada."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Anyone with the link can read this answer. It expires on its own."
-msgstr ""
-"Qualquer pessoa com o link pode ler esta resposta. Ele expira sozinho."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Attach the spreadsheet"
-msgstr "Anexar a planilha"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Chart"
-msgstr "Gráfico"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Context cleared. The next question starts fresh."
-msgstr "Contexto esquecido. A próxima pergunta começa do zero."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Copy"
-msgstr "Copiar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Copy text"
-msgstr "Copiar o texto"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Could not copy. Select the link and copy it manually."
-msgstr "Não foi possível copiar. Selecione o link e copie manualmente."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Could not copy. Select the text and copy it manually."
-msgstr "Não foi possível copiar. Selecione o texto e copie manualmente."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Could not send to: %s"
-msgstr "Não foi possível enviar para: %s"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Create link"
-msgstr "Criar o link"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Expires:"
-msgstr "Expira:"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Export to Excel"
-msgstr "Exportar para Excel"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Forget what we talked about, without deleting the thread"
-msgstr "Esquecer o que conversamos, sem excluir a conversa"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "How long it lasts"
-msgstr "Quanto tempo dura"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"It goes out with your address as reply-to, so whoever receives it can answer"
-" you."
-msgstr ""
-"Sai com o seu endereço como resposta, assim quem recebe pode responder a "
-"você."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Link copied."
-msgstr "Link copiado."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Link ready"
-msgstr "Link pronto"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "No records to show for this answer."
-msgstr "Não há registros para mostrar nesta resposta."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Records"
-msgstr "Registros"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "See the records behind this"
-msgstr "Ver os registros por trás disso"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Send by email"
-msgstr "Enviar por e-mail"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Sent to %s recipient(s)."
-msgstr "Enviado para %s destinatário(s)."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Share link"
-msgstr "Compartilhar link"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Start fresh"
-msgstr "Começar do zero"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "There are no rows to export."
-msgstr "Não há linhas para exportar."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "To (separate with commas)"
-msgstr "Para (separe com vírgulas)"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Top %(shown)s of %(total)s"
-msgstr "Os %(shown)s primeiros de %(total)s"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Total: %s"
-msgstr "Total: %s"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "View chart"
-msgstr "Ver o gráfico"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "converted"
-msgstr "convertido"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "name@company.com"
-msgstr "name@company.com"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Asking about"
-msgstr "Sobre"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/record/aski_chatter.xml:0
-msgid "Ask Aski about this record"
-msgstr "Perguntar à Aski sobre este registro"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Ask about everything again, not just this record"
-msgstr "Voltar a perguntar sobre tudo, não só este registro"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Remove record scope"
-msgstr "Remover o registro"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Search your history"
-msgstr "Buscar no histórico"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Clear search"
-msgstr "Limpar busca"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Searching..."
-msgstr "Buscando..."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Couldn't complete the search."
-msgstr "Não foi possível concluir a busca."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Too many searches right now. Try again in a moment."
-msgstr "Muitas buscas agora. Tente de novo em um instante."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "No results for"
-msgstr "Sem resultados para"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Your figures right now"
-msgstr "Seus números agora"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Refresh"
-msgstr "Atualizar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Your ERP did not answer"
-msgstr "Seu ERP não respondeu"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Too many refreshes. Try again in a while."
-msgstr "Muitas atualizações. Tente de novo mais tarde."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "No movements to show in this connection yet."
-msgstr "Ainda não há movimentos para mostrar nesta conexão."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Showing the last known figures."
-msgstr "Mostrando os últimos números conhecidos."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "See more questions"
-msgstr "Ver mais perguntas"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "What you can ask"
-msgstr "O que você pode perguntar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "across %s companies"
-msgstr "soma %s empresas"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "just now"
-msgstr "agora mesmo"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s min ago"
-msgstr "há %s min"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s h ago"
-msgstr "há %s h"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s d ago"
-msgstr "há %s d"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Actions on your ERP are not included in your plan."
-msgstr "Seu plano não inclui ações no ERP."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"Actions on your ERP are only available when the chat runs in Per user mode, "
-"so that every change is made with the permissions of the person who asked "
-"for it."
-msgstr ""
-"As ações no ERP só ficam disponíveis com o chat no modo «Por usuário», para "
-"que cada alteração seja feita com as permissões de quem a pediu."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Alert"
-msgstr "Aviso"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Alert me daily"
-msgstr "Avise-me todo dia"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Alert removed."
-msgstr "Aviso removido."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Alert resumed."
-msgstr "Aviso retomado."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Asking..."
-msgstr "Pedindo…"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "At"
-msgstr "Às"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Could not load your alerts. Try again in a moment."
-msgstr "Não foi possível carregar seus avisos. Tente de novo em instantes."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Dismiss"
-msgstr "Descartar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Done."
-msgstr "Pronto."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Done. We passed your request along."
-msgstr "Pronto. Encaminhamos seu pedido."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Every day"
-msgstr "Todo dia"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Every week"
-msgstr "Toda semana"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "How often"
-msgstr "Com que frequência"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "It lands in your Odoo inbox, with your own permissions."
-msgstr "Chega na sua caixa do Odoo, com as suas permissões."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Loading..."
-msgstr "Carregando…"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "My company already uses Aski — ask for a seat"
-msgstr "Minha empresa já usa o Aski — pedir um assento"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"No alerts yet. Ask something, then use the bell on the answer to get it "
-"every morning."
-msgstr ""
-"Você ainda não tem avisos. Pergunte algo e use o sino da resposta para "
-"recebê-lo toda manhã."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"Nobody in this Odoo is using Aski yet, so there is no one to ask. Connect "
-"your own account to get started."
-msgstr ""
-"Ninguém deste Odoo usa o Aski ainda, então não há a quem pedir. Conecte a "
-"sua própria conta para começar."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Pause"
-msgstr "Pausar"
 
 #. module: aski_connector
 #. openerp-web
@@ -1920,8 +1897,34 @@ msgstr "Retomar"
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Retry"
+msgstr "Tentar novamente"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Review"
 msgstr "Revisar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Rises more than"
+msgstr "Sobe mais de"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Run it"
+msgstr "Executar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid "Save"
+msgstr "Salvar"
 
 #. module: aski_connector
 #. openerp-web
@@ -1936,10 +1939,32 @@ msgid "Saved. It will land in your Odoo inbox."
 msgstr "Salvo. Vai chegar na sua caixa do Odoo."
 
 #. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
+"\n"
+"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
+"\n"
+"Everyone will have to connect again after saving."
+msgstr ""
+"Salvar esta mudança fecha todas as conexões do Aski nesta base de dados (%s agora mesmo), inclusive a sua.\n"
+"\n"
+"Cada modo concede um nível de acesso diferente, então uma conexão aberta no modo anterior não pode continuar aberta: quem conectou antes continuaria chegando a este Odoo pelo app do Aski mesmo depois da mudança.\n"
+"\n"
+"Todos terão que conectar de novo depois de salvar."
+
+#. module: aski_connector
 #. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Saving..."
 msgstr "Salvando…"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Scan this code in the Aski app"
+msgstr "Escaneie este código no app Aski"
 
 #. module: aski_connector
 #. openerp-web
@@ -1956,463 +1981,72 @@ msgstr "Seu plano não inclui avisos programados."
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Sent to %s, who manages this account."
-msgstr "Enviado para %s, que gerencia esta conta."
+msgid "Search your history"
+msgstr "Buscar no histórico"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Sent to the account owner."
-msgstr "Enviado ao titular da conta."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "This writes to your Odoo. Go ahead?"
-msgstr "Isto escreve no seu Odoo. Seguimos?"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Turn on"
-msgstr "Ativar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Yes, do it"
-msgstr "Sim, pode fazer"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "You had already asked. We let them know again."
-msgstr "Você já tinha pedido. Avisamos de novo."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"Your account has used all its scheduled alerts. Delete one, or ask the "
-"account owner to move up a plan."
-msgstr ""
-"Sua conta já usou todos os avisos programados. Exclua um ou peça ao titular "
-"para subir de plano."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "paused"
-msgstr "em pausa"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "your provider"
-msgstr "seu fornecedor"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Add a reminder"
-msgstr "Adicionar um lembrete"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"Aski only writes when something new shows up. It never repeats one it "
-"already named."
-msgstr ""
-"O Aski só escreve quando aparece algo novo. Nunca repete um que já citou."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Daily digest"
-msgstr "Resumo diário"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Day closing"
-msgstr "Fechamento do dia"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Days"
-msgstr "Dias"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Falls below"
-msgstr "Cai abaixo de"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Falls more than"
-msgstr "Cai mais de"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Goes above"
-msgstr "Passa de"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Limit"
-msgstr "Limite"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "New reminder"
-msgstr "Novo lembrete"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "New watch"
-msgstr "Novo vigia"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Reading your ERP…"
-msgstr "Lendo seu ERP…"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Rises more than"
-msgstr "Sobe mais de"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "There is nothing to remind you about in this connection."
-msgstr "Não há nada para lembrar você nesta conexão."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Turn off"
-msgstr "Desligar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Watch a figure"
-msgstr "Vigiar um número"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "We found no figure to watch in this connection."
-msgstr "Não encontramos nenhum número para vigiar nesta conexão."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "What actually moved today, in the evening."
-msgstr "No fim da tarde, o que de fato se moveu hoje."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "What to remind you about"
-msgstr "Sobre o que lembrar você"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "What to watch"
-msgstr "O que vigiar"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "When"
-msgstr "Quando"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Your key figures, first thing in the morning."
-msgstr "Seus números principais, logo cedo."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s of %s alerts used — the quota belongs to the whole account."
-msgstr "%s de %s avisos usados — a cota é de toda a conta."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "A whole number between 0 and 365"
-msgstr "Um número inteiro entre 0 e 365"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Enter a number"
-msgstr "Digite um número"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Monday to Friday"
-msgstr "De segunda a sexta"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Once a week"
-msgstr "Uma vez por semana"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "The first run only takes the baseline."
-msgstr "A primeira execução só toma a referência."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Today: %s"
-msgstr "Hoje: %s"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid ""
-"This figure comes in several currencies. The limit is compared against %s."
-msgstr "Este número vem em várias moedas. O limite é comparado com %s."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "days"
-msgstr "dias"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s scheduled alerts on this account."
-msgstr "%s avisos programados nesta conta."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "You already have that alert on this connection."
-msgstr "Você já tem esse aviso nesta conexão."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s credits this period"
-msgstr "%s créditos neste período"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s of %s credits this period"
-msgstr "%s de %s créditos neste período"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Ask for a seat"
-msgstr "Pedir um assento"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Invited, not in yet"
-msgstr "Convidado, ainda não entrou"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "My team"
-msgstr "Minha equipe"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "No seat right now"
-msgstr "Sem assento no momento"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "People"
-msgstr "Pessoas"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Team pot"
-msgstr "Bolsa da equipe"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "You are on a team"
-msgstr "Você está em uma equipe"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid ""
-"You are using the account of %s. Your plan and credits are handled by "
-"whoever pays for it."
-msgstr ""
-"Você usa a conta de %s. Seu plano e seus créditos são geridos por quem paga."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "You have used %s credits this period."
-msgstr "Você usou %s créditos neste período."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "You have used %s of %s credits this period."
-msgstr "Você usou %s de %s créditos neste período."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Your plan is for one person"
-msgstr "Seu plano é para uma só pessoa"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "of %s"
-msgstr "de %s"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"If your company already pays for Aski, ask them for a seat instead of paying"
-" for a second plan."
-msgstr ""
-"Se a sua empresa já paga o Aski, peça um assento em vez de pagar um segundo "
-"plano."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Account owner"
-msgstr "Titular da conta"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid ""
-"%s will stop being able to ask with this account. You can give the seat back"
-" whenever you want."
-msgstr ""
-"%s deixará de poder perguntar com esta conta. Você pode devolver o assento "
-"quando quiser."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"A member asks, creates their own alerts and shares answers. An administrator"
-" also invites people and sees everyone's usage."
-msgstr ""
-"O membro pergunta, cria seus próprios avisos e compartilha respostas. O "
-"administrador também convida pessoas e vê o consumo de todos."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Administrator"
-msgstr "Administrador"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Cancel invitation"
-msgstr "Cancelar convite"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Copy link"
-msgstr "Copiar link"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"Each person queries with their own ERP user, so they only see what they "
-"would see logging in there. Credits come out of the shared pot."
-msgstr ""
-"Cada pessoa consulta com seu próprio usuário do ERP, então só vê o que já "
-"veria entrando lá. Os créditos saem da bolsa comum."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Give the seat back"
-msgstr "Devolver o assento"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "Invitation ready."
-msgstr "Convite pronto."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Invite someone"
-msgstr "Convidar alguém"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Member"
-msgstr "Membro"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Monthly cap"
-msgstr "Limite mensal"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Optional. With no cap, one person can spend the whole team pot."
-msgstr "Opcional. Sem limite, uma pessoa pode gastar toda a bolsa da equipe."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Pass them this link"
-msgstr "Passe este link"
+msgid "Searching..."
+msgstr "Buscando..."
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Seat %s — US$ %s / month"
 msgstr "Assento %s — US$ %s / mês"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Seats"
+msgstr "Assentos"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_account_link__seats_summary_html
+msgid "Seats in use and people from this Odoo waiting for one."
+msgstr "Assentos em uso e pessoas deste Odoo esperando um."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Seats requested"
+msgstr "Assentos solicitados"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid "See all plans and pricing at"
+msgstr "Veja todos os planos e preços em"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "See everything I can watch and remind you about"
+msgstr "Ver tudo o que posso vigiar e lembrar para você"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "See more questions"
+msgstr "Ver mais perguntas"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "See the records behind this"
+msgstr "Ver os registros por trás disso"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Send"
+msgstr "Enviar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Send by email"
+msgstr "Enviar por e-mail"
 
 #. module: aski_connector
 #. openerp-web
@@ -2429,14 +2063,113 @@ msgstr "Enviando..."
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Sending…"
+msgstr "Enviando…"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Sent to %s recipient(s)."
+msgstr "Enviado para %s destinatário(s)."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Sent to %s, who manages this account."
+msgstr "Enviado para %s, que gerencia esta conta."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Sent to the account owner."
+msgstr "Enviado ao titular da conta."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Share link"
+msgstr "Compartilhar link"
+
+#. module: aski_connector
+#: model:ir.model.fields.selection,name:aski_connector.selection__aski_account_link__access_mode__shared_group
+msgid "Shared - the Aski Chat group uses my connection"
+msgstr "Compartilhada - o grupo do chat da Aski usa minha conexão"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Showing the last known figures."
+msgstr "Mostrando os últimos números conhecidos."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Sign in and connect"
+msgstr "Entrar e conectar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Something went wrong. Try again."
+msgstr "Algo deu errado. Tente novamente."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Start fresh"
+msgstr "Começar do zero"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Take the seat back"
 msgstr "Tirar o assento"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Team pot"
+msgstr "Bolsa da equipe"
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__seats_summary_html
+msgid "Team seats"
+msgstr "Assentos da equipe"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid "Test connection"
+msgstr "Testar conexão"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Thanks. Now we know what to fix."
+msgstr "Obrigado. Agora sabemos o que corrigir."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"That doesn't look like an Aski access token: they all start with %s. You "
+"generate one in the Aski web app, under Settings > Personal access tokens, "
+"and you have to copy it whole — no spaces, no quotes and nothing in front of"
+" it."
+msgstr ""
+"Isso não parece um token de acesso da Aski: todos começam com %s. Gere um no"
+" site da Aski, em Configurações > Tokens de acesso pessoal, e copie ele "
+"inteiro — sem espaços, sem aspas e sem nada na frente."
 
 #. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "That email address does not look right."
 msgstr "Esse e-mail não parece certo."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "That email doesn't look valid."
+msgstr "Esse e-mail não parece válido."
 
 #. module: aski_connector
 #. odoo-python
@@ -2469,10 +2202,107 @@ msgid "That person is already on your team."
 msgstr "Essa pessoa já está na sua equipe."
 
 #. module: aski_connector
+#. openerp-web
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "That question is too long. Make it shorter and ask again."
+msgstr "Essa pergunta é muito longa. Deixe-a mais curta e pergunte de novo."
+
+#. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid "That seat no longer exists."
 msgstr "Esse assento não existe mais."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That token is invalid or was revoked. Generate a new one in Aski."
+msgstr "Esse token é inválido ou foi revogado. Gere um novo na Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That token was revoked. Generate a new one in Aski."
+msgstr "Esse token foi revogado. Gere um novo na Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "The Aski account that owns that token is deactivated."
+msgstr "A conta da Aski dona desse token está desativada."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"The account is created with that email and this Odoo is connected right "
+"away. It's the <b>same</b> account you can also use in the Aski mobile app "
+"and on the web, with the same credits - nothing else to sign up for."
+msgstr ""
+"A conta é criada com esse e-mail e este Odoo fica conectado na hora. É a "
+"<b>mesma</b> conta que você também pode usar no aplicativo Aski e na web, "
+"com os mesmos créditos — não precisa se cadastrar em nenhum outro lugar."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_common.py:0
+msgid ""
+"The address %s could not be resolved, so this Odoo doesn't know where to "
+"find Aski. Check that address and this server's DNS."
+msgstr ""
+"Não foi possível resolver o endereço %s, então este Odoo não sabe onde "
+"encontrar a Aski. Verifique esse endereço e o DNS deste servidor."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "The catalog could not be read. Check the connection and try again."
+msgstr "Não foi possível ler o catálogo. Verifique a conexão e tente de novo."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"The connection name is how this Odoo shows up in your Aski connections list,"
+" on your phone and on the web - so you can tell it apart from your other "
+"instances."
+msgstr ""
+"O nome da conexão é como este Odoo aparece na sua lista de conexões do Aski,"
+" no celular e na web, para você diferenciá-lo das suas outras instâncias."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"The deep analysis took longer than this Odoo allows. Try a more specific "
+"question, or ask it in normal mode."
+msgstr ""
+"A análise profunda demorou mais do que este Odoo permite. Tente uma pergunta"
+" mais específica ou faça-a no modo normal."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "The first run only takes the baseline."
+msgstr "A primeira execução só toma a referência."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"The saved token could not be read, so it went out unusable. That happens "
+"when the database is restored or duplicated, or when what got saved was not "
+"a whole token. Paste your Aski access token again."
+msgstr ""
+"O token salvo não pôde ser lido, então saiu inutilizável. Isso acontece "
+"quando o banco de dados é restaurado ou duplicado, ou quando o que foi salvo"
+" não era um token inteiro. Cole novamente seu token de acesso da Aski."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "The two passwords don't match."
+msgstr "As duas senhas não coincidem."
 
 #. module: aski_connector
 #. odoo-python
@@ -2483,14 +2313,488 @@ msgstr "Não há assentos livres. Tire um, ou adicione outro pelo app do Aski."
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "There are no rows to export."
+msgstr "Não há linhas para exportar."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "There is nothing to remind you about in this connection."
+msgstr "Não há nada para lembrar você nesta conexão."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"There's already an Aski account with that email. Pick \"I already have an "
+"account\" above and sign in with its password — no need to leave Odoo."
+msgstr ""
+"Já existe uma conta Aski com esse e-mail. Escolha \"Já tenho uma conta\" "
+"acima e entre com a senha dela — sem sair do Odoo."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "There's no Aski answer to export yet."
+msgstr "Ainda não há nenhuma resposta da Aski para exportar."
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_account_link__partner_managed
+msgid ""
+"This Aski account is managed by a partner: your plan and payments are "
+"handled by them, so the purchase links are hidden."
+msgstr ""
+"Esta conta da Aski é gerenciada por um parceiro: seu plano e seus pagamentos"
+" são tratados com ele, por isso os links de compra ficam ocultos."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"This Odoo asks %(base)s, which is not the Aski service (%(oficial)s), and "
+"that server rejected the token. If you generated the token in the Aski web "
+"app, the token is fine — it's this Odoo that is pointing somewhere else. "
+"Whoever administers this server can change it in the system parameter "
+"aski_connector.api_base."
+msgstr ""
+"Este Odoo consulta %(base)s, que não é o serviço da Aski (%(oficial)s), e "
+"esse servidor rejeitou o token. Se você gerou o token no site da Aski, o "
+"token está certo: é este Odoo que aponta para outro lugar. Quem administra "
+"este servidor pode mudar isso no parâmetro de sistema "
+"aski_connector.api_base."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid ""
+"This code grants API access to this Odoo as your user.\n"
+"                        Don't share it. You can revoke it anytime in\n"
+"                        Settings &gt; Users &amp; Companies &gt; your user &gt;\n"
+"                        Account Security &gt; API Keys."
+msgstr ""
+"Este código concede acesso de API a este Odoo como seu usuário. Não o "
+"compartilhe. Você pode revogá-lo a qualquer momento em Configurações &gt; "
+"Usuários e empresas &gt; seu usuário &gt; Segurança da conta &gt; Chaves de "
+"API."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"This figure comes in several currencies. The limit is compared against %s."
+msgstr "Este número vem em várias moedas. O limite é comparado com %s."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "This one needs a heavier analysis. Run it anyway?"
+msgstr "Esta consulta exige uma análise mais pesada. Executar mesmo assim?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "This writes to your Odoo. Go ahead?"
+msgstr "Isto escreve no seu Odoo. Seguimos?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "To (separate with commas)"
+msgstr "Para (separe com vírgulas)"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Today: %s"
+msgstr "Hoje: %s"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "Too many attempts. Wait a minute and try again."
+msgstr "Muitas tentativas. Espere um minuto e tente novamente."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Too many refreshes. Try again in a while."
+msgstr "Muitas atualizações. Tente de novo mais tarde."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Too many searches right now. Try again in a moment."
+msgstr "Muitas buscas agora. Tente de novo em um instante."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Top %(shown)s of %(total)s"
+msgstr "Os %(shown)s primeiros de %(total)s"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Top up credits"
+msgstr "Adicionar créditos"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Total: %s"
+msgstr "Total: %s"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Try again"
+msgstr "Tentar de novo"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Turn off"
+msgstr "Desligar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Turn on"
+msgstr "Ativar"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Type a name for the conversation."
+msgstr "Digite um nome para a conversa."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Type it again"
+msgstr "Digite novamente"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "Type the email of the person you want to invite."
 msgstr "Digite o e-mail da pessoa que quer convidar."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "US$ %s today, until it renews"
+msgstr "US$ %s hoje, até renovar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Unhelpful answer"
+msgstr "Resposta não útil"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Untitled"
+msgstr "Sem título"
+
+#. module: aski_connector
+#: model:res.groups,name:aski_connector.group_aski_chat_user
+msgid "Use the Aski chat"
+msgstr "Usar o chat da Aski"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Use the same email and password you use in the Aski app or on the web. If "
+"your <b>Aski partner</b> created the account for you, use the temporary "
+"password they gave you — you can change it later from Aski."
+msgstr ""
+"Use o mesmo e-mail e senha que usa no aplicativo da Aski ou na web. Se o seu"
+" <b>parceiro Aski</b> criou a conta para você, use a senha temporária que "
+"ele lhe deu — você pode trocá-la depois na Aski."
+
+#. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__user_id
+msgid "User"
+msgstr "Usuário"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "View chart"
+msgstr "Ver o gráfico"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Watch a figure"
+msgstr "Vigiar um número"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "We could not read your seats right now."
+msgstr "Não conseguimos ler seus assentos agora."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "We found no figure to watch in this connection."
+msgstr "Não encontramos nenhum número para vigiar nesta conexão."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "We told %s."
+msgstr "Avisamos %s."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What I can do"
+msgstr "O que eu posso fazer"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What I can do in your ERP"
+msgstr "O que eu posso fazer no seu ERP"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What I can remind you about"
+msgstr "O que posso lembrar para você"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What actually moved today, in the evening."
+msgstr "No fim da tarde, o que de fato se moveu hoje."
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "What they can do"
 msgstr "O que pode fazer"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What to remind you about"
+msgstr "Sobre o que lembrar você"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What to watch"
+msgstr "O que vigiar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "What went wrong? (optional)"
+msgstr "O que deu errado? (opcional)"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "What you can ask"
+msgstr "O que você pode perguntar"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "When"
+msgstr "Quando"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Which plan do you want?"
+msgstr "Qual plano você quer?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Working on it…"
+msgstr "Trabalhando nisso…"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Wrong email or password. If you just got the account from your Aski partner,"
+" use the temporary password they gave you."
+msgstr ""
+"E-mail ou senha incorretos. Se o seu parceiro Aski acabou de lhe dar a "
+"conta, use a senha temporária que ele lhe entregou."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Yes, do it"
+msgstr "Sim, pode fazer"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You already have that alert on this connection."
+msgstr "Você já tem esse aviso nesta conexão."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "You appear to be offline. Check your connection and try again."
+msgstr ""
+"Parece que você está sem conexão. Verifique sua rede e tente novamente."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "You are on a team"
+msgstr "Você está em uma equipe"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"You are using the account of %s. Your plan and credits are handled by "
+"whoever pays for it."
+msgstr ""
+"Você usa a conta de %s. Seu plano e seus créditos são geridos por quem paga."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You can't disconnect this Aski connection. Ask an administrator."
+msgstr ""
+"Você não pode desconectar esta conexão da Aski. Fale com um administrador."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid "You can't use the Aski chat. Ask an administrator for access."
+msgstr "Você não pode usar o chat da Aski. Peça acesso a um administrador."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"You don't have access to the Aski chat. Ask an administrator for access."
+msgstr "Você não tem acesso ao chat da Aski. Peça acesso a um administrador."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "You had already asked. We let them know again."
+msgstr "Você já tinha pedido. Avisamos de novo."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "You have used %s credits this period."
+msgstr "Você usou %s créditos neste período."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "You have used %s of %s credits this period."
+msgstr "Você usou %s de %s créditos neste período."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You're out of Aski credits. Contact your Aski partner to top up."
+msgstr ""
+"Você ficou sem créditos Aski. Fale com seu parceiro Aski para recarregar."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You're out of Aski credits. Top up at %s/billing to keep chatting."
+msgstr ""
+"Você está sem créditos da Aski. Adicione créditos em %s/billing para "
+"continuar conversando."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+msgid ""
+"Your Aski account was created (%(email)s), but connecting this Odoo failed: %(reason)s\n"
+"\n"
+"Your account is fine — nothing was charged and you don't need to sign up again. To finish: sign in at app.aski.dev with that email and the password you just chose, generate a personal access token under Settings, then come back here and pick \"I already have an account\"."
+msgstr ""
+"Sua conta Aski foi criada (%(email)s), mas a conexão deste Odoo falhou: %(reason)s\n"
+"\n"
+"Sua conta está bem — nada foi cobrado e você não precisa se cadastrar de novo. Para terminar: entre em app.aski.dev com esse e-mail e a senha que você acabou de escolher, gere um token de acesso pessoal em Configurações, e volte aqui e escolha \"Já tenho uma conta\"."
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__signup_email
+msgid ""
+"Your Aski account will be created with this email. You can use it afterwards"
+" in the Aski mobile app and on the web, with the same credits."
+msgstr ""
+"Sua conta Aski será criada com este e-mail. Depois você poderá usá-la no "
+"aplicativo móvel Aski e na web, com os mesmos créditos."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_connect_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_code
+msgid "Your Aski connection code"
+msgstr "Seu código de conexão do Aski"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "Your Aski password"
+msgstr "Sua senha da Aski"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid ""
+"Your Aski plan and credits are handled by your Aski partner - contact them "
+"for plan changes or top-ups."
+msgstr ""
+"Seu plano e seus créditos da Aski são gerenciados pelo seu parceiro Aski: "
+"fale com ele para mudar de plano ou recarregar."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+msgid ""
+"Your Aski plan and credits are managed by your partner - contact them for "
+"plan changes or top-ups."
+msgstr ""
+"Seu plano e seus créditos Aski são gerenciados pelo seu parceiro - fale com "
+"ele para mudar de plano ou recarregar."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Your ERP did not answer"
+msgstr "Seu ERP não respondeu"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Your account has used all its scheduled alerts. Delete one, or ask the "
+"account owner to move up a plan."
+msgstr ""
+"Sua conta já usou todos os avisos programados. Exclua um ou peça ao titular "
+"para subir de plano."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Your figures right now"
+msgstr "Seus números agora"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Your key figures, first thing in the morning."
+msgstr "Seus números principais, logo cedo."
 
 #. module: aski_connector
 #. odoo-python
@@ -2500,69 +2804,102 @@ msgstr "Seu plano não inclui assentos de equipe."
 
 #. module: aski_connector
 #. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s invited"
-msgstr "%s convidado"
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Your plan is for one person"
+msgstr "Seu plano é para uma só pessoa"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s people invited"
-msgstr "%s convidados"
+msgid "across %s companies"
+msgstr "soma %s empresas"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "and %s more"
+msgstr "e mais %s"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "app.aski.dev/billing"
+msgstr "app.aski.dev/billing"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "ask_pat_..."
+msgstr "ask_pat_..."
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "aski.dev"
+msgstr "aski.dev"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "aski.dev/#pricing"
+msgstr "aski.dev/#pricing"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s seat free"
-msgstr "%s assento livre"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s seat taken"
-msgstr "%s assento ocupado"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s seats free"
-msgstr "%s assentos livres"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s seats taken"
-msgstr "%s assentos ocupados"
+msgid "converted"
+msgstr "convertido"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Seats"
-msgstr "Assentos"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "plan quota: %s"
-msgstr "cota do plano: %s"
+msgid "cr"
+msgstr "cr"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Ask for more credits"
-msgstr "Pedir mais créditos"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Asked"
-msgstr "Pedido"
+msgid "credits"
+msgstr "créditos"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "We told %s."
-msgstr "Avisamos %s."
+msgid "days"
+msgstr "dias"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "e.g. Production - Head office"
+msgstr "ex. Produção - Matriz"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "just now"
+msgstr "agora mesmo"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "name@company.com"
+msgstr "name@company.com"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "of %s"
+msgstr "de %s"
+
+#. module: aski_connector
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_connect_intro
+msgid "or learn more at"
+msgstr "ou saiba mais em"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "paused"
+msgstr "em pausa"
 
 #. module: aski_connector
 #. openerp-web
@@ -2609,8 +2946,20 @@ msgstr "em pausa: seu plano já não inclui"
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "US$ %s today, until it renews"
-msgstr "US$ %s hoje, até renovar"
+msgid "plan quota: %s"
+msgstr "cota do plano: %s"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "rows"
+msgstr "linhas"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "s"
+msgstr "s"
 
 #. module: aski_connector
 #. openerp-web
@@ -2619,132 +2968,15 @@ msgid "you"
 msgstr "você"
 
 #. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "%s of %s seats in use"
-msgstr "%s de %s assentos em uso"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "%s people from this Odoo are waiting for a seat."
-msgstr "%s pessoas deste Odoo estão esperando um assento."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Each extra seat costs US$ %s / month."
-msgstr "Cada assento adicional custa US$ %s por mês."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Nobody from this Odoo is waiting for a seat."
-msgstr "Ninguém deste Odoo está esperando um assento."
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_account_link__seats_summary_html
-msgid "Seats in use and people from this Odoo waiting for one."
-msgstr "Assentos em uso e pessoas deste Odoo esperando um."
-
-#. module: aski_connector
-#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__seats_summary_html
-msgid "Team seats"
-msgstr "Assentos da equipe"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "We could not read your seats right now."
-msgstr "Não conseguimos ler seus assentos agora."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "and %s more"
-msgstr "e mais %s"
+#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
+msgid "you@company.com"
+msgstr "voce@empresa.com"
 
 #. module: aski_connector
 #. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
-msgid "%s gets it in their panel and turns it on."
-msgstr "%s recebe no painel dele e ativa."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Add seats on the web"
-msgstr "Adicionar assentos na web"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Ask for a plan change"
-msgstr "Pedir uma mudança de plano"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Ask for a top-up"
-msgstr "Pedir uma recarga"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Ask for more seats"
-msgstr "Pedir mais assentos"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Change limits"
-msgstr "Alterar limites"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "How many credits do you need?"
-msgstr "De quantos créditos você precisa?"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid ""
-"Leave it empty for no cap. With no cap, one person can spend the whole team "
-"pot."
-msgstr ""
-"Deixe vazio para não ter limite. Sem limite, uma pessoa pode gastar todo o "
-"saldo da equipe."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Reading the plans…"
-msgstr "Lendo os planos…"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Reading the top-ups…"
-msgstr "Lendo as recargas…"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Seats requested"
-msgstr "Assentos solicitados"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Which plan do you want?"
-msgstr "Qual plano você quer?"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "cr"
-msgstr "cr"
+msgid "your provider"
+msgstr "seu fornecedor"
 
 #. module: aski_connector
 #. openerp-web
@@ -2754,233 +2986,109 @@ msgstr "· solicitado"
 
 #. module: aski_connector
 #. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "(this Odoo)"
+msgstr "(este Odoo)"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "At least one has to stay selected."
+msgstr "Pelo menos uma tem que ficar marcada."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Change connections"
+msgstr "Alterar conexões"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Connection"
+msgstr "Conexão"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
 msgid ""
-"Everything is listed. What your connection does not support is\n"
-"                            marked, so you can see what you are missing."
+"How this Odoo will appear in your Aski connections list, in the mobile app "
+"and in your scheduled alerts. It has to be different from the other "
+"connections in the same account: two with the same name can't be told apart "
+"anywhere."
 msgstr ""
-"Está tudo listado. O que a sua conexão não suporta vem marcado, assim você "
-"vê o que está perdendo."
+"É assim que este Odoo vai aparecer na sua lista de conexões do Aski, no "
+"aplicativo do celular e nos seus avisos programados. Precisa ser diferente "
+"do nome das outras conexões da mesma conta: duas com o mesmo nome não dá "
+"para distinguir em lugar nenhum."
 
 #. module: aski_connector
 #. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Figures I can watch"
-msgstr "Números que posso vigiar"
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "It does not cover this Odoo yet."
+msgstr "Ainda não cobre este Odoo."
 
 #. module: aski_connector
 #. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "Not in your connection"
-msgstr "Não vai na sua conexão"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid ""
-"Nothing runs on its own: I propose it and you confirm it, with your own "
-"permissions."
+"One message a day covering all of them, instead of one per company. Anyone "
+"who uses this account's token can change it."
 msgstr ""
-"Nada roda sozinho: eu proponho e você confirma, com as suas próprias "
-"permissões."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "See everything I can watch and remind you about"
-msgstr "Ver tudo o que posso vigiar e lembrar para você"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "The catalog could not be read. Check the connection and try again."
-msgstr "Não foi possível ler o catálogo. Verifique a conexão e tente de novo."
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "What I can do"
-msgstr "O que eu posso fazer"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "What I can do in your ERP"
-msgstr "O que eu posso fazer no seu ERP"
-
-#. module: aski_connector
-#. openerp-web
-#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
-msgid "What I can remind you about"
-msgstr "O que posso lembrar para você"
-
-#. module: aski_connector
-#: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
-msgid ""
-"<b>Changing the access mode closes every Aski connection in this "
-"database</b>, yours included. Each mode grants a different level of access, "
-"so nobody keeps the one they were given under the previous mode - otherwise "
-"they would keep reaching this Odoo from the Aski app after the change. "
-"Everyone connects again afterwards."
-msgstr ""
-"<b>Mudar o modo de acesso fecha todas as conexões do Aski nesta base de "
-"dados</b>, inclusive a sua. Cada modo concede um nível de acesso diferente, "
-"então ninguém mantém o que recebeu no modo anterior; senão continuaria "
-"chegando a este Odoo pelo app do Aski depois da mudança. Depois todos "
-"conectam de novo."
+"Uma única mensagem por dia cobrindo todas, em vez de uma por empresa. "
+"Qualquer pessoa que use o token desta conta pode alterar isso."
 
 #. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "All Aski connections will be closed"
-msgstr "Todas as conexões do Aski serão fechadas"
+msgid "Pick at least one connection."
+msgstr "Escolha pelo menos uma conexão."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Saved."
+msgstr "Salvo."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Which connections it covers"
+msgstr "Quais conexões ele cobre"
 
 #. module: aski_connector
 #. odoo-python
 #: code:addons/aski_connector/models/aski_account_link.py:0
 msgid ""
-"Saving this change closes every Aski connection in this database (%s right now), including yours.\n"
-"\n"
-"Each mode grants a different level of access, so a connection opened under the previous mode cannot stay open: whoever connected before would keep reaching this Odoo from the Aski app even after the change.\n"
-"\n"
-"Everyone will have to connect again after saving."
+"Your Aski account already has a connection called \"%s\". Give this one a "
+"different name so you can tell them apart in the app, on the web and in your"
+" scheduled alerts."
 msgstr ""
-"Salvar esta mudança fecha todas as conexões do Aski nesta base de dados (%s agora mesmo), inclusive a sua.\n"
-"\n"
-"Cada modo concede um nível de acesso diferente, então uma conexão aberta no modo anterior não pode continuar aberta: quem conectou antes continuaria chegando a este Odoo pelo app do Aski mesmo depois da mudança.\n"
-"\n"
-"Todos terão que conectar de novo depois de salvar."
+"Sua conta do Aski já tem uma conexão chamada \"%s\". Dê outro nome a esta "
+"para conseguir diferenciá-las no aplicativo, na web e nos seus avisos "
+"programados."
 
 #. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "several companies"
+msgstr "várias empresas"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid ""
-"Aski doesn't know that token: it belongs to another account or to another "
-"environment. Generate one in the Aski account you want to use here."
+"This connection no longer exists in your Aski account. Connect it again from"
+" Aski > Connect."
 msgstr ""
-"A Aski não conhece esse token: ele é de outra conta ou de outro ambiente. "
-"Gere um na conta da Aski que você quer usar aqui."
+"Esta conexão não existe mais na sua conta do Aski. Conecte-a de novo em Aski"
+" > Conectar."
 
 #. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid ""
-"Aski queries your Odoo from the internet and could not reach it at %(url)s, which is an address of your internal network.\n"
-"\n"
-"Type the address you use to open Odoo from outside your office (for example https://odoo.mycompany.com) in the field \"Address of this Odoo\" below, then connect again.\n"
-"\n"
-"If this Odoo has no public address at all, it does not have to get one: Aski can reach it through a secure tunnel, without opening any port. Turn that on from the Aski mobile app or web app when you add the connection (the option that says your ERP is not reachable from the internet), or ask your Aski partner for it.\n"
-"\n"
-"%(detail)s"
+"Your Aski token is no longer valid. Connect your account again from Aski > "
+"Connect."
 msgstr ""
-"O Aski consulta seu Odoo pela internet e não conseguiu alcançá-lo em %(url)s, que é um endereço da sua rede interna.\n"
-"\n"
-"Escreva abaixo, em «Endereço deste Odoo», o mesmo endereço que você usa para abrir o Odoo de fora do seu escritório (por exemplo https://odoo.minhaempresa.com) e conecte novamente.\n"
-"\n"
-"Se este Odoo não tiver nenhum endereço público, não precisa conseguir um: a Aski pode alcançá-lo por um túnel seguro, sem abrir nenhuma porta. Ative isso pelo app ou pelo site da Aski ao adicionar a conexão (a opção que diz que seu ERP não é alcançável pela internet), ou peça ao seu parceiro Aski.\n"
-"\n"
-"%(detail)s"
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid "Aski took too long to answer at %s. Try again in a moment."
-msgstr ""
-"A Aski demorou demais para responder em %s. Tente de novo em instantes."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid ""
-"Could not open a secure connection with Aski at %s. If this Odoo goes out "
-"through a proxy or a corporate firewall, its certificate is what's getting "
-"in the way."
-msgstr ""
-"Não foi possível abrir uma conexão segura com a Aski em %s. Se este Odoo sai"
-" para a internet por um proxy ou um firewall corporativo, é o certificado "
-"dele que está atrapalhando."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid "Could not reach Aski at %s."
-msgstr "Não foi possível alcançar a Aski em %s."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid ""
-"Could not reach Aski at %s. Check that this server has internet access and "
-"that nothing is blocking its outgoing traffic."
-msgstr ""
-"Não foi possível alcançar a Aski em %s. Verifique se este servidor tem saída"
-" para a internet e se nada está bloqueando o tráfego de saída."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "Reconnect in Aski > Chat Settings."
-msgstr "Reconecte em Aski > Configurações do chat."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "That token was revoked. Generate a new one in Aski."
-msgstr "Esse token foi revogado. Gere um novo na Aski."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid "The Aski account that owns that token is deactivated."
-msgstr "A conta da Aski dona desse token está desativada."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_common.py:0
-msgid ""
-"The address %s could not be resolved, so this Odoo doesn't know where to "
-"find Aski. Check that address and this server's DNS."
-msgstr ""
-"Não foi possível resolver o endereço %s, então este Odoo não sabe onde "
-"encontrar a Aski. Verifique esse endereço e o DNS deste servidor."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"This Odoo asks %(base)s, which is not the Aski service (%(oficial)s), and "
-"that server rejected the token. If you generated the token in the Aski web "
-"app, the token is fine — it's this Odoo that is pointing somewhere else. "
-"Whoever administers this server can change it in the system parameter "
-"aski_connector.api_base."
-msgstr ""
-"Este Odoo consulta %(base)s, que não é o serviço da Aski (%(oficial)s), e "
-"esse servidor rejeitou o token. Se você gerou o token no site da Aski, o "
-"token está certo: é este Odoo que aponta para outro lugar. Quem administra "
-"este servidor pode mudar isso no parâmetro de sistema "
-"aski_connector.api_base."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_chat_connect_wizard.py:0
-msgid ""
-"That doesn't look like an Aski access token: they all start with %s. You "
-"generate one in the Aski web app, under Settings > Personal access tokens, "
-"and you have to copy it whole — no spaces, no quotes and nothing in front of"
-" it."
-msgstr ""
-"Isso não parece um token de acesso da Aski: todos começam com %s. Gere um no"
-" site da Aski, em Configurações > Tokens de acesso pessoal, e copie ele "
-"inteiro — sem espaços, sem aspas e sem nada na frente."
-
-#. module: aski_connector
-#. odoo-python
-#: code:addons/aski_connector/models/aski_account_link.py:0
-msgid ""
-"The saved token could not be read, so it went out unusable. That happens "
-"when the database is restored or duplicated, or when what got saved was not "
-"a whole token. Paste your Aski access token again."
-msgstr ""
-"O token salvo não pôde ser lido, então saiu inutilizável. Isso acontece "
-"quando o banco de dados é restaurado ou duplicado, ou quando o que foi salvo"
-" não era um token inteiro. Cole novamente seu token de acesso da Aski."
+"Seu token do Aski não é mais válido. Conecte sua conta de novo em Aski > "
+"Conectar."
