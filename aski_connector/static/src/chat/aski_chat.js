@@ -1052,6 +1052,11 @@ export class AskiChatWidget extends Component {
             startTitle: _t("Your figures right now"),
             startRefresh: _t("Refresh"),
             startErpDown: _t("Your ERP did not answer"),
+            // ⛔ Y los dos casos que NO son el ERP. Decir "tu ERP no respondio"
+            // cuando el ERP esta vivo manda a revisar el servidor durante horas
+            // y esconde lo unico que arregla el problema: volver a conectar.
+            startGone: _t("This connection no longer exists in your Aski account. Connect it again from Aski > Connect."),
+            startAuth: _t("Your Aski token is no longer valid. Connect your account again from Aski > Connect."),
             startBusy: _t("Too many refreshes. Try again in a while."),
             startEmpty: _t("No movements to show in this connection yet."),
             startStale: _t("Showing the last known figures."),
@@ -1090,9 +1095,11 @@ export class AskiChatWidget extends Component {
     }
 
     get startErrTxt() {
-        return this.state.sugsCode === "rate_limited"
-            ? this.txt.startBusy
-            : this.txt.startErpDown;
+        return {
+            rate_limited: this.txt.startBusy,
+            credential_gone: this.txt.startGone,
+            unauthorized: this.txt.startAuth,
+        }[this.state.sugsCode] || this.txt.startErpDown;
     }
 
     renderMd(text) {

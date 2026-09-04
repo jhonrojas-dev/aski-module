@@ -3084,3 +3084,23 @@ msgstr ""
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid "several companies"
 msgstr "meerdere bedrijven"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"This connection no longer exists in your Aski account. Connect it again from"
+" Aski > Connect."
+msgstr ""
+"Deze verbinding bestaat niet meer in je Aski-account. Maak hem opnieuw aan "
+"via Aski > Verbinden."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"Your Aski token is no longer valid. Connect your account again from Aski > "
+"Connect."
+msgstr ""
+"Je Aski-token is niet meer geldig. Verbind je account opnieuw via Aski > "
+"Verbinden."

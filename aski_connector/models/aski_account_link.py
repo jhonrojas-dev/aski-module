@@ -1306,6 +1306,18 @@ class AskiAccountLink(models.Model):
             return dict(vacio, code="erp_down")
         if resp.status_code == 429:
             return dict(vacio, code="rate_limited")
+        # ⛔ Un 404 aqui NO es el ERP caido: es que ESTA conexion ya no existe en
+        # la cuenta Aski (alguien la borro desde la app o la web, o el token que
+        # se pego es de otra cuenta). Traducirlo a "tu ERP no respondio" manda a
+        # revisar el servidor de Odoo —que esta perfectamente vivo— durante el
+        # tiempo que haga falta, y esconde lo unico que arregla el problema:
+        # volver a conectar. Caso real 04/09 en una instancia de demostracion.
+        if resp.status_code == 404:
+            return dict(vacio, code="credential_gone")
+        # Y un 401 es el token, no el ERP. `_mensaje_401` ya distingue los cuatro
+        # motivos en la ficha de configuracion; aqui basta con no mentir.
+        if resp.status_code == 401:
+            return dict(vacio, code="unauthorized")
         if resp.status_code != 200:
             return dict(vacio, code="erp_down")
         try:

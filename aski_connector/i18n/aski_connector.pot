@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0-20260619\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 13:45+0000\n"
-"PO-Revision-Date: 2026-09-04 13:45+0000\n"
+"POT-Creation-Date: 2026-09-04 14:03+0000\n"
+"PO-Revision-Date: 2026-09-04 14:03+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -2305,6 +2305,14 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 msgid ""
+"This connection no longer exists in your Aski account. Connect it again from"
+" Aski > Connect."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
 "This figure comes in several currencies. The limit is compared against %s."
 msgstr ""
 
@@ -2686,6 +2694,14 @@ msgstr ""
 msgid ""
 "Your Aski plan and credits are managed by your partner - contact them for "
 "plan changes or top-ups."
+msgstr ""
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"Your Aski token is no longer valid. Connect your account again from Aski > "
+"Connect."
 msgstr ""
 
 #. module: aski_connector
