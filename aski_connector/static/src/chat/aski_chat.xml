@@ -48,6 +48,19 @@
                     </div>
                 </div>
                 <div class="ac-header-r">
+                    <!-- La campana SOLO a pantalla completa. En la burbuja del
+                         systray la cabecera ya lleva marca, creditos, plan,
+                         minimizar y cerrar: ahi no cabe y se saco. A pantalla
+                         completa sobra sitio y es donde se la busca.
+                         ⛔ VA PRIMERA, antes del nombre de la conexion: es un
+                         BOTON, y el resto de la fila (nombre, saldo, plan) son
+                         etiquetas. Metido en medio de ellas se leia como una mas
+                         y dejaba de invitar a pulsarlo. -->
+                    <button t-if="state.connected and !enBurbuja"
+                            class="ac-icon-btn ac-header-bell" title="Scheduled alerts"
+                            t-on-click.stop="openInsights">
+                        <i class="fa fa-bell-o"/>
+                    </button>
                     <!-- QUE conexion se esta consultando. Una cuenta Aski puede
                          tener varias instancias colgando (produccion, pruebas,
                          la filial) y sin este nombre dos chats abiertos se ven
@@ -58,15 +71,6 @@
                         <i class="fa fa-database"/>
                         <span class="ac-conn-n" t-esc="state.connectionName"/>
                     </span>
-                    <!-- La campana SOLO a pantalla completa. En la burbuja del
-                         systray la cabecera ya lleva marca, creditos, plan,
-                         minimizar y cerrar: ahi no cabe y se saco. A pantalla
-                         completa sobra sitio y es donde se la busca. -->
-                    <button t-if="state.connected and !enBurbuja"
-                            class="ac-icon-btn ac-header-bell" title="Scheduled alerts"
-                            t-on-click.stop="openInsights">
-                        <i class="fa fa-bell-o"/>
-                    </button>
                     <t t-if="state.connected">
                         <button t-if="state.walletCredits === 0 and !state.partnerManaged"
                                 class="ac-credits ac-credits-empty"
