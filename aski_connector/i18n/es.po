@@ -662,6 +662,7 @@ msgstr "Adjuntar la hoja de cálculo"
 
 #. module: aski_connector
 #. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_chat_connect_wizard
 msgid "Cancel"
@@ -823,6 +824,7 @@ msgid "Connection code"
 msgstr "Código de conexión"
 
 #. module: aski_connector
+#: model:ir.model.fields,field_description:aski_connector.field_aski_account_link__credential_name
 #: model:ir.model.fields,field_description:aski_connector.field_aski_chat_connect_wizard__name
 msgid "Connection name"
 msgstr "Nombre de la conexión"
@@ -1352,11 +1354,6 @@ msgstr ""
 "- Compartida: todos los del grupo «Usar el chat de Aski» preguntan por esta misma conexión: tu cuenta, tus datos, tus créditos.\n"
 "- Privada: solo los administradores pueden usar esta conexión.\n"
 "- Por usuario: cada usuario interno conecta su propia cuenta de Aski, así Aski solo ve lo que ve su propio usuario de Odoo y cada quien gasta sus créditos."
-
-#. module: aski_connector
-#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
-msgid "How this Odoo will appear in your Aski connections list."
-msgstr "Cómo aparecerá este Odoo en tu lista de conexiones de Aski."
 
 #. module: aski_connector
 #: model:ir.model.fields.selection,name:aski_connector.selection__aski_chat_connect_wizard__mode__login
@@ -1923,6 +1920,7 @@ msgstr "Ejecutar"
 
 #. module: aski_connector
 #. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 #: model_terms:ir.ui.view,arch_db:aski_connector.view_aski_account_link_form
 msgid "Save"
@@ -1958,6 +1956,7 @@ msgstr ""
 
 #. module: aski_connector
 #. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Saving..."
 msgstr "Guardando…"
@@ -2985,3 +2984,92 @@ msgstr "tu proveedor"
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "· requested"
 msgstr "· solicitado"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "(this Odoo)"
+msgstr "(este Odoo)"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "At least one has to stay selected."
+msgstr "Tiene que quedar al menos una marcada."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Change connections"
+msgstr "Cambiar conexiones"
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Connection"
+msgstr "Conexión"
+
+#. module: aski_connector
+#: model:ir.model.fields,help:aski_connector.field_aski_chat_connect_wizard__name
+msgid ""
+"How this Odoo will appear in your Aski connections list, in the mobile app "
+"and in your scheduled alerts. It has to be different from the other "
+"connections in the same account: two with the same name can't be told apart "
+"anywhere."
+msgstr ""
+"Con este nombre aparecerá este Odoo en tu lista de conexiones de Aski, en la"
+" app del celular y en tus avisos programados. Tiene que ser distinto del de "
+"las demás conexiones de la misma cuenta: dos con el mismo nombre no se "
+"pueden distinguir en ningún sitio."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "It does not cover this Odoo yet."
+msgstr "Todavía no cubre este Odoo."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid ""
+"One message a day covering all of them, instead of one per company. Anyone "
+"who uses this account's token can change it."
+msgstr ""
+"Un solo mensaje al día que las cubre todas, en vez de uno por empresa. "
+"Cualquiera que use el token de esta cuenta puede cambiarlo."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Pick at least one connection."
+msgstr "Elige al menos una conexión."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Saved."
+msgstr "Guardado."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Which connections it covers"
+msgstr "A qué conexiones cubre"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid ""
+"Your Aski account already has a connection called \"%s\". Give this one a "
+"different name so you can tell them apart in the app, on the web and in your"
+" scheduled alerts."
+msgstr ""
+"Tu cuenta de Aski ya tiene una conexión que se llama «%s». Ponle otro nombre"
+" a esta para poder distinguirlas en la app, en la web y en tus avisos "
+"programados."
+
+#. module: aski_connector
+#. odoo-javascript
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "several companies"
+msgstr "varias empresas"
