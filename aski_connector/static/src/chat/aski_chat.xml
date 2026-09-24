@@ -17,15 +17,15 @@
     <t t-name="aski_connector.AskiInsightConns" owl="1">
         <small t-if="fijo" class="ac-ins-conns">
             <i class="oi" data-icon="database"/>
-            <span class="ac-ins-conns-n" t-esc="this.etiquetaConexiones(fijo)"/>
+            <span class="ac-ins-conns-n" t-out="this.etiquetaConexiones(fijo)"/>
             <span t-if="this.cubreVarias(fijo)" class="ac-ins-conns-multi"
-                  t-esc="this.txt.connMany"/>
+                  t-out="this.txt.connMany"/>
             <button t-if="this.hayVariasConexiones" class="ac-ins-conns-edit"
                     t-on-click="() => this.abrirConexiones(fijo)"
-                    t-esc="this.txt.connChange"/>
+                    t-out="this.txt.connChange"/>
         </small>
         <small t-if="fijo and this.dejaFueraEsteOdoo(fijo)" class="ac-ins-conns-warn"
-               t-esc="this.txt.connNotHere"/>
+               t-out="this.txt.connNotHere"/>
     </t>
 
     <t t-name="aski_connector.ChatWidget" owl="1">
@@ -74,7 +74,7 @@
                     <span t-if="this.state.connected and this.state.connectionName and !this.props.minimized"
                           class="ac-conn" t-att-title="this.tituloConexion">
                         <i class="oi" data-icon="database"/>
-                        <span class="ac-conn-n" t-esc="this.state.connectionName"/>
+                        <span class="ac-conn-n" t-out="this.state.connectionName"/>
                     </span>
                     <t t-if="this.state.connected">
                         <button t-if="this.state.walletCredits === 0 and !this.state.partnerManaged"
@@ -96,14 +96,14 @@
                             <i class="oi" data-icon="error"/> Out of credits
                         </span>
                         <span class="ac-credits" t-else="">
-                            <i class="oi" data-icon="flash_on"/> <t t-esc="this.creditosFmt"/>
+                            <i class="oi" data-icon="flash_on"/> <t t-out="this.creditosFmt"/>
                         </span>
                         <!-- El nombre del plan, SOLO a pantalla completa. En la
                              burbuja no aporta nada —el saldo si— y ademas empuja
                              a la marca contra el borde. -->
                         <span class="ac-plan"
                               t-if="this.state.planName and !this.props.minimized and !this.enBurbuja"
-                              t-esc="this.state.planName"/>
+                              t-out="this.state.planName"/>
                     </t>
                     <button t-if="this.props.onMinimize" class="ac-icon-btn" title="Minimize"
                             t-on-click.stop="this.props.onMinimize">
@@ -156,26 +156,26 @@
                          de hilos: los cuatro estados, sin dejar ninguno mudo. -->
                     <t t-if="this.searchActive">
                         <div t-if="this.state.searchLoading" class="ac-drawer-empty">
-                            <i class="oi oi-spin" data-icon="progress_activity"/> <t t-esc="this.txt.searching"/>
+                            <i class="oi oi-spin" data-icon="progress_activity"/> <t t-out="this.txt.searching"/>
                         </div>
                         <div t-elif="this.state.searchCode" class="ac-drawer-empty ac-drawer-searcherr">
-                            <div t-esc="this.searchErrTxt"/>
+                            <div t-out="this.searchErrTxt"/>
                             <button class="ac-btn-link" t-on-click="this.retrySearch"
-                                    t-esc="this.txt.retry"/>
+                                    t-out="this.txt.retry"/>
                         </div>
                         <div t-elif="!this.state.searchResults.length" class="ac-drawer-empty"
-                             t-esc="this.searchEmptyTxt"/>
+                             t-out="this.searchEmptyTxt"/>
                         <t t-else="">
                             <t t-foreach="this.state.searchResults" t-as="r" t-key="r.messageId">
                                 <button class="ac-search-item"
                                         t-on-click="() => this.openSearchResult(r)">
-                                    <span class="ac-search-conv" t-esc="this.searchConvTitle(r)"/>
+                                    <span class="ac-search-conv" t-out="this.searchConvTitle(r)"/>
                                     <!-- El fragmento va en TRES trozos de texto y
                                          nunca como HTML: es texto del usuario y de
                                          sus datos. Los offsets del resaltado los
                                          calcula el backend (ver snippetPartes). -->
-                                    <span class="ac-search-snip"><t t-esc="this.snippetPartes(r).pre"/><mark t-esc="this.snippetPartes(r).hit"/><t t-esc="this.snippetPartes(r).post"/></span>
-                                    <span class="ac-search-date" t-esc="this.searchFecha(r)"/>
+                                    <span class="ac-search-snip"><t t-out="this.snippetPartes(r).pre"/><mark t-out="this.snippetPartes(r).hit"/><t t-out="this.snippetPartes(r).post"/></span>
+                                    <span class="ac-search-date" t-out="this.searchFecha(r)"/>
                                 </button>
                             </t>
                         </t>
@@ -210,7 +210,7 @@
 
                         <div t-else="" t-attf-class="ac-drawer-item {{ c.id === this.state.conversationId ? 'active' : '' }}">
                             <span class="ac-drawer-title" t-on-click="() => this.openConversation(c.id)"
-                                  t-esc="this.conversationTitle(c)"/>
+                                  t-out="this.conversationTitle(c)"/>
                             <span class="ac-drawer-item-actions">
                                 <button class="ac-icon-btn" title="Rename"
                                         t-on-click.stop="() => this.askRename(c)">
@@ -248,7 +248,7 @@
                              usuario" cada quien conecta la suya y, sin esto, no
                              habia forma de saber cual quedo conectada aqui. -->
                         <div t-if="this.state.email" class="ac-drawer-account">
-                            <i class="oi" data-icon="account_circle"/> <t t-esc="this.state.email"/>
+                            <i class="oi" data-icon="account_circle"/> <t t-out="this.state.email"/>
                         </div>
                         <button t-if="!this.state.confirmDisconnect" class="ac-drawer-disconnect"
                                 t-on-click="this.askDisconnect">
@@ -295,18 +295,18 @@
                                      cada cifra. Jamas se comparten ejes entre
                                      monedas. -->
                                 <h4 t-if="this.chartAbierto.series.length > 1 and s.currency"
-                                    class="ac-chart-cur" t-esc="s.currency"/>
+                                    class="ac-chart-cur" t-out="s.currency"/>
 
                                 <!-- Barras -->
                                 <div t-if="this.chartAbierto.kind === 'bar'" class="ac-chart-bars">
                                     <t t-foreach="this.barras(s, this.chartAbierto)" t-as="f" t-key="f.label + '-' + f_index">
                                         <div t-attf-class="ac-bar-row {{ f.otros ? 'otros' : '' }}">
-                                            <span class="ac-bar-lbl" t-att-title="f.label" t-esc="f.label"/>
+                                            <span class="ac-bar-lbl" t-att-title="f.label" t-out="f.label"/>
                                             <span class="ac-bar-track">
                                                 <span t-if="!f.otros" class="ac-bar-fill"
                                                       t-attf-style="width: {{ f.pct }}%"/>
                                             </span>
-                                            <span class="ac-bar-val" t-esc="f.valor"/>
+                                            <span class="ac-bar-val" t-out="f.valor"/>
                                         </div>
                                     </t>
                                 </div>
@@ -316,8 +316,8 @@
                                     <t t-set="L" t-value="this.linea(s, this.chartAbierto)"/>
                                     <div class="ac-chart-line">
                                         <div class="ac-line-axis">
-                                            <span t-esc="L.arriba"/>
-                                            <span t-esc="L.abajo"/>
+                                            <span t-out="L.arriba"/>
+                                            <span t-out="L.abajo"/>
                                         </div>
                                         <svg t-attf-viewBox="0 0 {{ L.W }} {{ L.H }}"
                                              preserveAspectRatio="none" class="ac-line-svg" role="img">
@@ -334,8 +334,8 @@
                                             <path t-att-d="L.d" class="ac-line-path"/>
                                         </svg>
                                         <div class="ac-line-lbls">
-                                            <span t-esc="L.primero"/>
-                                            <span t-esc="L.ultimo"/>
+                                            <span t-out="L.primero"/>
+                                            <span t-out="L.ultimo"/>
                                         </div>
                                     </div>
                                 </t>
@@ -358,15 +358,15 @@
                                             <t t-foreach="D.trozos" t-as="z" t-key="z_index">
                                                 <li>
                                                     <i t-attf-class="ac-dot {{ z.clase }}"/>
-                                                    <span class="ac-leg-lbl" t-att-title="z.label" t-esc="z.label"/>
-                                                    <span class="ac-leg-pct"><t t-esc="z.pct"/>%</span>
+                                                    <span class="ac-leg-lbl" t-att-title="z.label" t-out="z.label"/>
+                                                    <span class="ac-leg-pct"><t t-out="z.pct"/>%</span>
                                                 </li>
                                             </t>
                                         </ul>
                                     </div>
                                 </t>
 
-                                <p class="ac-chart-foot" t-esc="this.pieGrafico(s, this.chartAbierto)"/>
+                                <p class="ac-chart-foot" t-out="this.pieGrafico(s, this.chartAbierto)"/>
                             </section>
                         </t>
                     </div>
@@ -387,18 +387,18 @@
                     <div class="ac-modal-scrim" t-on-click="this.closeLibrary"/>
                     <div class="ac-modal tall" role="dialog" aria-modal="true">
                         <span class="ac-modal-badge"><i class="oi" data-icon="format_list_bulleted"/></span>
-                        <h3 class="ac-modal-title" t-esc="this.txt.libTitle"/>
+                        <h3 class="ac-modal-title" t-out="this.txt.libTitle"/>
                         <div class="ac-modal-body">
                             <t t-foreach="this.startSections" t-as="sec" t-key="sec.key">
-                                <div class="ac-lib-sec" t-esc="sec.label"/>
+                                <div class="ac-lib-sec" t-out="sec.label"/>
                                 <button t-foreach="sec.questions" t-as="q" t-key="q.key"
-                                        class="ac-lib-q" t-esc="q.text"
+                                        class="ac-lib-q" t-out="q.text"
                                         t-on-click="() => this.useLibraryQuestion(q)"/>
                             </t>
                         </div>
                         <div class="ac-modal-acts">
                             <button class="ac-btn ghost" t-on-click="this.closeLibrary"
-                                    t-esc="this.txt.close"/>
+                                    t-out="this.txt.close"/>
                         </div>
                     </div>
                 </div>
@@ -423,7 +423,7 @@
                                     <button t-foreach="[7, 30]" t-as="d" t-key="d"
                                             t-attf-class="ac-modal-chip {{ this.state.shareDays === d ? 'on' : '' }}"
                                             t-on-click="() => this.setShareDays(d)">
-<t t-esc="this.plazoLabel(d)"/>
+<t t-out="this.plazoLabel(d)"/>
                                     </button>
                                 </div>
                             </div>
@@ -450,7 +450,7 @@
                                 <!-- El vencimiento que VUELVE del backend, no el que
                                      se pidio: el plan puede recortarlo en silencio. -->
                                 <p t-if="this.state.shareExpires" class="ac-modal-hint">
-                                    Expires: <t t-esc="this.caducidadFmt"/>
+                                    Expires: <t t-out="this.caducidadFmt"/>
                                 </p>
                             </div>
                             <div class="ac-modal-acts">
@@ -478,7 +478,7 @@
                     <div class="ac-modal tall" role="dialog" aria-modal="true">
                         <span class="ac-modal-badge"><i class="oi" data-icon="table"/></span>
                         <h3 class="ac-modal-title">
-                            <t t-if="this.state.records and this.state.records.label" t-esc="this.state.records.label"/>
+                            <t t-if="this.state.records and this.state.records.label" t-out="this.state.records.label"/>
                             <t t-else="">Records</t>
                         </h3>
                         <div class="ac-modal-body">
@@ -487,18 +487,18 @@
                             </div>
                             <t t-elif="this.state.records">
                                 <p t-if="this.state.records.unavailable" class="ac-modal-empty"
-                                   t-esc="this.state.records.unavailable"/>
+                                   t-out="this.state.records.unavailable"/>
                                 <p t-elif="!(this.state.records.rows or []).length" class="ac-modal-empty">
                                     No records to show for this answer.
                                 </p>
                                 <t t-else="">
                                     <p class="ac-modal-count" t-if="this.state.records.total"
-                                       t-esc="this.conteoRegistros"/>
+                                       t-out="this.conteoRegistros"/>
                                     <ul class="ac-recs">
                                         <t t-foreach="this.state.records.rows or []" t-as="f" t-key="f.id">
                                             <li class="ac-rec" t-on-click="() => this.openRecord(f)">
-                                                <span class="ac-rec-t" t-esc="f.title"/>
-                                                <span t-if="f.subtitle" class="ac-rec-s" t-esc="f.subtitle"/>
+                                                <span class="ac-rec-t" t-out="f.title"/>
+                                                <span t-if="f.subtitle" class="ac-rec-s" t-out="f.subtitle"/>
                                             </li>
                                         </t>
                                     </ul>
@@ -558,7 +558,7 @@
             <div t-elif="this.state.loadError" class="ac-empty">
                 <span class="ac-mark ac-mark--lg"><t t-call="aski_connector.AskiMark"/></span>
                 <div class="ac-empty-title">Aski isn't responding right now</div>
-                <div class="ac-empty-sub" t-esc="this.state.loadError"/>
+                <div class="ac-empty-sub" t-out="this.state.loadError"/>
                 <button class="ac-btn-primary" t-on-click="this.retryLoad">
                     <i class="oi" data-icon="refresh"/> Try again
                 </button>
@@ -594,7 +594,7 @@
                         <t t-else="">My company already uses Aski — ask for a seat</t>
                     </button>
                     <div t-if="this.state.seatAsked" class="ac-empty-sub ac-seat-done"
-                         t-esc="this.textoAsientoPedido"/>
+                         t-out="this.textoAsientoPedido"/>
                 </t>
                 <t t-else="">
                     <div class="ac-empty-title">Aski isn't set up yet</div>
@@ -624,13 +624,13 @@
                         <div t-if="this.startMetrics.length or this.state.sugsCode or this.state.sugsLoading or (this.state.sugs and this.state.sugs.empty)"
                              class="ac-start">
                             <div class="ac-start-head">
-                                <span class="ac-start-title" t-esc="this.txt.startTitle"/>
-                                <span t-if="this.startAge" class="ac-start-age" t-esc="this.startAge"/>
+                                <span class="ac-start-title" t-out="this.txt.startTitle"/>
+                                <span t-if="this.startAge" class="ac-start-age" t-out="this.startAge"/>
                                 <button class="ac-start-refresh"
                                         t-att-disabled="this.state.sugsLoading"
                                         t-on-click="() => this.loadSuggestions(true)">
                                     <i t-attf-class="oi {{ this.state.sugsLoading ? 'oi-spin' : '' }}" t-att-data-icon="this.state.sugsLoading ? 'progress_activity' : 'refresh'"/>
-                                    <t t-esc="this.txt.startRefresh"/>
+                                    <t t-out="this.txt.startRefresh"/>
                                 </button>
                             </div>
                             <!-- Esqueleto y no un spinner suelto: la tarjeta ya
@@ -644,26 +644,26 @@
                                 <t t-foreach="this.startMetrics" t-as="mt" t-key="mt.id">
                                     <div class="ac-start-row">
                                         <div class="ac-start-k">
-                                            <span t-esc="mt.label"/>
+                                            <span t-out="mt.label"/>
                                             <span t-if="mt.companies > 1" class="ac-start-co"
-                                                  t-esc="this.metricEmpresas(mt)"/>
+                                                  t-out="this.metricEmpresas(mt)"/>
                                         </div>
                                         <!-- Una moneda por renglon: el motor ya
                                              decidio no sumarlas, y juntarlas aqui
                                              seria inventar un total que no existe. -->
                                         <div class="ac-start-v">
                                             <strong t-foreach="this.metricLineas(mt)" t-as="ln"
-                                                    t-key="ln_index" t-esc="ln"/>
+                                                    t-key="ln_index" t-out="ln"/>
                                         </div>
                                     </div>
                                 </t>
                             </div>
                             <div t-if="this.state.sugsCode" class="ac-start-note ac-start-bad"
-                                 t-esc="this.startErrTxt"/>
+                                 t-out="this.startErrTxt"/>
                             <div t-elif="this.state.sugs and this.state.sugs.empty" class="ac-start-note"
-                                 t-esc="this.txt.startEmpty"/>
+                                 t-out="this.txt.startEmpty"/>
                             <div t-elif="this.state.sugs and this.state.sugs.stale" class="ac-start-note"
-                                 t-esc="this.txt.startStale"/>
+                                 t-out="this.txt.startStale"/>
                         </div>
                         <!-- Las sugerencias vienen del getter `samples` (JS, con _t()):
                              la etiqueta y el texto que se ENVIA son el MISMO string
@@ -672,18 +672,18 @@
                         <div class="ac-samples">
                             <button t-foreach="this.samples" t-as="s" t-key="s.key"
                                     class="ac-sample" t-on-click="() => this.useSample(s.text)">
-                                <i class="oi" t-att-data-icon="s.icon"/> <t t-esc="s.text"/>
+                                <i class="oi" t-att-data-icon="s.icon"/> <t t-out="s.text"/>
                             </button>
                         </div>
                         <button t-if="this.startSections.length" class="ac-start-more"
-                                t-on-click="this.openLibrary" t-esc="this.txt.startMore"/>
+                                t-on-click="this.openLibrary" t-out="this.txt.startMore"/>
                     </div>
                     <t t-foreach="this.state.messages" t-as="m" t-key="m.id">
                         <!-- `data-msg-id` no es decorativo: es como el buscador
                              encuentra la burbuja a la que saltar. -->
                         <div t-if="m.role === 'user'" t-att-data-msg-id="m.id"
                              t-attf-class="ac-bubble ac-bubble-user {{ m.id === this.state.jumpHit ? 'ac-jump-hit' : '' }}">
-                            <span t-esc="m.text"/>
+                            <span t-out="m.text"/>
                             <!-- Esta pregunta se hizo en analisis profundo. Va en
                                  la PREGUNTA y no en la respuesta porque es ahi
                                  donde lo guarda el backend (is_agent) y donde lo
@@ -695,7 +695,7 @@
                             <!-- La hora va en las DOS burbujas, como en la app y
                                  en la web. -->
                             <div class="ac-meta">
-                                <span class="ac-time" t-esc="this.bubbleTime(m.createdAt)"/>
+                                <span class="ac-time" t-out="this.bubbleTime(m.createdAt)"/>
                             </div>
                         </div>
                         <div t-elif="m.role === 'assistant'" t-att-data-msg-id="m.id"
@@ -709,7 +709,7 @@
                                      cosas distintas segun la base, y el usuario
                                      no tiene como saberlo si no se le dice. -->
                                 <span t-if="graf.currency_mode === 'convertido'"
-                                      class="ac-chart-conv"> · <t t-esc="this.etiquetaConvertido"/></span>
+                                      class="ac-chart-conv"> · <t t-out="this.etiquetaConvertido"/></span>
                             </button>
                             <div class="md" t-out="this.renderMd(m.text)"/>
                             <!-- La fila se pinta SIEMPRE; lo condicional es el chip
@@ -718,11 +718,11 @@
                                  quedaba sin hora, sin detalle, sin PDF y sin pulgares.
                                  La web ya lo tenia asi. -->
                             <div class="ac-meta">
-                                <span class="ac-time" t-esc="this.bubbleTime(m.createdAt)"/>
+                                <span class="ac-time" t-out="this.bubbleTime(m.createdAt)"/>
                                 <!-- Que esta respuesta salio del analisis profundo:
                                      cuesta mas creditos y conviene que se vea. -->
                                 <span t-if="m.deep" class="ac-deep-chip"><i class="oi" data-icon="science"/> Deep</span>
-                                <span t-if="m.credits !== null" class="ac-credits-chip"><i class="oi" data-icon="flash_on"/> <t t-esc="m.credits"/> credits</span>
+                                <span t-if="m.credits !== null" class="ac-credits-chip"><i class="oi" data-icon="flash_on"/> <t t-out="m.credits"/> credits</span>
                                 <!-- Pulgares PULSABLES aqui mismo. Antes el control
                                      vivia dentro de "Details": nadie abre detalles
                                      cuando una respuesta le sirve, y menos cuando NO
@@ -788,7 +788,7 @@
                         <span t-if="this.state.elapsed >= 3" class="ac-thinking-note">
                             <t t-if="this.state.sendingDeep">Digging deeper — this one takes a while.</t>
                             <t t-else="">Working on it…</t>
-                            <span class="ac-thinking-secs"><t t-esc="this.state.elapsed"/>s</span>
+                            <span class="ac-thinking-secs"><t t-out="this.state.elapsed"/>s</span>
                         </span>
                     </div>
                 </div>
@@ -803,7 +803,7 @@
                              class="ac-action">
                             <div class="ac-action-txt">
                                 <i class="oi" data-icon="flash_on"/>
-                                <span t-esc="a.summary || a.kind"/>
+                                <span t-out="a.summary || a.kind"/>
                             </div>
                             <div t-if="this.state.confirmActionId === a.id" class="ac-action-confirm">
                                 <span>This writes to your Odoo. Go ahead?</span>
@@ -831,7 +831,7 @@
                         <i class="oi ac-scope-pin" data-icon="push_pin" aria-hidden="true"/>
                         <span class="ac-scope-lbl">Asking about</span>
                         <span class="ac-scope-name" t-att-title="this.state.record.label">
-                            <t t-esc="this.state.record.label or (this.state.record.model + ' #' + this.state.record.resId)"/>
+                            <t t-out="this.state.record.label or (this.state.record.model + ' #' + this.state.record.resId)"/>
                         </span>
                         <button class="ac-scope-x" t-on-click="this.clearScope"
                                 title="Ask about everything again, not just this record"
@@ -961,26 +961,26 @@
                          la de recordatorio: dos capas apiladas dentro de la misma
                          hoja se leen como que el boton no hizo nada. -->
                     <div t-if="this.state.connSelFor" class="ac-ins-new">
-                        <div class="ac-ins-q" t-esc="this.txt.connTitle"/>
-                        <div class="ac-ins-note" t-esc="this.txt.connHelp"/>
+                        <div class="ac-ins-q" t-out="this.txt.connTitle"/>
+                        <div class="ac-ins-note" t-out="this.txt.connHelp"/>
                         <div class="ac-conn-list">
                             <label t-foreach="this.state.conexiones" t-as="c" t-key="c.id"
                                    class="ac-conn-row">
                                 <input type="checkbox"
                                        t-att-checked="this.conexionMarcada(c.id)"
                                        t-on-change="() => this.alternarConexion(c.id)"/>
-                                <span t-esc="this.nombreConexion(c)"/>
+                                <span t-out="this.nombreConexion(c)"/>
                             </label>
                         </div>
-                        <div class="ac-ins-note" t-esc="this.txt.connLast"/>
+                        <div class="ac-ins-note" t-out="this.txt.connLast"/>
                         <div class="ac-ins-btns2">
                             <button class="ac-btn-primary-sm" t-on-click="this.guardarConexiones"
                                     t-att-disabled="this.state.connSaving">
-                                <t t-if="this.state.connSaving"><t t-esc="this.txt.connSaving"/></t>
-                                <t t-else=""><t t-esc="this.txt.connSave"/></t>
+                                <t t-if="this.state.connSaving"><t t-out="this.txt.connSaving"/></t>
+                                <t t-else=""><t t-out="this.txt.connSave"/></t>
                             </button>
                             <button class="ac-btn-ghost-sm" t-on-click="this.cerrarConexiones"
-                                    t-esc="this.txt.connCancel"/>
+                                    t-out="this.txt.connCancel"/>
                         </div>
                     </div>
 
@@ -1018,13 +1018,13 @@
                                 <label>What to watch</label>
                                 <select t-att-value="this.state.watchMetric" t-on-input="(ev) =&gt; this.state.watchMetric = ev.target.value">
                                     <option t-foreach="this.state.metricas" t-as="m" t-key="m.id"
-                                            t-att-value="m.id"><t t-esc="m.label"/></option>
+                                            t-att-value="m.id"><t t-out="m.label"/></option>
                                 </select>
                             </div>
                             <!-- El valor de HOY, para que el limite que se teclea
                                  tenga contra que compararse. -->
                             <div t-if="this.metricaElegida" class="ac-ins-note">
-                                <t t-esc="this.textoHoy"/>
+                                <t t-out="this.textoHoy"/>
                             </div>
                             <div class="ac-ins-row">
                                 <label>When</label>
@@ -1041,14 +1041,14 @@
                                     <input type="text" t-att-value="this.state.watchValue" t-on-input="(ev) =&gt; this.state.watchValue = ev.target.value"
                                            t-att-placeholder="this.esVariacion ? '%' : ''"/>
                                     <span t-if="this.sufijoLimite" class="ac-ins-suf"
-                                          t-esc="this.sufijoLimite"/>
+                                          t-out="this.sufijoLimite"/>
                                 </div>
                             </div>
                             <!-- ⛔ Cuando la cifra llega en varias monedas, el umbral
                                  se compara contra UNA. Sin decirlo, alguien teclea
                                  pensando en soles un limite que se mide en dolares y
                                  el aviso salta cuando no debe (o calla cuando si). -->
-                            <div t-if="this.avisoMoneda" class="ac-ins-note" t-esc="this.avisoMoneda"/>
+                            <div t-if="this.avisoMoneda" class="ac-ins-note" t-out="this.avisoMoneda"/>
                             <div t-if="this.esVariacion" class="ac-ins-note">
                                 The first run only takes the baseline.
                             </div>
@@ -1078,7 +1078,7 @@
                                 <label>What to remind you about</label>
                                 <select t-att-value="this.state.remTopic" t-on-input="(ev) =&gt; this.state.remTopic = ev.target.value">
                                     <option t-foreach="this.state.temas" t-as="x" t-key="x.id"
-                                            t-att-value="x.id"><t t-esc="x.label"/></option>
+                                            t-att-value="x.id"><t t-out="x.label"/></option>
                                 </select>
                             </div>
                             <div class="ac-ins-row">
@@ -1102,7 +1102,7 @@
 
                     <!-- Alta desde una respuesta que Aski YA resolvio. -->
                     <div t-if="this.state.insightNewFor" class="ac-ins-new">
-                        <div class="ac-ins-q" t-esc="this._preguntaDe(this.state.insightNewFor)"/>
+                        <div class="ac-ins-q" t-out="this._preguntaDe(this.state.insightNewFor)"/>
                         <div class="ac-ins-row">
                             <label>How often</label>
                             <select t-att-value="this.state.insightFreq" t-on-input="(ev) =&gt; this.state.insightFreq = ev.target.value">
@@ -1114,7 +1114,7 @@
                             <label>At</label>
                             <select t-att-value="this.state.insightHour" t-on-input="(ev) =&gt; this.state.insightHour = ev.target.value">
                                 <t t-foreach="[6,7,8,9,10,12,15,17,18]" t-as="h" t-key="h">
-                                    <option t-att-value="h"><t t-esc="h"/>:00</option>
+                                    <option t-att-value="h"><t t-out="h"/>:00</option>
                                 </t>
                             </select>
                         </div>
@@ -1141,11 +1141,11 @@
                     <div t-if="!this.state.newKind and !this.state.connSelFor" t-foreach="this.avisosListados"
                          t-as="f" t-key="f.id" class="ac-ins-item">
                         <div class="ac-ins-main">
-                            <div class="ac-ins-title" t-esc="f.title || f.kind"/>
+                            <div class="ac-ins-title" t-out="f.title || f.kind"/>
                             <div class="ac-ins-sub">
-                                <t t-esc="this.etiquetaFrecuencia(f)"/> ·
-                                <t t-esc="f.send_hour_local"/>:00
-                                <t t-if="f.paused_reason"> · <t t-esc="this.motivoPausa(f)"/></t>
+                                <t t-out="this.etiquetaFrecuencia(f)"/> ·
+                                <t t-out="f.send_hour_local"/>:00
+                                <t t-if="f.paused_reason"> · <t t-out="this.motivoPausa(f)"/></t>
                             </div>
                         </div>
                         <div class="ac-ins-btns">
@@ -1165,7 +1165,7 @@
                     </div>
 
                     <div t-if="this.state.insightLimit and !this.state.connSelFor" class="ac-ins-quota"
-                         t-esc="this.textoCupoAvisos"/>
+                         t-out="this.textoCupoAvisos"/>
                 </div>
             </div>
 
@@ -1204,17 +1204,17 @@
                         <div t-if="this.gruposVigia.length" class="ac-cat-sec">
                             <div class="ac-cat-sec-h">
                                 <b><i class="oi" data-icon="visibility"/> Figures I can watch</b>
-                                <span t-if="this.cuentaAvisos" class="ac-cat-count" t-esc="this.cuentaAvisos"/>
+                                <span t-if="this.cuentaAvisos" class="ac-cat-count" t-out="this.cuentaAvisos"/>
                             </div>
                             <div t-foreach="this.gruposVigia" t-as="g" t-key="g.id" class="ac-cat-grupo">
-                                <div class="ac-cat-grupo-t" t-esc="g.title"/>
+                                <div class="ac-cat-grupo-t" t-out="g.title"/>
                                 <div t-foreach="g.items" t-as="it" t-key="it.id"
                                      class="ac-cat-item"
                                      t-att-class="{'ac-cat-no': it.available === false}">
                                     <div class="ac-cat-item-t">
-                                        <b t-esc="it.name"/>
-                                        <small t-esc="it.what"/>
-                                        <small t-if="it.example" class="ac-cat-ej" t-esc="it.example"/>
+                                        <b t-out="it.name"/>
+                                        <small t-out="it.what"/>
+                                        <small t-if="it.example" class="ac-cat-ej" t-out="it.example"/>
                                     </div>
                                     <span t-if="it.available === false" class="ac-cat-no-t">
                                         Not in your connection
@@ -1228,14 +1228,14 @@
                                 <b><i class="oi" data-icon="schedule"/> What I can remind you about</b>
                             </div>
                             <div t-foreach="this.gruposRecordatorio" t-as="g" t-key="g.id" class="ac-cat-grupo">
-                                <div class="ac-cat-grupo-t" t-esc="g.title"/>
+                                <div class="ac-cat-grupo-t" t-out="g.title"/>
                                 <div t-foreach="g.items" t-as="it" t-key="it.id"
                                      class="ac-cat-item"
                                      t-att-class="{'ac-cat-no': it.available === false}">
                                     <div class="ac-cat-item-t">
-                                        <b t-esc="it.name"/>
-                                        <small t-esc="it.what"/>
-                                        <small t-if="it.example" class="ac-cat-ej" t-esc="it.example"/>
+                                        <b t-out="it.name"/>
+                                        <small t-out="it.what"/>
+                                        <small t-if="it.example" class="ac-cat-ej" t-out="it.example"/>
                                     </div>
                                     <span t-if="it.available === false" class="ac-cat-no-t">
                                         Not in your connection
@@ -1247,19 +1247,19 @@
                         <div t-if="this.gruposAccion.length" class="ac-cat-sec">
                             <div class="ac-cat-sec-h">
                                 <b><i class="oi" data-icon="wand_stars"/> What I can do in your ERP</b>
-                                <span t-if="this.cuentaAcciones" class="ac-cat-count" t-esc="this.cuentaAcciones"/>
+                                <span t-if="this.cuentaAcciones" class="ac-cat-count" t-out="this.cuentaAcciones"/>
                             </div>
                             <div class="ac-ins-note">Nothing runs on its own: I propose it and you confirm it, with your own permissions.</div>
                             <div t-foreach="this.gruposAccion" t-as="g" t-key="g.id" class="ac-cat-grupo">
-                                <div class="ac-cat-grupo-t" t-esc="g.title"/>
+                                <div class="ac-cat-grupo-t" t-out="g.title"/>
                                 <div t-foreach="g.items" t-as="it" t-key="it.verb"
                                      class="ac-cat-item"
                                      t-att-class="{'ac-cat-no': it.available === false}">
                                     <div class="ac-cat-item-t">
-                                        <b t-esc="it.name"/>
-                                        <small t-esc="it.what"/>
+                                        <b t-out="it.name"/>
+                                        <small t-out="it.what"/>
                                         <small t-if="it.examples and it.examples.length" class="ac-cat-ej"
-                                               t-esc="it.examples[0]"/>
+                                               t-out="it.examples[0]"/>
                                     </div>
                                     <span t-if="it.available === false" class="ac-cat-no-t">
                                         Not in your connection
@@ -1293,8 +1293,8 @@
                              de quien es la cuenta y cuanto lleva gastado. -->
                         <div t-if="this.esAsiento" class="ac-team-seat">
                             <div class="ac-ins-q">You are on a team</div>
-                            <div class="ac-ins-note" t-esc="this.textoAsientoCuenta"/>
-                            <div class="ac-ins-note" t-esc="this.textoAsientoConsumo"/>
+                            <div class="ac-ins-note" t-out="this.textoAsientoCuenta"/>
+                            <div class="ac-ins-note" t-out="this.textoAsientoConsumo"/>
                             <!-- Sin precios ni boton de compra: quien paga es el
                                  titular. Lo que si hace falta es poder pedirselo
                                  sin salir de aqui. -->
@@ -1317,14 +1317,14 @@
                                     <div class="ac-team-cifra">
                                         <small class="ac-team-rotulo">Seats</small>
                                         <div>
-                                            <b t-esc="this.capacidadEquipo.used"/>
-                                            <small t-esc="this.textoDeTotal"/>
+                                            <b t-out="this.capacidadEquipo.used"/>
+                                            <small t-out="this.textoDeTotal"/>
                                         </div>
                                     </div>
                                     <div t-if="this.state.equipo.pool_total" class="ac-team-bolsa">
                                         <small>Team pot</small>
-                                        <b t-esc="this.bolsaFmt"/>
-                                        <small t-esc="this.textoCuotaPlan"/>
+                                        <b t-out="this.bolsaFmt"/>
+                                        <small t-out="this.textoCuotaPlan"/>
                                     </div>
                                 </div>
                                 <div class="ac-team-barra">
@@ -1332,9 +1332,9 @@
                                     <i class="b-inv" t-attf-style="width: {{ this.pctAsientos.invitados }}%"/>
                                 </div>
                                 <div class="ac-team-leyenda">
-                                    <span><i class="ac-team-dot used"/><t t-esc="this.leyendaAsientos.usados"/></span>
-                                    <span t-if="this.capacidadEquipo.invited"><i class="ac-team-dot inv"/><t t-esc="this.leyendaAsientos.invitados"/></span>
-                                    <span><i class="ac-team-dot"/><t t-esc="this.leyendaAsientos.libres"/></span>
+                                    <span><i class="ac-team-dot used"/><t t-out="this.leyendaAsientos.usados"/></span>
+                                    <span t-if="this.capacidadEquipo.invited"><i class="ac-team-dot inv"/><t t-out="this.leyendaAsientos.invitados"/></span>
+                                    <span><i class="ac-team-dot"/><t t-out="this.leyendaAsientos.libres"/></span>
                                 </div>
                             </div>
 
@@ -1380,7 +1380,7 @@
                                     Optional. With no cap, one person can spend the whole team pot.
                                 </div>
                                 <div t-if="this.costoAsiento" class="ac-ins-note ac-team-costo"
-                                     t-esc="this.costoAsiento"/>
+                                     t-out="this.costoAsiento"/>
                                 <div class="ac-ins-btns2">
                                     <button class="ac-btn-primary-sm" t-on-click="this.enviarInvitacion"
                                             t-att-disabled="this.state.invBusy">
@@ -1395,8 +1395,8 @@
                             <div class="ac-ins-q">People</div>
                             <div t-foreach="this.personasEquipo" t-as="p" t-key="p.id" class="ac-ins-item">
                                 <div class="ac-ins-main">
-                                    <div class="ac-ins-title" t-esc="p.email"/>
-                                    <div class="ac-ins-sub" t-esc="this.subDePersona(p)"/>
+                                    <div class="ac-ins-title" t-out="p.email"/>
+                                    <div class="ac-ins-sub" t-out="this.subDePersona(p)"/>
                                 </div>
                                 <!-- Las acciones, aqui mismo. Tres estados, como
                                      en la app: una invitacion sin aceptar se
@@ -1457,7 +1457,7 @@
                                  antes, aqui dentro, nunca con un confirm del
                                  navegador. -->
                             <div t-if="this.state.seatPorQuitar" class="ac-action-confirm">
-                                <div t-esc="this.textoQuitarAsiento"/>
+                                <div t-out="this.textoQuitarAsiento"/>
                                 <div class="ac-ins-btns2">
                                     <button class="ac-btn-primary-sm" t-on-click="this.confirmarQuitar"
                                             t-att-disabled="this.state.seatBusyId">Take the seat back</button>
@@ -1467,7 +1467,7 @@
 
                             <div t-if="this.state.invEnlace" class="ac-ins-new">
                                 <div class="ac-ins-q">Pass them this link</div>
-                                <div class="ac-ins-note" t-esc="this.state.invEnlace"/>
+                                <div class="ac-ins-note" t-out="this.state.invEnlace"/>
                                 <div class="ac-ins-btns2">
                                     <button class="ac-btn-ghost-sm" t-on-click="this.copiarEnlaceInvitacion">Copy link</button>
                                 </div>
@@ -1543,14 +1543,14 @@
                                             class="ac-btn-ghost-sm"
                                             t-att-disabled="this.state.pidiendo or this.yaPedido('plan', p.id)"
                                             t-on-click="() => this.pedirAlProveedor('plan', p.id)">
-                                        <t t-esc="p.name"/>
+                                        <t t-out="p.name"/>
                                         <t t-if="p.monthly_credits">
-                                            · <t t-esc="p.monthly_credits"/> cr
+                                            · <t t-out="p.monthly_credits"/> cr
                                         </t>
                                         <t t-if="this.yaPedido('plan', p.id)"> · requested</t>
                                     </button>
                                 </div>
-                                <div class="ac-ins-note" t-esc="this.notaProveedor"/>
+                                <div class="ac-ins-note" t-out="this.notaProveedor"/>
                             </div>
 
                             <div t-if="this.state.pedirAbierto === 'topup'" class="ac-ins-new">
@@ -1561,11 +1561,11 @@
                                             class="ac-btn-ghost-sm"
                                             t-att-disabled="this.state.pidiendo or this.yaPedido('topup', k.id)"
                                             t-on-click="() => this.pedirAlProveedor('topup', k.id)">
-                                        <t t-esc="k.credits"/> cr
+                                        <t t-out="k.credits"/> cr
                                         <t t-if="this.yaPedido('topup', k.id)"> · requested</t>
                                     </button>
                                 </div>
-                                <div class="ac-ins-note" t-esc="this.notaProveedor"/>
+                                <div class="ac-ins-note" t-out="this.notaProveedor"/>
                             </div>
 
                             <div class="ac-ins-note">
@@ -1587,7 +1587,7 @@
                                 </button>
                             </div>
                             <div t-if="this.state.seatAsked" class="ac-ins-note ac-seat-done"
-                                 t-esc="this.textoAsientoPedido"/>
+                                 t-out="this.textoAsientoPedido"/>
                         </t>
                     </t>
                 </div>
@@ -1616,11 +1616,11 @@
                             <div t-if="m.credits != null or m.rows != null" class="ac-detail-stats">
                                 <div t-if="m.credits != null" class="ac-stat">
                                     <i class="oi" data-icon="flash_on"/>
-                                    <div><div class="ac-stat-v" t-esc="m.credits"/><div class="ac-stat-k">credits</div></div>
+                                    <div><div class="ac-stat-v" t-out="m.credits"/><div class="ac-stat-k">credits</div></div>
                                 </div>
                                 <div t-if="m.rows != null" class="ac-stat">
                                     <i class="oi" data-icon="table"/>
-                                    <div><div class="ac-stat-v" t-esc="m.rows"/><div class="ac-stat-k">rows</div></div>
+                                    <div><div class="ac-stat-v" t-out="m.rows"/><div class="ac-stat-k">rows</div></div>
                                 </div>
                             </div>
                             <!-- Aqui vivia un segundo "Helpful? 👍👎", que se quito
@@ -1668,7 +1668,7 @@
                                 <textarea class="ac-fb-why-input" rows="3" maxlength="500"
                                           placeholder="E.g.: the total doesn't match what I see in my ERP"
                                           t-on-input="this.onFbCommentInput"
-                                          t-esc="this.state.fbInitial"/>
+                                          t-out="this.state.fbInitial"/>
                             </label>
                             <div t-if="m.feedback === 'dislike'" class="ac-fb-why-actions">
                                 <button class="ac-fb-send" t-on-click="() => this.sendFeedbackComment(m)"
