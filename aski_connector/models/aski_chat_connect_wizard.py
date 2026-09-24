@@ -194,7 +194,7 @@ class AskiChatConnectWizard(models.TransientModel):
         link = self._target_link()
 
         nickname = (self.name or "").strip() or self.env.company.name or self.env.cr.dbname
-        base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url") or ""
+        base_url = self.env["ir.config_parameter"].sudo().get_str("web.base.url") or ""
         body = {
             "email": email,
             "password": password,

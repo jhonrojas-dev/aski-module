@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, useState, onWillStart, onWillUnmount } from "@odoo/owl";
+import { Component, onWillStart, onWillUnmount, proxy, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { browser } from "@web/core/browser/browser";
 import { useService } from "@web/core/utils/hooks";
@@ -26,7 +26,8 @@ function loadBubbleState() {
 // para quien prefiera verla a pantalla completa.
 export class AskiSystray extends Component {
     static template = "aski_connector.Systray";
-    static props = ["*"];
+    props = useProps();
+
     static components = { AskiChatWidget };
 
     setup() {
@@ -37,7 +38,7 @@ export class AskiSystray extends Component {
         // grupo del chat (el chat lee via la conexion compartida del admin, asi
         // que no debe estar al alcance de todo usuario interno). Arranca en
         // false para NO parpadear la burbuja antes de resolver el permiso.
-        this.state = useState({ ...loadBubbleState(), canUse: false });
+        this.state = proxy({ ...loadBubbleState(), canUse: false });
         onWillStart(async () => {
             // Memoizado y COMPARTIDO con el boton del chatter: entre los dos
             // hacen UNA llamada por pestana, no una cada uno.

@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, useState, useRef, onWillStart, onWillUnmount, onMounted, markup } from "@odoo/owl";
+import { Component, onWillStart, onWillUnmount, onMounted, markup, proxy, signal, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { browser } from "@web/core/browser/browser";
@@ -42,13 +42,13 @@ const MAX_CHIPS_MINI = 2;
 // texto: asi una pregunta nueva del catalogo nunca aparece sin icono. Las claves
 // son las de `SECCIONES` en app/suggestions/catalog.py.
 const ICONO_SECCION = {
-    ventas: "fa-line-chart",
-    cobranza: "fa-clock-o",
-    clientes: "fa-users",
-    inventario: "fa-cubes",
-    compras: "fa-truck",
-    oportunidades: "fa-trophy",
-    finanzas: "fa-bank",
+    ventas: "show_chart",
+    cobranza: "schedule",
+    clientes: "group",
+    inventario: "inventory_2",
+    compras: "local_shipping",
+    oportunidades: "trophy",
+    finanzas: "account_balance",
 };
 
 // El widget se monta DOS veces en la misma pagina (pantalla completa y burbuja
@@ -229,22 +229,22 @@ function printHtml(html) {
 
 export class AskiChatWidget extends Component {
     static template = "aski_connector.ChatWidget";
-    static props = ["*"];
+    props = useProps();
 
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-        this.messagesRef = useRef("messages");
+        this.messagesRef = signal.ref();
         // El composer es un <textarea> NO controlado: atarlo al estado con un
         // atributo `value` reposiciona el cursor al final en cada tecla. Se lee
         // por el evento y se limpia por la referencia.
-        this.composerRef = useRef("composer");
+        this.composerRef = signal.ref();
         // La plantilla solo ve el componente, no las constantes del modulo: el
         // maxlength del composer sale de aqui para no repetir el numero (y que
         // no se desincronice del guard de send()).
         this.MAX_PROMPT = MAX_PROMPT;
-        this.state = useState({
+        this.state = proxy({
             loading: true,
             allowed: true,
             mode: "shared_group",
@@ -717,7 +717,7 @@ export class AskiChatWidget extends Component {
             return lista.map((q) => ({
                 key: q.key,
                 text: q.text,
-                icon: ICONO_SECCION[q.section] || "fa-comment-o",
+                icon: ICONO_SECCION[q.section] || "chat_bubble",
             }));
         }
         // Respaldo: sin red, con el ERP caido o mientras las cifras vienen en
@@ -726,10 +726,10 @@ export class AskiChatWidget extends Component {
         // aunque sea la burbuja: por este camino no hay biblioteca a la que
         // llegar, asi que el recorte no ahorraria nada.
         return [
-            { key: "f1", icon: "fa-line-chart", text: _t("How much did I sell this month?") },
-            { key: "f2", icon: "fa-trophy", text: _t("My top 10 customers") },
-            { key: "f3", icon: "fa-clock-o", text: _t("Overdue invoices") },
-            { key: "f4", icon: "fa-users", text: _t("How many customers do I have?") },
+            { key: "f1", icon: "show_chart", text: _t("How much did I sell this month?") },
+            { key: "f2", icon: "trophy", text: _t("My top 10 customers") },
+            { key: "f3", icon: "schedule", text: _t("Overdue invoices") },
+            { key: "f4", icon: "group", text: _t("How many customers do I have?") },
         ];
     }
 
@@ -910,7 +910,7 @@ export class AskiChatWidget extends Component {
     _jumpToMessage(domId) {
         let intentos = 0;
         const paso = () => {
-            const cont = this.messagesRef.el;
+            const cont = this.messagesRef();
             if (!cont) {
                 return;
             }
@@ -1375,7 +1375,7 @@ export class AskiChatWidget extends Component {
 
     _resetComposer() {
         this.state.input = "";
-        const el = this.composerRef.el;
+        const el = this.composerRef();
         if (el) {
             el.value = "";
             el.style.height = "auto";
@@ -3175,7 +3175,7 @@ export class AskiChatWidget extends Component {
     }
     _scrollToBottom() {
         requestAnimationFrame(() => {
-            const el = this.messagesRef.el;
+            const el = this.messagesRef();
             if (el) {
                 el.scrollTop = el.scrollHeight;
             }

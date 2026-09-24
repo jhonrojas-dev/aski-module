@@ -7,7 +7,7 @@
     # las ramas iban desincronizadas (16/17/18 en 1.1.0 pero 19.0 en 1.4.10).
     # Por eso se unifico todo en 1.5.0: es mayor que la mas alta publicada, asi
     # que ninguna serie ve un downgrade. Mantenerlas iguales de aqui en adelante.
-    "version": "19.0.1.24.0",
+    "version": "20.0.1.24.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -34,7 +34,7 @@ Same account, same wallet as the mobile app - just another way to ask.
   - a top-plan capability limited to a closed list of four operations (payment
   reminder, follow-up activity, approve or reject a document). Even then nothing
   runs until you are shown what will happen, on which record, and you confirm.
-* Works with Odoo Community and Enterprise (14 to 19) - BOTH the in-Odoo chat
+* Works with Odoo Community and Enterprise (14 to 20) - BOTH the in-Odoo chat
   and the QR connector for the mobile app work on EVERY version, 14 included.
 * Generates a standard Odoo API key for your user (you can revoke it anytime in
   Settings > Users > API Keys).
@@ -72,7 +72,7 @@ Get the app and learn more at https://aski.dev
     "depends": ["base", "web", "mail"],
     "data": [
         "security/aski_security.xml",
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "views/aski_connect_views.xml",
         "views/aski_chat_views.xml",
     ],

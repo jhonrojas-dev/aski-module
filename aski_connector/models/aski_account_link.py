@@ -2091,7 +2091,7 @@ class AskiAccountLink(models.Model):
     def _web_base(self):
         """Donde vive la web de Aski. Configurable para despliegues propios."""
         return (self.env["ir.config_parameter"].sudo()
-                .get_param("aski.web_base") or "https://app.aski.dev").rstrip("/")
+                .get_str("aski.web_base") or "https://app.aski.dev").rstrip("/")
 
     @_rpc_seguro
     @api.model
@@ -2354,7 +2354,7 @@ class AskiAccountLink(models.Model):
         lleva la cuenta, o al titular.
         """
         user = self.env.user
-        base = self.env["ir.config_parameter"].sudo().get_param("web.base.url") or ""
+        base = self.env["ir.config_parameter"].sudo().get_str("web.base.url") or ""
         try:
             resp = requests.post(
                 aski_api_base(self.env) + "/seats/request",

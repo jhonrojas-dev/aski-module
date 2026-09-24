@@ -12,7 +12,7 @@ que teclear URL / base de datos / API key a mano.
    historial, exportar a PDF, análisis profundo (si el plan lo incluye) y alta de
    cuenta sin salir de Odoo.
 
-- Compatible **Odoo 14 → 19** (Community y Enterprise).
+- Compatible **Odoo 14 → 20** (Community y Enterprise).
 - **Una rama por serie** (`14.0` … `19.0`). El Python es idéntico en las seis; lo
   que cambia por serie es la capa web: `attrs` en las vistas (14–16), OWL 1 en el
   widget (14–15) y el modelo de seguridad de la 19 (`res.groups.privilege`).

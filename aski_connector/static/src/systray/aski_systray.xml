@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="aski_connector.Systray" owl="1">
-        <div t-if="state.canUse" class="ac-systray">
-            <button class="ac-systray-btn" t-on-click="toggle" title="Aski - ask your Odoo">
+        <div t-if="this.state.canUse" class="ac-systray">
+            <button class="ac-systray-btn" t-on-click="this.toggle" title="Aski - ask your Odoo">
                 <!-- ⛔ Marca PROPIA, no la compartida `AskiMark`. Esa apunta al
                      maestro de 512px, y reducirlo a 20 en el navegador deshace el
                      trazo fino de la onda: se ve sucia al lado de los glifos
@@ -18,8 +18,8 @@
                                  /aski_connector/static/src/img/aski_mark_60.png 3x"/>
                 </span>
             </button>
-            <div t-if="state.open" class="ac-floating-panel" t-att-class="state.minimized ? 'minimized' : ''">
-                <AskiChatWidget minimized="state.minimized" onMinimize="() => this.minimize()" onClose="() => this.close()"/>
+            <div t-if="this.state.open" class="ac-floating-panel" t-att-class="this.state.minimized ? 'minimized' : ''">
+                <AskiChatWidget minimized="this.state.minimized" onMinimize="() => this.minimize()" onClose="() => this.close()"/>
             </div>
         </div>
     </t>

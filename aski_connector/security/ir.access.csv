@@ -1,0 +1,5 @@
+id,name,model_id,group_id/id,operation,domain
+access_aski_connect_wizard_system,aski.connect.wizard system,aski.connect.wizard,base.group_system,crud,
+access_aski_chat_connect_wizard_user,aski.chat.connect.wizard user,aski.chat.connect.wizard,base.group_user,crud,
+access_aski_account_link_user,aski.account.link user read,aski.account.link,base.group_user,r,
+access_aski_account_link_system,aski.account.link system,aski.account.link,base.group_system,crud,

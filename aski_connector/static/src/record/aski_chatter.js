@@ -1,6 +1,6 @@
 /** @odoo-module **/
 // ---------------------------------------------------------------------------
-// El boton "Aski" DENTRO del chatter — VARIANTE ODOO 19.
+// El boton "Aski" DENTRO del chatter — VARIANTE ODOO 20.
 // ---------------------------------------------------------------------------
 // Preguntar estando parado en una ficha ("¿por que esta atrasada?") sin tener que
 // reescribir de que documento se habla. El boton fija el registro abierto y abre
@@ -12,13 +12,15 @@
 // obligaria a espiar el router, que cambia de formato en cada serie.
 //
 // ⛔ Lo unico que cambia entre ramas es la RUTA del import del Chatter y el nombre
-// de su plantilla. La logica vive en `aski_record.js` / `aski_access.js`, que son
+// de su plantilla. En la 20 ademas `threadId` / `threadModel` dejaron de ser props
+// y son senales del componente (`this.threadId()`).
+// La logica vive en `aski_record.js` / `aski_access.js`, que son
 // identicos en las seis.
 
 import { patch } from "@web/core/utils/patch";
 import { useService } from "@web/core/utils/hooks";
-import { Chatter } from "@mail/chatter/web_portal/chatter";
-import { useState, onWillStart, onWillUnmount } from "@odoo/owl";
+import { Chatter } from "@mail/chatter/web_portal_project/chatter";
+import { onWillStart, onWillUnmount, proxy } from "@odoo/owl";
 import { canUseChat } from "@aski_connector/record/aski_access";
 import { setRecord, clearRecordIf, requestOpen } from "@aski_connector/record/aski_record";
 
@@ -30,7 +32,7 @@ patch(Chatter.prototype, {
         // veria un boton que, al pulsarlo, abre un panel que el usuario no puede
         // usar. La comprobacion esta memoizada (una por pestana, no una por
         // ficha), asi que esto no cuesta un RPC en cada formulario.
-        this.askiState = useState({ canUse: false });
+        this.askiState = proxy({ canUse: false });
         onWillStart(async () => {
             this.askiState.canUse = await canUseChat(() =>
                 this.askiOrm.call("aski.account.link", "can_use_chat", [])
@@ -40,14 +42,14 @@ patch(Chatter.prototype, {
             // El usuario se fue de la ficha: el ambito deja de valer. Se compara
             // CUAL es antes de borrar — si ya se monto otro chatter que fijo el
             // suyo, este desmontaje no debe llevarselo por delante.
-            clearRecordIf(this.props.threadModel, this.props.threadId);
+            clearRecordIf(this.threadModel(), this.threadId());
         });
     },
 
     /** Fija esta ficha como ambito y abre el panel de Aski. */
     async askiAsk() {
-        const model = this.props.threadModel;
-        const resId = this.props.threadId;
+        const model = this.threadModel();
+        const resId = this.threadId();
         if (!model || !resId) {
             return; // registro nuevo sin guardar: no hay nada que preguntar
         }

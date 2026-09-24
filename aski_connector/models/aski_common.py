@@ -66,7 +66,7 @@ def aski_api_base(env):
     base = (config.get("aski_connector_api_base") or "").strip()
     if not base:
         try:
-            base = (env["ir.config_parameter"].sudo().get_param(
+            base = (env["ir.config_parameter"].sudo().get_str(
                 "aski_connector.api_base") or "").strip()
         except Exception:  # noqa: BLE001
             base = ""
@@ -191,7 +191,7 @@ def aski_url_candidates(env, override=""):
     """
     base_url = ""
     try:
-        base_url = (env["ir.config_parameter"].sudo().get_param("web.base.url") or "").strip()
+        base_url = (env["ir.config_parameter"].sudo().get_str("web.base.url") or "").strip()
     except Exception:  # noqa: BLE001
         base_url = ""
     crudas = [(override or "").strip(), aski_request_base_url(), base_url]
@@ -350,7 +350,7 @@ def aski_partner_code(env):
     code = (config.get("aski_connector_partner_code") or "").strip()
     if not code:
         try:
-            code = (env["ir.config_parameter"].sudo().get_param(
+            code = (env["ir.config_parameter"].sudo().get_str(
                 "aski_connector.partner_code") or "").strip()
         except Exception:  # noqa: BLE001
             code = ""
@@ -430,7 +430,7 @@ class AskiKeyMixin(models.AbstractModel):
             img = qrcode.make(content)
             buf = io.BytesIO()
             img.save(buf, format="PNG")
-            return base64.b64encode(buf.getvalue())
+            return base64.b64encode(buf.getvalue()).decode()
         except Exception:  # noqa: BLE001
             _logger.warning("Aski: no se pudo generar el QR", exc_info=True)
             return False
@@ -446,10 +446,10 @@ class AskiKeyMixin(models.AbstractModel):
         secret = config.get("aski_connector_secret")
         if not secret:
             icp = self.env["ir.config_parameter"].sudo()
-            secret = icp.get_param("aski_connector.secret")
+            secret = icp.get_str("aski_connector.secret")
             if not secret:
                 secret = Fernet.generate_key().decode()
-                icp.set_param("aski_connector.secret", secret)
+                icp.set_str("aski_connector.secret", secret)
         try:
             Fernet(secret.encode())
             key = secret.encode()
