@@ -1819,6 +1819,11 @@ class AskiChatWidget extends Component {
                 this.state.conversationId = r.conversation_id;
             }
             if (isNewThread) this.refreshConversations();
+            // Si el turno PROPUSO una accion, tiene que aparecer ya junto al
+            // compositor: sin esto solo salia al recargar la pantalla, y la
+            // respuesta decia «nada se envia hasta que lo confirmes» sin ningun
+            // boton con el que confirmarlo. No se espera: no retrasa la burbuja.
+            this._cargarAcciones();
             this.state.messages.push({
                 id: `a${Date.now()}`, role: "assistant", text: r.answer || "",
                 credits: typeof r.credits === "number" ? r.credits : null,
@@ -3495,12 +3500,37 @@ class AskiChatWidget extends Component {
     async _cargarAcciones() {
         try {
             const r = await this.orm.call("aski.account.link", "list_actions", []);
-            this.state.actions = r.actions || [];
+            // ⛔ `/actions` devuelve el HISTORIAL (ejecutadas, descartadas,
+            // caducadas), no solo lo pendiente. Pintarlo entero ponia junto al
+            // compositor acciones ya enviadas con su boton de «Revisar», como si
+            // faltara confirmarlas. Aqui solo va lo que espera una decision.
+            const ahora = Date.now();
+            this.state.actions = (r.actions || []).filter((a) => {
+                if (a.state !== "proposed") {
+                    return false;
+                }
+                const vence = this._fechaDe(a.expires_at);
+                return !vence || vence.getTime() > ahora;
+            });
             this.state.actionsEnabled = !!r.feature_enabled;
             this.state.actionsModeOk = r.mode_ok !== false;
         } catch {
             this.state.actions = [];
         }
+    }
+
+    // Que va a hacer, sobre que y A QUIEN. Los campos son los del backend
+    // (`title`, `target_label`, `recipient_*`): la tarjeta leia `summary` y
+    // `kind`, que la API no manda, y salia vacia — un rayo sin texto junto a un
+    // boton de «Revisar». Lo que sale hacia afuera dice su destinatario exacto.
+    accionTexto(a) {
+        const partes = [a.title || a.verb || _t("Action")];
+        if (a.target_label) {
+            partes.push(a.target_label);
+        }
+        const para = a.recipient_email || a.recipient_label;
+        const texto = partes.join(" · ");
+        return para ? texto + " → " + para : texto;
     }
 
     // Confirmar SIEMPRE pregunta antes, y la pregunta es in-app: nunca
