@@ -3092,3 +3092,177 @@ msgid ""
 msgstr ""
 "Seu token do Aski não é mais válido. Conecte sua conta de novo em Aski > "
 "Conectar."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Export to PowerPoint"
+msgstr "Exportar para PowerPoint"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Export to Word"
+msgstr "Exportar para Word"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Generating..."
+msgstr "Gerando..."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Skills"
+msgstr "Habilidades"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Save as skill"
+msgstr "Salvar como habilidade"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Skill name"
+msgstr "Nome da habilidade"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Saved. It is in your skills now."
+msgstr "Salva. Ela já está nas suas habilidades."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Saved as skill"
+msgstr "Salva como habilidade"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Running..."
+msgstr "Executando..."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Delete skill"
+msgstr "Excluir habilidade"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Delete this skill?"
+msgstr "Excluir esta habilidade?"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Delete"
+msgstr "Excluir"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Skill deleted."
+msgstr "Habilidade excluída."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Asks your ERP again with today's dates, without retyping the question."
+msgstr "Pergunta de novo ao seu ERP com as datas de hoje, sem redigitar a pergunta."
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.js:0
+msgid "Comparison"
+msgstr "Comparativo"
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Your Aski plan is not active. Contact your Aski partner to renew it."
+msgstr "Seu plano do Aski não está ativo. Peça ao seu parceiro Aski para renová-lo."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Your Aski plan has expired. Renew it at %s/billing to keep asking."
+msgstr "Seu plano do Aski venceu. Renove-o em %s/billing para continuar perguntando."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You need an active Aski plan to keep asking. Turn it on at %s/billing."
+msgstr "Você precisa de um plano ativo do Aski para continuar perguntando. Ative-o em %s/billing."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You've reached your credit cap for this period within the account. Ask the account owner for more."
+msgstr "Você atingiu seu limite de créditos deste período dentro da conta. Peça mais ao titular da conta."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You've reached your plan's query limit for today. It resets at midnight, or your Aski partner can extend it."
+msgstr "Você atingiu o limite de consultas de hoje do seu plano. Ele é renovado à meia-noite, ou seu parceiro Aski pode ampliá-lo."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You've reached your plan's query limit for today. It resets at midnight, or you can extend it now at %s/billing."
+msgstr "Você atingiu o limite de consultas de hoje do seu plano. Ele é renovado à meia-noite, ou você pode ampliá-lo agora em %s/billing."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You already used this month's free export. Export without limits with a higher plan."
+msgstr "Você já usou a exportação gratuita deste mês. Exporte sem limite com um plano superior."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That format is not available."
+msgstr "Esse formato não está disponível."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That answer did not come from a query to your ERP, so there is nothing to repeat."
+msgstr "Essa resposta não veio de uma consulta ao seu ERP, então não há nada para repetir."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "You already have too many skills. Delete one you no longer use."
+msgstr "Você já tem habilidades demais. Exclua alguma que não use mais."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "That skill no longer exists."
+msgstr "Essa habilidade não existe mais."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "The connection this skill was saved on no longer exists."
+msgstr "A conexão em que esta habilidade foi salva não existe mais."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Couldn't repeat this skill. Ask it again in the chat and save it again."
+msgstr "Não consegui repetir esta habilidade. Pergunte de novo no chat e salve-a outra vez."
+
+#. module: aski_connector
+#. odoo-python
+#: code:addons/aski_connector/models/aski_account_link.py:0
+msgid "Give the skill a name."
+msgstr "Dê um nome à habilidade."
