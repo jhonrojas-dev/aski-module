@@ -882,7 +882,7 @@
                                 <!-- Se le pasa el MENSAJE, no solo el texto: al
                                      reintentar hay que retirar esta burbuja, o
                                      los errores se van apilando en el hilo. -->
-                                <button class="ac-btn-link" t-on-click="() => this.retry(m)">
+                                <button t-if="m.retryText" class="ac-btn-link" t-on-click="() => this.retry(m)">
                                     Retry
                                 </button>
                                 <button t-if="m.sinCreditos and !state.partnerManaged"
