@@ -7,7 +7,7 @@
     # las ramas iban desincronizadas (16/17/18 en 1.1.0 pero 19.0 en 1.4.10).
     # Por eso se unifico todo en 1.5.0: es mayor que la mas alta publicada, asi
     # que ninguna serie ve un downgrade. Mantenerlas iguales de aqui en adelante.
-    "version": "20.0.1.24.0",
+    "version": "20.0.1.25.0",
     "category": "Productivity",
     "summary": "AI assistant to ask your Odoo in natural language: sales, "
                "receivables, reports - by chat or voice, from your phone or "
@@ -41,6 +41,10 @@ Same account, same wallet as the mobile app - just another way to ask.
 * No data leaves your Odoo through this module beyond what you ask Aski: the
   chat panel talks directly to the Aski backend using your own personal access
   token, the same way the mobile app does.
+* Take any answer away as an editable PowerPoint slide, a Word document, a
+  branded PDF or an Excel sheet - or just ask "make me a presentation of this
+  month's sales". Save the questions you repeat as skills and run them again
+  from the side panel with today's dates.
 * Also run SAP? Aski works with SAP too - handy if you or your business partners
   use both Odoo and SAP.
 
