@@ -551,7 +551,18 @@ class AskiAccountLink(models.Model):
     # ------------------------------------------------------------------
     def _headers(self):
         self.ensure_one()
-        return {"Authorization": "Bearer %s" % self.pat, "Content-Type": "application/json"}
+        cabeceras = {"Authorization": "Bearer %s" % self.pat,
+                     "Content-Type": "application/json"}
+        # El idioma de quien pregunta, en CADA peticion, como ya hacen la app y la
+        # web. El backend lo guarda en la cuenta y de ahi sale el idioma de los
+        # correos que manda despues —avisos, resumen, cierre—, desde tareas de
+        # fondo donde ya no hay peticion de la que deducirlo. Sin esto, quien
+        # solo usa Aski desde Odoo recibia los correos en el idioma por defecto.
+        # Odoo lo guarda como `es_419`; la cabecera HTTP lo quiere con guion.
+        lang = (self.env.user.lang or "").replace("_", "-")
+        if lang:
+            cabeceras["Accept-Language"] = lang
+        return cabeceras
 
     @staticmethod
     def _error_code(resp):
@@ -983,6 +994,59 @@ class AskiAccountLink(models.Model):
             "agent_enabled": False,
         })
 
+    def _raise_402(self, resp):
+        """Un 402 por su MOTIVO, no siempre como "te quedaste sin creditos".
+
+        El backend responde 402 por cinco cosas distintas: sin plan, plan
+        vencido, tope del dia, tope del asiento y saldo agotado. Pintarlas todas
+        como saldo agotado mandaba a quien estaba en su prueba y habia llegado
+        al tope del dia a mirar sus creditos, ver saldo y concluir que el chat
+        estaba roto. La app y la web ya los separan; aqui se hace igual.
+
+        `AskiCreditsError` solo cuando comprar creditos LO ARREGLA (saldo y tope
+        del dia): es lo que hace aparecer el boton de recargar, y ofrecerlo por
+        un plan vencido manda a pagar por algo que no lo resuelve.
+        """
+        self.ensure_one()
+        codigo = self._error_code(resp)
+        socio = bool(self.partner_managed)
+        if codigo in ("subscription_required", "subscription_expired"):
+            if socio:
+                raise UserError(_(
+                    "Your Aski plan is not active. Contact your Aski partner "
+                    "to renew it."))
+            if codigo == "subscription_expired":
+                raise UserError(_(
+                    "Your Aski plan has expired. Renew it at %s/billing to keep "
+                    "asking.") % "https://app.aski.dev")
+            raise UserError(_(
+                "You need an active Aski plan to keep asking. Turn it on at "
+                "%s/billing.") % "https://app.aski.dev")
+        if codigo == "seat_cap_reached":
+            # Ni el socio ni la pasarela: el tope lo puso el TITULAR de la
+            # cuenta sobre este asiento, y solo el lo sube.
+            raise UserError(_(
+                "You've reached your credit cap for this period within the "
+                "account. Ask the account owner for more."))
+        if codigo in ("daily_limit_reached", "demo_daily_limit_reached"):
+            if socio:
+                raise AskiCreditsError(_(
+                    "You've reached your plan's query limit for today. It "
+                    "resets at midnight, or your Aski partner can extend it."))
+            raise AskiCreditsError(_(
+                "You've reached your plan's query limit for today. It resets "
+                "at midnight, or you can extend it now at %s/billing.")
+                % "https://app.aski.dev")
+        # `insufficient_credits` (chat), `no_credits` (habilidades) o un backend
+        # anterior sin codigo: el caso de siempre, saldo agotado.
+        # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
+        # backend la rechaza igual) — el saldo lo repone su socio.
+        if socio:
+            raise AskiCreditsError(_(
+                "You're out of Aski credits. Contact your Aski partner to top up."))
+        raise AskiCreditsError(_("You're out of Aski credits. Top up at %s/billing to keep chatting.")
+                               % "https://app.aski.dev")
+
     def _raise_for_chat_error(self, resp):
         """Traduce la respuesta del backend a la excepcion que toca.
 
@@ -1003,13 +1067,7 @@ class AskiAccountLink(models.Model):
                     _("Reconnect in Aski > Chat Settings.")))
             raise UserError(mensaje)
         if resp.status_code == 402:
-            # Cuenta gestionada por un socio: NO ofrecer la compra directa (el
-            # backend la rechaza igual) — el saldo lo repone su socio.
-            if rec.partner_managed:
-                raise AskiCreditsError(_(
-                    "You're out of Aski credits. Contact your Aski partner to top up."))
-            raise AskiCreditsError(_("You're out of Aski credits. Top up at %s/billing to keep chatting.")
-                            % "https://app.aski.dev")
+            rec._raise_402(resp)
         if resp.status_code == 403 and rec._error_code(resp) == "feature_not_in_plan":
             # El plan no incluye el analisis profundo. Se distingue con clase
             # propia para que el chat apague el interruptor en vez de dejar al
@@ -1091,6 +1149,9 @@ class AskiAccountLink(models.Model):
             # declinar. El chat lo refleja en vez de tragarselo.
             "confirmation_required": bool(data.get("confirmation_required")),
             "refused": bool(data.get("refused")),
+            # 'hazme una presentacion de...' -> 'pptx'. Igual en los dos modos:
+            # el backend lo detecta en los dos.
+            "documento_pedido": data.get("documento_pedido") or None,
         }
 
     @api.model
@@ -1124,6 +1185,11 @@ class AskiAccountLink(models.Model):
             "conversation_id": data.get("conversation_id"),
             "credits": data.get("credits"),
             "chart": (data.get("query") or {}).get("chart"),
+            # El formato que el usuario PIDIO hablando ('hazme una presentacion
+            # de las ventas del mes' -> 'pptx'), o None, que es lo normal. Con
+            # el, el chat ofrece la descarga bajo la respuesta en vez de obligar
+            # a buscarla en el panel de detalles.
+            "documento_pedido": data.get("documento_pedido") or None,
         }
 
     @api.model
@@ -1484,29 +1550,88 @@ class AskiAccountLink(models.Model):
                 # se siente como que no se guardo.
                 "feedbackComment": (
                     m.get("feedback_comment") if role == "assistant" else None),
+                # La respuesta nacio de una consulta al ERP: es la UNICA que se
+                # puede guardar como habilidad, porque es la unica que se puede
+                # repetir. Ofrecerlo en las demas seria prometer algo que el
+                # backend rechaza con un 422.
+                "hasQuery": bool(m.get("odoo_query")) if role == "assistant" else False,
+                # El documento pedido hablando. El backend lo DEDUCE de la
+                # pregunta guardada, asi que el boton de descarga sigue ahi al
+                # recargar el hilo — se pregunta en el movil, se abre Odoo y
+                # el boton esta.
+                "docPedido": (m.get("documento_pedido") or None)
+                             if role == "assistant" else None,
             })
         return out
 
-    def _fetch_export_html(self, message_id, tz_offset_minutes):
+    # Los tres documentos que el BACKEND maqueta. Una tabla y no tres metodos
+    # casi iguales: el dia que se arregle una regla (el cupo, el idioma), se
+    # arregla en los tres a la vez.
+    _EXPORT_DOCS = {
+        # formato: (ruta, nombre por defecto, tipo MIME exacto)
+        "pdf": ("export-pdf", "aski.pdf", "application/pdf"),
+        "pptx": ("export-pptx", "aski.pptx",
+                 "application/vnd.openxmlformats-officedocument."
+                 "presentationml.presentation"),
+        "docx": ("export-docx", "aski.docx",
+                 "application/vnd.openxmlformats-officedocument."
+                 "wordprocessingml.document"),
+    }
+
+    def _fetch_export_doc(self, message_id, fmt):
+        """Una respuesta como documento YA MAQUETADO por el backend.
+
+        ⛔ Sustituye al PDF que imprimia el NAVEGADOR a partir del HTML: ese
+        dependia de como paginara cada browser y no llevaba banda de marca,
+        grafico vectorial, recomendaciones ni la co-marca del socio. Ahora el
+        cliente recibe el MISMO documento venga de la app, de la web, del correo
+        o de Odoo — que es lo que se le promete cuando se le vende.
+
+        El backend vuelve a ejecutar la consulta: el documento lleva las cifras
+        de HOY, con los rangos relativos reanclados.
+        """
         rec = self.sudo()
-        # Idioma del usuario de Odoo (es_419, en_US, pt_BR...): el backend lo
-        # normaliza y devuelve el "chrome" del reporte (titulo, "Exportado", el
-        # pie) en ese idioma. Sin esto el PDF salia siempre en espanol, aunque
-        # el usuario tuviera Odoo en ingles.
-        lang = self.env.user.lang or ""
+        ruta, por_defecto, mime = self._EXPORT_DOCS[fmt]
         try:
             resp = requests.get(
-                aski_api_base(self.env) + "/chat/messages/%s/export-html" % message_id,
-                params={"tz_offset_minutes": tz_offset_minutes, "lang": lang},
-                headers=rec._headers(), timeout=_TIMEOUT)
+                aski_api_base(self.env) + "/chat/messages/%s/%s" % (message_id, ruta),
+                # Idioma del usuario de Odoo: titulos, pie y rotulos del
+                # documento salen en ese idioma y no en el del backend.
+                params={"lang": self.env.user.lang or ""},
+                headers=rec._headers(),
+                # Reejecuta la consulta contra el ERP Y maqueta: tarda lo que
+                # una pregunta, no lo que una lectura.
+                timeout=_TIMEOUT_CHAT)
+        except requests.exceptions.Timeout:
+            raise UserError(_("Aski is taking too long to answer. Try again in a moment."))
         except Exception as e:  # noqa: BLE001
             raise UserError(aski_mensaje_red(self.env, e))
-        if resp.status_code == 403:
-            raise UserError(rec._error_message(resp))
+        if resp.status_code == 403 and rec._error_code(resp) == "free_quota_reached":
+            # Es CUPO agotado, no un fallo: se dice que se acabo y que lo
+            # arregla, en el idioma de este Odoo (el backend lo manda en el suyo).
+            raise UserError(_(
+                "You already used this month's free export. Export without "
+                "limits with a higher plan."))
         if resp.status_code != 200:
             raise UserError(_("Aski error: %s") % rec._error_message(resp))
         data = resp.json()
-        return {"content_html": data.get("content_html", "")}
+        return {
+            "filename": data.get("filename") or por_defecto,
+            "content_b64": data.get("content_b64") or "",
+            "mime": mime,
+        }
+
+    @api.model
+    def export_message_doc(self, message_id, fmt):
+        """Exportar UNA respuesta a PDF, PowerPoint o Word.
+
+        Excel sigue en `export_message_xlsx`: devuelve `rows` y puede no tener
+        filas, cosas que los otros tres no tienen.
+        """
+        if fmt not in self._EXPORT_DOCS:
+            raise UserError(_("That format is not available."))
+        rec = self._link_para_chat()
+        return rec._fetch_export_doc(message_id, fmt)
 
     # =================================================================
     #  Las demas funciones del chat que YA se pueden usar con un PAT
@@ -1661,25 +1786,12 @@ class AskiAccountLink(models.Model):
         return rec.sudo()
 
     @api.model
-    def export_message_pdf(self, message_id, tz_offset_minutes=0):
-        """Exporta UNA respuesta puntual (boton 'Exportar' del panel de
-        detalle de un mensaje) — mismo endpoint que usan Android/web."""
-        self._ensure_chat_access()
-        rec = self._active_link(self.env.user)
-        if not rec or not rec.connected:
-            raise UserError(self._not_connected_error())
-        return rec._fetch_export_html(message_id, tz_offset_minutes)
-
-    @api.model
-    def export_answer_pdf(self, conversation_id, tz_offset_minutes=0):
+    def export_answer_pdf(self, conversation_id):
         """Exporta la ULTIMA respuesta de Aski en esa conversacion (boton
         global del composer). El endpoint de chat no devuelve el id del
         mensaje assistant, asi que primero se resuelve via
         /conversations/.../messages (mismo patron que ya usan Android/web)."""
-        self._ensure_chat_access()
-        rec = self._active_link(self.env.user)
-        if not rec or not rec.connected:
-            raise UserError(self._not_connected_error())
+        rec = self._link_para_chat()
         try:
             resp = requests.get(
                 aski_api_base(self.env) + "/chat/conversations/%s/messages" % conversation_id,
@@ -1692,7 +1804,139 @@ class AskiAccountLink(models.Model):
         assistant_msgs = [m for m in messages if m.get("role") == "assistant"]
         if not assistant_msgs:
             raise UserError(_("There's no Aski answer to export yet."))
-        return rec._fetch_export_html(assistant_msgs[-1]["id"], tz_offset_minutes)
+        return rec._fetch_export_doc(assistant_msgs[-1]["id"], "pdf")
+
+    # =================================================================
+    #  Habilidades: una pregunta guardada con nombre
+    # =================================================================
+    # Se guarda DESDE una respuesta y el backend copia la consulta ya resuelta,
+    # no la frase: volver a traducirla con el modelo daria una consulta
+    # parecida pero no la misma. Lanzarla deja un turno normal en el chat, asi
+    # que exportar, compartir o programar como aviso funcionan sobre ella sin
+    # tocar nada.
+
+    @api.model
+    def list_skills(self):
+        """Las habilidades de ESTA conexion, la mas usada primero.
+
+        Devuelve un DICT y no una lista: "no tienes ninguna" y "no se pudo
+        leer" son pantallas distintas. No lanza: se pide al abrir el cajon, y
+        un error ahi no puede tapar el historial, que es a lo que se venia.
+        """
+        self._ensure_chat_access()
+        rec = self._active_link(self.env.user)
+        if not rec or not rec.connected or not rec.credential_id:
+            return {"ok": True, "skills": []}
+        try:
+            resp = requests.get(aski_api_base(self.env) + "/skills",
+                                headers=rec.sudo()._headers(), timeout=_TIMEOUT_FAST)
+        except Exception:  # noqa: BLE001
+            return {"ok": False, "skills": []}
+        # 404: backend anterior a las habilidades. No es un fallo del usuario:
+        # la seccion simplemente no existe todavia.
+        if resp.status_code == 404:
+            return {"ok": True, "skills": []}
+        if resp.status_code != 200:
+            return {"ok": False, "skills": []}
+        salida = []
+        for s in resp.json() or []:
+            if not isinstance(s, dict):
+                continue
+            # Solo las de ESTA conexion, igual que el cajon ensena solo sus
+            # hilos: una habilidad guardada contra el Odoo de pruebas lanzada
+            # desde el de produccion responderia con los datos del otro.
+            if s.get("credential_id") != rec.credential_id:
+                continue
+            salida.append({
+                "id": s.get("id"),
+                "name": s.get("name") or "",
+                "prompt": s.get("prompt") or "",
+                "uses": s.get("uses") or 0,
+                # Lo que va a costar, dicho por el SERVIDOR y por habilidad: la
+                # que se repite sola cuesta poco y la que vuelve a pasar por el
+                # modelo cuesta lo que una pregunta.
+                "cost": s.get("run_cost_credits") or 0,
+            })
+        return {"ok": True, "skills": salida}
+
+    def _error_habilidad(self, resp):
+        """Motivo legible de un fallo de habilidades, por CODIGO: el backend
+        responde en su idioma y este Odoo puede estar en otro."""
+        codigo = self._error_code(resp)
+        if resp.status_code == 402:
+            self._raise_402(resp)
+        textos = {
+            "sin_consulta": _("That answer did not come from a query to your "
+                              "ERP, so there is nothing to repeat."),
+            "demasiadas": _("You already have too many skills. Delete one you "
+                            "no longer use."),
+            "not_found": _("That skill no longer exists."),
+            "credential_gone": _("The connection this skill was saved on no "
+                                 "longer exists."),
+            "sin_resultado": _("Couldn't repeat this skill. Ask it again in the "
+                               "chat and save it again."),
+        }
+        if codigo in textos:
+            raise UserError(textos[codigo])
+        raise UserError(_("Aski error: %s") % self._error_message(resp))
+
+    @api.model
+    def create_skill(self, message_id, name):
+        """Guarda como habilidad la pregunta que produjo esa respuesta."""
+        rec = self._link_para_chat()
+        nombre = (name or "").strip()
+        if not nombre:
+            raise UserError(_("Give the skill a name."))
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/skills",
+                json={"message_id": int(message_id), "name": nombre[:120]},
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(aski_mensaje_red(self.env, e))
+        if resp.status_code not in (200, 201):
+            rec._error_habilidad(resp)
+        data = resp.json() or {}
+        return {"id": data.get("id"), "name": data.get("name") or nombre}
+
+    @api.model
+    def delete_skill(self, skill_id):
+        rec = self._link_para_chat()
+        try:
+            resp = requests.delete(
+                aski_api_base(self.env) + "/skills/%s" % int(skill_id),
+                headers=rec._headers(), timeout=_TIMEOUT_FAST)
+        except Exception as e:  # noqa: BLE001
+            raise UserError(aski_mensaje_red(self.env, e))
+        # 404 = ya no estaba (borrada desde la app): para el usuario, hecho.
+        if resp.status_code not in (200, 204, 404):
+            rec._error_habilidad(resp)
+        return True
+
+    @api.model
+    def run_skill(self, skill_id):
+        """Lanza la habilidad. Deja un turno en el chat y devuelve su hilo."""
+        rec = self._link_para_chat()
+        lang = "es" if (self.env.user.lang or "").lower().startswith("es") else "en"
+        try:
+            resp = requests.post(
+                aski_api_base(self.env) + "/skills/%s/run" % int(skill_id),
+                params={"lang": lang}, headers=rec._headers(),
+                # Vuelve a preguntarle al ERP (y, si la respuesta la escribio el
+                # modelo, al modelo): tarda lo que una pregunta.
+                timeout=_TIMEOUT_CHAT)
+        except requests.exceptions.Timeout:
+            raise UserError(_("Aski is taking too long to answer. Try again in a moment."))
+        except Exception as e:  # noqa: BLE001
+            raise UserError(aski_mensaje_red(self.env, e))
+        if resp.status_code != 200:
+            rec._error_habilidad(resp)
+        data = resp.json() or {}
+        return {
+            "conversation_id": data.get("conversation_id"),
+            "message_id": data.get("message_id"),
+            "credits": data.get("credits_charged") or 0,
+        }
 
     @api.model
     def set_feedback(self, message_id, feedback, comment=None):

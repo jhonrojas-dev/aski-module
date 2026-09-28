@@ -1774,4 +1774,137 @@
         &:focus-visible { outline: 2px solid var(--ac-navy); outline-offset: -2px; }
     }
 
+    // =====================================================================
+    //  Habilidades: una pregunta guardada con nombre
+    // =====================================================================
+    // En el cajon, ANTES del historial. Misma pinta que un hilo, pero con su
+    // cabecera: son otra cosa (se LANZAN, no se abren) y se tienen que
+    // distinguir a primera vista.
+    .ac-skills {
+        padding: 2px 0 8px; margin-bottom: 6px;
+        border-bottom: 1px solid var(--ac-outline-soft);
+    }
+    .ac-skills-head {
+        padding: 6px 12px; font-size: 11.5px; font-weight: 800;
+        letter-spacing: .04em; text-transform: uppercase;
+        color: var(--ac-on-variant) !important;
+        i { color: var(--ac-gold-deep) !important; margin-right: 4px; }
+    }
+    .ac-skill-row {
+        display: flex; align-items: center; gap: 2px;
+        .ac-icon-btn {
+            flex: none; border: 0; background: transparent; cursor: pointer;
+            width: 28px; height: 28px; border-radius: 8px; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--ac-on-variant) !important; opacity: .7;
+            i { color: inherit !important; font-size: 12px; }
+            &:hover {
+                opacity: 1;
+                background: color-mix(in srgb, var(--ac-error) 14%, transparent);
+                color: var(--ac-error) !important;
+            }
+        }
+    }
+    .ac-skill-run {
+        flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px;
+        padding: 9px 12px; border: 0; border-radius: 10px; cursor: pointer;
+        background: transparent; font-size: 14px; font-weight: 600; text-align: left;
+        color: var(--ac-on-surface) !important;
+        transition: background .12s ease;
+        i { color: var(--ac-gold-deep) !important; flex: none; }
+        &:hover:not([disabled]) { background: var(--ac-surface-variant); }
+        &[disabled] { opacity: .55; cursor: default; }
+        &:focus { outline: none; }
+        &:focus-visible { outline: 2px solid var(--ac-navy); outline-offset: -2px; }
+    }
+    // El nombre lo escribe el usuario y puede ser largo: se corta con puntos
+    // suspensivos en vez de empujar el boton de borrar fuera del cajon.
+    .ac-skill-name {
+        flex: 1; min-width: 0; white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    // El precio, discreto y a la derecha: informa sin competir con el nombre.
+    .ac-skill-cost, .ac-skill-state {
+        flex: none; font-size: 11px; font-weight: 700;
+        color: var(--ac-on-variant) !important;
+    }
+    .ac-skill-cost { opacity: .8; }
+
+    // Guardar: el marcador de la fila de la burbuja va SEPARADO de los
+    // pulgares, que se leen como una unidad.
+    .ac-fb-quick.ac-skill-quick {
+        margin-left: 2px;
+        &.on { color: var(--ac-gold-deep) !important; cursor: default; }
+    }
+
+    // El nombre se pide EN LINEA, bajo la respuesta.
+    .ac-skill-form {
+        margin: 8px 0 4px; padding: 10px 12px; border-radius: 12px;
+        background: var(--ac-surface-2);
+        border: 1px solid var(--ac-outline-soft);
+        .ac-skill-input {
+            width: 100%; border: 1.5px solid var(--ac-outline-soft); border-radius: 9px;
+            padding: 8px 10px; font-size: 13.5px; font-weight: 600; outline: none;
+            background: var(--ac-surface); color: var(--ac-on-surface) !important;
+            margin-bottom: 8px;
+            &:focus { border-color: var(--ac-navy); }
+        }
+        // Aqui "Guardar" no destruye nada: va en el color primario, no en el
+        // rojo de las confirmaciones de borrado con las que comparte clase.
+        .ac-confirm-ok {
+            background: var(--ac-navy); color: var(--ac-on-primary) !important;
+        }
+    }
+    .ac-skill-hint {
+        margin-top: 8px; font-size: 11.5px; line-height: 1.4;
+        color: var(--ac-on-variant) !important;
+    }
+
+    // =====================================================================
+    //  El documento pedido hablando
+    // =====================================================================
+    // Bajo el texto, como la propuesta de accion: primero se lee la
+    // respuesta y despues se decide llevarsela. Dorado, igual que la puerta al
+    // grafico: es la otra cosa que el usuario vino a buscar.
+    .ac-doc-offer {
+        display: inline-flex; align-items: center; gap: 8px;
+        margin: 8px 0 2px; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+        font-size: 13.5px; font-weight: 700;
+        background: color-mix(in srgb, var(--ac-gold) 22%, transparent);
+        border: 1px solid color-mix(in srgb, var(--ac-gold-deep) 45%, transparent);
+        color: var(--ac-on-surface) !important;
+        i { color: var(--ac-gold-deep) !important; font-size: 15px; }
+        &:hover:not([disabled]) { background: color-mix(in srgb, var(--ac-gold) 34%, transparent); }
+        &[disabled] { opacity: .7; cursor: default; }
+    }
+
+    // =====================================================================
+    //  Grafico comparativo
+    // =====================================================================
+    .ac-cmp-legend {
+        list-style: none; margin: 0 0 14px; padding: 0;
+        display: flex; flex-wrap: wrap; gap: 6px 16px;
+        li { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; }
+    }
+    .ac-cmp { display: flex; flex-direction: column; gap: 12px; }
+    .ac-cmp-lbl {
+        font-size: 13px; font-weight: 600; margin-bottom: 4px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    // Una rejilla por fila basta aqui: todas las barras comparten la MISMA
+    // pista (la columna del valor tiene ancho fijo), asi que el mismo importe
+    // mide lo mismo en cualquier grupo.
+    .ac-cmp-row {
+        display: grid; grid-template-columns: 1fr 110px; gap: 10px;
+        align-items: center; margin-top: 3px;
+        .ac-bar-track { height: 14px; }
+        .ac-bar-val { text-align: right; }
+    }
+    .ac-cmp-fill {
+        display: block; height: 100%; border-radius: 5px;
+        &.s0 { background: var(--ac-gold-deep); }
+        &.s1 { background: #A8BFE0; }
+        &.s2 { background: var(--ac-gold-light); }
+        &.s3 { background: #5E7290; }
+    }
 }

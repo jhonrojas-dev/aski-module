@@ -181,6 +181,45 @@
                         </t>
                     </t>
                     <t t-if="!searchActive">
+                    <!-- HABILIDADES, antes del historial: son el atajo, y un
+                         atajo que hay que buscar debajo de veinte hilos deja de
+                         serlo. Ordenadas por uso reciente desde el backend, asi
+                         que lo de todos los lunes queda arriba solo. Sin
+                         ninguna, la seccion no se pinta. -->
+                    <div t-if="state.skills.length" class="ac-skills">
+                        <div class="ac-skills-head">
+                            <i class="fa fa-bookmark"/> <t t-esc="txt.skills"/>
+                        </div>
+                        <t t-foreach="state.skills" t-as="sk" t-key="sk.id">
+                            <div t-if="state.skillDelId === sk.id" class="ac-confirm ac-confirm-inline">
+                                <div class="ac-confirm-txt" t-esc="txt.skillDeleteAsk"/>
+                                <div class="ac-confirm-actions">
+                                    <button class="ac-confirm-cancel" t-on-click="cancelarBorrarHabilidad"
+                                            t-esc="txt.skillCancel"/>
+                                    <button class="ac-confirm-ok" t-on-click="borrarHabilidad"
+                                            t-esc="txt.skillDeleteOk"/>
+                                </div>
+                            </div>
+                            <div t-else="" class="ac-skill-row">
+                                <button class="ac-skill-run" t-att-title="sk.prompt"
+                                        t-att-disabled="state.skillRunning or state.sending"
+                                        t-on-click="correrHabilidad(sk)">
+                                    <i t-attf-class="fa {{ state.skillRunning === sk.id ? 'fa-circle-o-notch fa-spin' : 'fa-play-circle-o' }}"/>
+                                    <span class="ac-skill-name" t-esc="sk.name"/>
+                                    <!-- Lo que va a gastar, ANTES de pulsar. -->
+                                    <span t-if="state.skillRunning === sk.id" class="ac-skill-state"
+                                          t-esc="txt.skillRunning"/>
+                                    <span t-elif="costoHabilidad(sk)" class="ac-skill-cost"
+                                          t-esc="costoHabilidad(sk)"/>
+                                </button>
+                                <button class="ac-icon-btn" t-att-title="txt.skillDelete"
+                                        t-att-aria-label="txt.skillDelete"
+                                        t-on-click.stop="pedirBorrarHabilidad(sk)">
+                                    <i class="fa fa-trash-o"/>
+                                </button>
+                            </div>
+                        </t>
+                    </div>
                     <div t-if="!state.conversations.length" class="ac-drawer-empty">
                         No conversations yet.
                     </div>
@@ -282,12 +321,44 @@
                     <div class="ac-win-scrim" t-on-click="closeChart"/>
                 <div class="ac-win ac-win-chart" role="dialog" aria-modal="true">
                     <div class="ac-win-head">
-                        <span class="ac-win-title">Chart</span>
+                        <span class="ac-win-title">
+                            <t t-if="chartAbierto.grouped" t-esc="txt.chartCompare"/>
+                            <t t-else="">Chart</t>
+                        </span>
                         <button class="ac-icon-btn" title="Close" t-on-click="closeChart">
                             <i class="fa fa-times"/>
                         </button>
                     </div>
                     <div class="ac-win-body">
+                        <!-- COMPARATIVO: todas las series en UN grafico, barra
+                             junto a barra y con leyenda — sin ella, dos juegos
+                             de barras de colores distintos no dicen cual es
+                             cual. Sin total al pie: ver comparativo(). -->
+                        <section t-if="chartAbierto.grouped" class="ac-chart-serie">
+                            <t t-set="C" t-value="comparativo(chartAbierto)"/>
+                            <ul class="ac-cmp-legend">
+                                <t t-foreach="C.leyenda" t-as="l" t-key="l_index">
+                                    <li><i t-attf-class="ac-dot {{ l.clase }}"/> <span t-esc="l.label"/></li>
+                                </t>
+                            </ul>
+                            <div class="ac-cmp">
+                                <t t-foreach="C.filas" t-as="f" t-key="f.label + '-' + f_index">
+                                    <div class="ac-cmp-group">
+                                        <div class="ac-cmp-lbl" t-att-title="f.label" t-esc="f.label"/>
+                                        <t t-foreach="f.barras" t-as="b" t-key="b_index">
+                                            <div class="ac-cmp-row">
+                                                <span class="ac-bar-track">
+                                                    <span t-if="!b.vacio" t-attf-class="ac-cmp-fill {{ b.clase }}"
+                                                          t-attf-style="width: {{ b.pct }}%"/>
+                                                </span>
+                                                <span class="ac-bar-val" t-esc="b.valor"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+                        <t t-else="">
                         <t t-foreach="chartAbierto.series" t-as="s" t-key="s.currency + '-' + s_index">
                             <section class="ac-chart-serie">
                                 <!-- El encabezado de moneda SOLO con varias: con
@@ -368,6 +439,7 @@
 
                                 <p class="ac-chart-foot" t-esc="pieGrafico(s, chartAbierto)"/>
                             </section>
+                        </t>
                         </t>
                     </div>
                 </div>
@@ -712,6 +784,38 @@
                                       class="ac-chart-conv"> · <t t-esc="etiquetaConvertido"/></span>
                             </button>
                             <div class="md" t-raw="renderMd(m.text)"/>
+                            <!-- Pidieron el documento HABLANDO ("hazme una
+                                 presentacion de las ventas del mes"): se OFRECE
+                                 aqui, a un clic, en vez de obligar a buscarlo en
+                                 Detalles. No se descarga solo — una descarga que
+                                 nadie toco sorprende y el navegador la puede
+                                 bloquear. Solo con id real del backend: con el
+                                 temporal, el backend no sabria que exportar. -->
+                            <button t-if="m.docPedido and m.backendId" class="ac-doc-offer"
+                                    t-att-disabled="docPedidoBusy(m)"
+                                    t-on-click="bajarPedido(m)">
+                                <i t-attf-class="fa {{ docPedidoBusy(m) ? 'fa-circle-o-notch fa-spin' : docPedidoIcono(m) }}"/>
+                                <span t-esc="docPedidoBusy(m) ? txt.expBusy : docPedidoTxt(m)"/>
+                            </button>
+                            <!-- Nombrar la HABILIDAD, en linea y no con un prompt
+                                 del navegador: ese se salta el idioma de Odoo y
+                                 no se cancela con Escape. -->
+                            <div t-if="state.skillFor and state.skillFor === m.backendId" class="ac-skill-form">
+                                <input type="text" class="ac-skill-input" maxlength="120"
+                                       t-att-value="state.skillName"
+                                       t-att-placeholder="txt.skillNamePh"
+                                       t-att-aria-label="txt.skillNamePh"
+                                       t-on-input="onSkillNameInput"
+                                       t-on-keydown="onSkillNameKeydown"/>
+                                <div class="ac-confirm-actions">
+                                    <button class="ac-confirm-cancel" t-on-click="cancelarHabilidad"
+                                            t-esc="txt.skillCancel"/>
+                                    <button class="ac-confirm-ok" t-on-click="guardarHabilidad"
+                                            t-att-disabled="state.skillBusy or !state.skillName.trim()"
+                                            t-esc="state.skillBusy ? txt.skillSaving : txt.skillSave"/>
+                                </div>
+                                <div class="ac-skill-hint" t-esc="txt.skillRunHint"/>
+                            </div>
                             <!-- La fila se pinta SIEMPRE; lo condicional es el chip
                                  de creditos. Cuando el t-if colgaba de la fila, una
                                  respuesta sin cobro (historicos, turnos sin cargo) se
@@ -743,6 +847,17 @@
                                         t-on-click="setFeedback(m, 'dislike')">
                                     <i class="fa fa-thumbs-o-down"/>
                                 </button>
+                                <!-- Guardar como habilidad: solo si la respuesta
+                                     salio de una consulta al ERP, la unica que se
+                                     puede repetir. -->
+                                <button t-if="m.backendId and m.hasQuery"
+                                        t-attf-class="ac-fb-quick ac-skill-quick {{ state.skillSaved[m.backendId] ? 'on' : '' }}"
+                                        t-att-title="state.skillSaved[m.backendId] ? txt.skillSavedShort : txt.skillSaveAs"
+                                        t-att-aria-label="state.skillSaved[m.backendId] ? txt.skillSavedShort : txt.skillSaveAs"
+                                        t-att-disabled="state.skillSaved[m.backendId]"
+                                        t-on-click="pedirNombreHabilidad(m)">
+                                    <i t-attf-class="fa {{ state.skillSaved[m.backendId] ? 'fa-bookmark' : 'fa-bookmark-o' }}"/>
+                                </button>
                                 <button t-if="m.backendId" class="ac-detail-btn" title="Details"
                                         t-on-click="toggleDetail(m)">
                                     <i class="fa fa-info-circle"/>
@@ -767,7 +882,7 @@
                                 <!-- Se le pasa el MENSAJE, no solo el texto: al
                                      reintentar hay que retirar esta burbuja, o
                                      los errores se van apilando en el hilo. -->
-                                <button class="ac-btn-link" t-on-click="retry(m)">
+                                <button t-if="m.retryText" class="ac-btn-link" t-on-click="retry(m)">
                                     Retry
                                 </button>
                                 <button t-if="m.sinCreditos and !state.partnerManaged"
@@ -1696,16 +1811,37 @@
                                         t-on-click="openShare(m)">
                                     <i class="fa fa-link"/> <span>Share link</span>
                                 </button>
-                                <button class="ac-act" t-on-click="exportMessageDetail(m)"
-                                        t-att-disabled="state.exporting">
-                                    <i t-attf-class="fa {{ state.exporting ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
-                                    <span>Export this answer to PDF</span>
+                                <!-- Los cuatro destinos de la MISMA respuesta: PDF
+                                     para mandarla sin que la toquen, PowerPoint
+                                     para presentarla, Word para escribir sobre
+                                     ella y Excel para trabajar la cifra. -->
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="exportDoc(m, 'pdf')"
+                                        t-att-disabled="state.docBusy">
+                                    <i t-attf-class="fa {{ docBusyDe(m, 'pdf') ? 'fa-circle-o-notch fa-spin' : 'fa-file-pdf-o' }}"/>
+                                    <span t-esc="txt.expPdf"/>
+                                </button>
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="exportDoc(m, 'pptx')"
+                                        t-att-disabled="state.docBusy">
+                                    <i t-attf-class="fa {{ docBusyDe(m, 'pptx') ? 'fa-circle-o-notch fa-spin' : 'fa-file-powerpoint-o' }}"/>
+                                    <span t-esc="txt.expPptx"/>
+                                </button>
+                                <button t-if="m.backendId" class="ac-act"
+                                        t-on-click="exportDoc(m, 'docx')"
+                                        t-att-disabled="state.docBusy">
+                                    <i t-attf-class="fa {{ docBusyDe(m, 'docx') ? 'fa-circle-o-notch fa-spin' : 'fa-file-word-o' }}"/>
+                                    <span t-esc="txt.expDocx"/>
                                 </button>
                                 <button t-if="m.backendId" class="ac-act"
                                         t-on-click="exportXlsx(m)"
                                         t-att-disabled="state.xlsxBusy">
                                     <i t-attf-class="fa {{ state.xlsxBusy ? 'fa-circle-o-notch fa-spin' : 'fa-file-excel-o' }}"/>
                                     <span>Export to Excel</span>
+                                </button>
+                                <button t-if="m.backendId and m.hasQuery and !state.skillSaved[m.backendId]" class="ac-act"
+                                        t-on-click="pedirNombreHabilidad(m)">
+                                    <i class="fa fa-bookmark-o"/> <span t-esc="txt.skillSaveAs"/>
                                 </button>
                                 <button t-if="m.backendId" class="ac-act"
                                         t-on-click="abrirAltaAviso(m)">
