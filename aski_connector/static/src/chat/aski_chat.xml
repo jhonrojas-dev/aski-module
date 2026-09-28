@@ -918,7 +918,7 @@
                              class="ac-action">
                             <div class="ac-action-txt">
                                 <i class="fa fa-bolt"/>
-                                <span t-esc="a.summary || a.kind"/>
+                                <span t-att-title="accionTexto(a)" t-esc="accionTexto(a)"/>
                             </div>
                             <div t-if="state.confirmActionId === a.id" class="ac-action-confirm">
                                 <span>This writes to your Odoo. Go ahead?</span>
