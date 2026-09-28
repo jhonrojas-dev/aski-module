@@ -51,6 +51,18 @@ const ICONO_SECCION = {
     finanzas: "fa-bank",
 };
 
+// Los documentos que maqueta el backend y el icono con el que se ofrecen. El
+// Excel no esta: tiene su propio camino (puede no tener filas que exportar).
+const DOC_ICONO = {
+    pdf: "fa-file-pdf-o",
+    pptx: "fa-file-powerpoint-o",
+    docx: "fa-file-word-o",
+};
+
+// Colores de las series de un comparativo: los mismos cuatro primeros tonos de
+// la dona, para que el chat no estrene una paleta por grafico.
+const MAX_SERIES_COMPARATIVO = 4;
+
 // El widget se monta DOS veces en la misma pagina (pantalla completa y burbuja
 // del systray) y cada instancia pediria por su cuenta las cifras al ERP del
 // cliente. El modulo JS es UNO solo para las dos, asi que la promesa compartida
@@ -204,27 +216,6 @@ function mdToHtml(text) {
         out.push(`<p>${_inline(buf.join("<br/>"))}</p>`);
     }
     return out.join("");
-}
-
-// Imprime un HTML autonomo a PDF con el dialogo nativo del navegador. MISMA
-// tecnica que web/src/lib/printHtml.ts (iframe oculto, sin bloqueo de
-// pop-ups) — reusa el HTML que ya genera el backend para Android/web.
-function printHtml(html) {
-    const iframe = document.createElement("iframe");
-    Object.assign(iframe.style, { position: "fixed", right: "0", bottom: "0", width: "0", height: "0", border: "0" });
-    iframe.setAttribute("aria-hidden", "true");
-    document.body.appendChild(iframe);
-    const doc = iframe.contentWindow && iframe.contentWindow.document;
-    if (!doc) { iframe.remove(); return; }
-    doc.open();
-    doc.write(html);
-    doc.close();
-    const win = iframe.contentWindow;
-    const doPrint = () => {
-        try { win.focus(); win.print(); } finally { setTimeout(() => iframe.remove(), 1000); }
-    };
-    if (doc.readyState === "complete") setTimeout(doPrint, 350);
-    else iframe.onload = () => setTimeout(doPrint, 350);
 }
 
 export class AskiChatWidget extends Component {
@@ -383,6 +374,19 @@ export class AskiChatWidget extends Component {
             recordsFor: null, records: null, recordsBusy: false,
             // --- Excel ---
             xlsxBusy: false,
+            // --- PDF / PowerPoint / Word: "<id>:<formato>" en curso, o "" ---
+            docBusy: "",
+            // --- Habilidades ---
+            // La lista del cajon se pide al ABRIRLO, no al montar el chat: la
+            // mayoria de las visitas no lo abren y seria una llamada de mas
+            // justo en el arranque.
+            skills: [],
+            skillFor: null, skillName: "", skillBusy: false,
+            // Las ya guardadas en esta sesion, para cambiar el boton por un
+            // "guardada" y que no se guarde dos veces la misma.
+            skillSaved: {},
+            skillRunning: null,
+            skillDelId: null,
             // --- Enviar por correo ---
             emailFor: null, emailTo: "", emailAttach: true, emailBusy: false,
             // --- Empezar de cero ---
@@ -699,6 +703,10 @@ export class AskiChatWidget extends Component {
 
     toggleDrawer() {
         this.state.drawerOpen = !this.state.drawerOpen;
+        if (this.state.drawerOpen && this.state.connected) {
+            this.state.skillDelId = null;
+            this._cargarHabilidades();
+        }
     }
 
     // Sugerencias del estado de bienvenida. Van AQUI (no como literales en el
@@ -1077,6 +1085,29 @@ export class AskiChatWidget extends Component {
             connCancel: _t("Cancel"),
             connLast: _t("At least one has to stay selected."),
             connNotHere: _t("It does not cover this Odoo yet."),
+            // --- Exportar ---
+            expPdf: _t("Export this answer to PDF"),
+            expPptx: _t("Export to PowerPoint"),
+            expDocx: _t("Export to Word"),
+            expXlsx: _t("Export to Excel"),
+            expBusy: _t("Generating..."),
+            // --- Habilidades ---
+            skills: _t("Skills"),
+            skillSaveAs: _t("Save as skill"),
+            skillNamePh: _t("Skill name"),
+            skillSave: _t("Save"),
+            skillSaving: _t("Saving..."),
+            skillCancel: _t("Cancel"),
+            skillSaved: _t("Saved. It is in your skills now."),
+            skillSavedShort: _t("Saved as skill"),
+            skillRunning: _t("Running..."),
+            skillDelete: _t("Delete skill"),
+            skillDeleteAsk: _t("Delete this skill?"),
+            skillDeleteOk: _t("Delete"),
+            skillDeleted: _t("Skill deleted."),
+            skillRunHint: _t("Asks your ERP again with today's dates, without retyping the question."),
+            // --- Grafico comparativo ---
+            chartCompare: _t("Comparison"),
         };
     }
 
@@ -1114,10 +1145,12 @@ export class AskiChatWidget extends Component {
         if (this.state.exporting || !this.state.conversationId) return;
         this.state.exporting = true;
         try {
-            const tzOffset = -new Date().getTimezoneOffset();
+            // El PDF MAQUETADO por el backend, el mismo que baja la app y la
+            // web — no el HTML impreso por el navegador, que paginaba como
+            // queria cada browser y no llevaba grafico ni co-marca.
             const r = await this.orm.call("aski.account.link", "export_answer_pdf",
-                [this.state.conversationId, tzOffset]);
-            printHtml(r.content_html);
+                [this.state.conversationId]);
+            this._descargarB64(r.content_b64, r.filename, r.mime);
         } catch (e) {
             const msg = this._msgDe(e);
             this.notification.add(msg, { type: "danger", sticky: true });
@@ -1268,20 +1301,202 @@ export class AskiChatWidget extends Component {
         return (r && r.conversationTitle) || _t("Untitled");
     }
 
-    async exportMessageDetail(m) {
-        if (this.state.exporting) return;
-        this.state.exporting = true;
-        try {
-            const tzOffset = -new Date().getTimezoneOffset();
-            const r = await this.orm.call("aski.account.link", "export_message_pdf",
-                [m.backendId, tzOffset]);
-            printHtml(r.content_html);
-        } catch (e) {
-            const msg = this._msgDe(e);
-            this.notification.add(msg, { type: "danger", sticky: true });
-        } finally {
-            this.state.exporting = false;
+    // =====================================================================
+    //  PDF, PowerPoint y Word
+    // =====================================================================
+    // Los tres los maqueta el BACKEND, igual que para la app, la web y el
+    // informe por correo: el cliente recibe SIEMPRE el mismo documento, venga
+    // de donde venga. Cada uno para una cosa: el PDF para mandarlo sin que lo
+    // toquen, el PowerPoint para presentarlo (grafico nativo, editable) y el
+    // Word para seguir escribiendo alrededor del dato.
+    //
+    // Espera PROPIA por mensaje y formato (`docBusy` = "<id>:<fmt>"): los tres
+    // reejecutan la consulta contra el ERP y tardan; un estado compartido
+    // apagaria todos los botones a la vez y pareceria que el chat se colgo.
+    docBusyDe(m, fmt) {
+        return this.state.docBusy === (m.backendId + ":" + fmt);
+    }
+
+    async exportDoc(m, fmt) {
+        if (this.state.docBusy || !m.backendId) {
+            return;  // doble clic: no se piden dos
         }
+        this.state.docBusy = m.backendId + ":" + fmt;
+        try {
+            const r = await this.orm.call("aski.account.link", "export_message_doc",
+                                          [m.backendId, fmt]);
+            this._descargarB64(r.content_b64, r.filename, r.mime);
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.docBusy = "";
+            // La accion termino: la hoja se va, como tras copiar o el Excel.
+            this.closeDetail();
+        }
+    }
+
+    // El documento que se pidio HABLANDO ("hazme una presentacion de las ventas
+    // del mes"). Se OFRECE bajo la respuesta, no se descarga solo: una
+    // descarga que nadie toco sorprende, y el navegador puede bloquearla por no
+    // venir de un gesto del usuario.
+    bajarPedido(m) {
+        const fmt = m.docPedido;
+        if (fmt === "xlsx") {
+            return this.exportXlsx(m);
+        }
+        return this.exportDoc(m, fmt in DOC_ICONO ? fmt : "pdf");
+    }
+
+    docPedidoTxt(m) {
+        return {
+            pptx: this.txt.expPptx,
+            docx: this.txt.expDocx,
+            xlsx: this.txt.expXlsx,
+        }[m.docPedido] || this.txt.expPdf;
+    }
+
+    docPedidoIcono(m) {
+        return m.docPedido === "xlsx" ? "fa-file-excel-o"
+            : (DOC_ICONO[m.docPedido] || DOC_ICONO.pdf);
+    }
+
+    docPedidoBusy(m) {
+        return m.docPedido === "xlsx"
+            ? this.state.xlsxBusy
+            : this.docBusyDe(m, m.docPedido in DOC_ICONO ? m.docPedido : "pdf");
+    }
+
+    // =====================================================================
+    //  Habilidades: una pregunta guardada con nombre
+    // =====================================================================
+    // Guardar sale bajo cada respuesta que nacio de una consulta al ERP (la
+    // unica que se puede repetir); lanzarla, desde el cajon, ANTES del
+    // historial — un atajo que hay que buscar debajo de veinte hilos deja de
+    // serlo.
+    async _cargarHabilidades() {
+        try {
+            const r = await this.orm.call("aski.account.link", "list_skills", []);
+            this.state.skills = r.skills || [];
+        } catch (e) {
+            // Sin habilidades la seccion no se pinta: un error aqui no puede
+            // tapar el historial, que es a lo que se vino al cajon.
+            this.state.skills = [];
+        }
+    }
+
+    // El nombre viene SUGERIDO con la pregunta del usuario: es lo que
+    // reconoce en una lista, y dejarlo vacio le obligaria a inventarse uno.
+    pedirNombreHabilidad(m) {
+        const i = this.state.messages.indexOf(m);
+        let pregunta = "";
+        for (let j = i - 1; j >= 0; j--) {
+            if (this.state.messages[j].role === "user") {
+                pregunta = this.state.messages[j].text || "";
+                break;
+            }
+        }
+        this.state.skillName = pregunta.trim().slice(0, 120);
+        this.state.skillFor = m.backendId;
+        this.closeDetail();
+    }
+
+    cancelarHabilidad() {
+        this.state.skillFor = null;
+    }
+
+    onSkillNameInput(ev) {
+        this.state.skillName = ev.target.value;
+    }
+
+    onSkillNameKeydown(ev) {
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            this.guardarHabilidad();
+        } else if (ev.key === "Escape") {
+            this.cancelarHabilidad();
+        }
+    }
+
+    async guardarHabilidad() {
+        const id = this.state.skillFor;
+        const nombre = (this.state.skillName || "").trim();
+        if (!id || !nombre || this.state.skillBusy) {
+            return;
+        }
+        this.state.skillBusy = true;
+        try {
+            await this.orm.call("aski.account.link", "create_skill", [id, nombre]);
+            this.state.skillSaved[id] = true;
+            this.state.skillFor = null;
+            this.notification.add(this.txt.skillSaved, { type: "success" });
+        } catch (e) {
+            // El nombre NO se pierde: se queda en el campo para reintentar.
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.skillBusy = false;
+        }
+    }
+
+    // Lanzarla no abre pantalla nueva: el turno aparece en el chat, donde
+    // aparecen todos, y desde ahi se exporta o se comparte como cualquier otro.
+    async correrHabilidad(sk) {
+        if (this.state.skillRunning || this.state.sending) {
+            return;
+        }
+        this.state.skillRunning = sk.id;
+        try {
+            const r = await this.orm.call("aski.account.link", "run_skill", [sk.id]);
+            if (r.conversation_id) {
+                // Salta al turno que ACABA de dejar, no al final a secas: si
+                // el hilo es largo, la respuesta nueva es lo que se vino a ver.
+                await this.openConversation(r.conversation_id,
+                    r.message_id ? "h" + r.message_id : undefined);
+                this.refreshConversations();
+            }
+            this.state.drawerOpen = false;
+            // El saldo con lo que dice el SERVIDOR: lanzarla cuesta creditos.
+            try {
+                const w = await this.orm.call("aski.account.link", "get_wallet", []);
+                if (typeof w.wallet_credits === "number") {
+                    this.state.walletCredits = w.wallet_credits;
+                }
+            } catch (e2) { /* la cabecera se corrige en la siguiente pregunta */ }
+            this._cargarHabilidades();
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        } finally {
+            this.state.skillRunning = null;
+        }
+    }
+
+    // Borrar pide confirmacion EN LINEA, como borrar un hilo: nunca
+    // window.confirm, y nunca de un solo clic sobre algo que costo nombrar.
+    pedirBorrarHabilidad(sk) {
+        this.state.skillDelId = sk.id;
+    }
+
+    cancelarBorrarHabilidad() {
+        this.state.skillDelId = null;
+    }
+
+    async borrarHabilidad() {
+        const id = this.state.skillDelId;
+        if (!id) {
+            return;
+        }
+        try {
+            await this.orm.call("aski.account.link", "delete_skill", [id]);
+            this.state.skills = this.state.skills.filter((x) => x.id !== id);
+            this.state.skillDelId = null;
+            this.notification.add(this.txt.skillDeleted, { type: "success" });
+        } catch (e) {
+            this.notification.add(this._msgDe(e), { type: "danger", sticky: true });
+        }
+    }
+
+    // "5 cr": el precio lo manda el servidor en cada habilidad.
+    costoHabilidad(sk) {
+        return sk.cost > 0 ? sk.cost + " cr" : "";
     }
 
     openConnect() {
@@ -1509,6 +1724,8 @@ export class AskiChatWidget extends Component {
                 id: `a${Date.now()}`, role: "assistant", text: r.answer || "",
                 credits: typeof r.credits === "number" ? r.credits : null,
                 chart: r.chart || null,
+                // Pidieron el documento hablando: se ofrece bajo la respuesta.
+                docPedido: r.documento_pedido || null,
                 backendId: null, rows: null, feedback: null,
                 feedbackComment: null, createdAt: new Date().toISOString(),
             });
@@ -1586,7 +1803,10 @@ export class AskiChatWidget extends Component {
         }
         const series = (Array.isArray(c.series) ? c.series : []).filter(
             (s) => s && Array.isArray(s.points) && s.points.length >= 2);
-        return series.length ? Object.assign({}, c, { series }) : null;
+        // Un comparativo con UNA sola serie ya no compara nada: se queda como
+        // grafico normal en vez de pintar una leyenda de un elemento.
+        const grouped = !!c.grouped && c.kind === "bar" && series.length >= 2;
+        return series.length ? Object.assign({}, c, { series, grouped }) : null;
     }
 
     // ⛔ Estos tres textos se arman ENTEROS y no partidos en la plantilla.
@@ -1670,6 +1890,55 @@ export class AskiChatWidget extends Component {
             });
         }
         return filas;
+    }
+
+    // --- Comparativo: «esto contra aquello» --------------------------------
+    // Con `grouped`, las series NO son monedas sino los valores de una segunda
+    // dimension (presupuesto / real, canal A / canal B): van en el MISMO
+    // grafico, barra junto a barra, sobre UNA escala comun. Repartirlas en un
+    // grafico por serie —lo que se hace con las monedas— destruiria la
+    // comparacion, que es lo unico que este grafico viene a decir.
+    //
+    // Sin total al pie a proposito: el de la primera serie se leeria como el
+    // total del grafico, y sumar las series seria peor todavia.
+    comparativo(spec) {
+        const series = spec.series.slice(0, MAX_SERIES_COMPARATIVO);
+        // Las categorias en el orden que trae el backend (cronologico si el eje
+        // es tiempo, de mayor a menor si no), FUNDIENDO las series: una que no
+        // tiene abril no puede mandar abril al final del eje. Cada etiqueta
+        // nueva se inserta justo detras de la anterior de SU serie.
+        const orden = [];
+        for (const s of series) {
+            let previa = -1;
+            for (const p of s.points) {
+                let i = orden.indexOf(p.label);
+                if (i === -1) {
+                    i = previa + 1;
+                    orden.splice(i, 0, p.label);
+                }
+                previa = i;
+            }
+        }
+        let tope = 1e-9;
+        for (const s of series) {
+            for (const p of s.points) {
+                tope = Math.max(tope, Math.abs(p.value));
+            }
+        }
+        return {
+            leyenda: series.map((s, i) => ({ label: s.currency || "—", clase: "s" + i })),
+            filas: orden.map((label) => ({
+                label,
+                barras: series.map((s, i) => {
+                    const p = s.points.find((x) => x.label === label);
+                    // Una serie sin ese punto NO es un cero: se dice que falta.
+                    return p
+                        ? { clase: "s" + i, pct: Math.min(100, (Math.abs(p.value) / tope) * 100),
+                            valor: this.fmtCifra(p.value, s, spec), vacio: false }
+                        : { clase: "s" + i, pct: 0, valor: "—", vacio: true };
+                }),
+            })),
+        };
     }
 
     // --- Linea --------------------------------------------------------------
