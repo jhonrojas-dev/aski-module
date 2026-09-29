@@ -3273,19 +3273,19 @@ msgid "Give the skill a name."
 msgstr "Dai un nome all'abilità."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "7 days free"
 msgstr "7 giorni gratis"
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Activate your plan whenever you want."
 msgstr "Attiva il tuo piano quando vuoi."
 
 #. module: aski_connector
-#. odoo-javascript
+#. openerp-web
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Start free trial"
 msgstr "Inizia la prova gratuita"
