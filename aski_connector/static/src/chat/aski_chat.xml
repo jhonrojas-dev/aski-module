@@ -685,7 +685,7 @@
                      gratis. Mismo aviso y mismos textos que la web. -->
                 <div t-if="this.state.connected and !this.state.planName and !this.state.partnerManaged and this.state.walletCredits === 0"
                      class="ac-trial">
-                    <i class="oi" data-icon="redeem"/>
+                    <i class="oi" data-icon="flash_on"/>
                     <div class="ac-trial-txt"><div class="ac-trial-t">7 days free</div><div>Activate your plan whenever you want.</div></div>
                     <button class="ac-trial-btn" t-on-click="() => this.openBilling()">Start free trial</button>
                 </div>
