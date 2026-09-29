@@ -1184,6 +1184,19 @@
         &:hover:not(:disabled) { background: var(--ac-surface-c-high); }
         &:disabled { cursor: not-allowed; opacity: .6; }
     }
+    // Oferta «Alert me daily» bajo la ULTIMA respuesta con datos: la misma accion
+    // de la ficha, en tamaño de chip para no competir con la respuesta.
+    .ac-offer-alert {
+        display: flex; align-items: center; gap: 4px; margin-top: 8px;
+        .ac-act { width: auto; padding: 7px 12px; font-size: 13px; }
+        .ac-icon-btn {
+            flex: none; width: 28px; height: 28px; border-radius: 50%;
+            border: 0; background: transparent; padding: 0; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            i { font-size: 13px; color: var(--ac-on-variant) !important; }
+            &:hover { background: var(--ac-surface-c-high); }
+        }
+    }
 
     // =====================================================================
     //  Modal centrado (compartir, registros, correo)

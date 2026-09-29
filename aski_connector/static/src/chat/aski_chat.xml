@@ -863,6 +863,22 @@
                                     <i class="oi" data-icon="info"/>
                                 </button>
                             </div>
+                            <!-- Recibir ESTA respuesta sola cada dia. El alta ya
+                                 existia, pero dentro de "Details": medido el
+                                 29/09/2026, ningun cliente habia creado una. Se
+                                 ofrece solo en la ULTIMA respuesta con datos y se
+                                 puede descartar. Mismo texto que el boton de la
+                                 ficha, asi hereda sus traducciones. -->
+                            <div t-if="m.id === ultimaConDatosId and m.id !== state.avisoOfertaDescartada"
+                                 class="ac-offer-alert">
+                                <button class="ac-act" t-on-click="() => this.ofrecerAviso(m)">
+                                    <i class="fa fa-bell-o"/> <span>Alert me daily</span>
+                                </button>
+                                <button class="ac-icon-btn" title="Close"
+                                        t-on-click="() => this.state.avisoOfertaDescartada = m.id">
+                                    <i class="fa fa-times"/>
+                                </button>
+                            </div>
                         </div>
                         <div t-else="" class="ac-bubble ac-bubble-error">
                             <!-- Mismo renderizado que la burbuja normal: los
