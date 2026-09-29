@@ -677,6 +677,18 @@
             </div>
 
             <t t-else="">
+                <!-- Sin plan, sin socio y sin saldo: la PRUEBA GRATIS, dicha antes de
+                     la primera pregunta. Medido el 29/09/2026: seis cuentas instalaron
+                     el conector el dia del alta, lo abrieron una vez con 0 creditos y
+                     no preguntaron nada — lo unico que veian era «Out of credits»,
+                     que a quien nunca tuvo creditos no le dice que puede empezar
+                     gratis. Mismo aviso y mismos textos que la web. -->
+                <div t-if="this.state.connected and !this.state.planName and !this.state.partnerManaged and this.state.walletCredits === 0"
+                     class="ac-trial">
+                    <i class="oi" data-icon="redeem"/>
+                    <div class="ac-trial-txt"><div class="ac-trial-t">7 days free</div><div>Activate your plan whenever you want.</div></div>
+                    <button class="ac-trial-btn" t-on-click="() => this.openBilling()">Start free trial</button>
+                </div>
                 <div class="ac-messages" t-ref="this.messagesRef">
                     <!-- welcome hero (nueva conversacion, sin mensajes) -->
                     <div t-if="!this.state.messages.length" class="ac-welcome">
