@@ -1184,6 +1184,20 @@
         &:hover:not(:disabled) { background: var(--ac-surface-c-high); }
         &:disabled { cursor: not-allowed; opacity: .6; }
     }
+    // Prueba gratis para quien aun no tiene plan (mismo aviso que la web).
+    .ac-trial {
+        display: flex; align-items: center; gap: 10px; margin: 10px 14px 0;
+        padding: 10px 14px; border-radius: 12px;
+        background: var(--ac-surface-c); color: var(--ac-on-surface);
+        > i { color: var(--ac-gold-deep) !important; font-size: 16px; }
+        .ac-trial-txt { flex: 1; min-width: 0; font-size: 13px; line-height: 1.35; }
+        .ac-trial-t { font-weight: 700; font-size: 13.5px; }
+        .ac-trial-btn {
+            flex: none; border: 0; border-radius: 999px; padding: 7px 14px; cursor: pointer;
+            background: var(--ac-navy, #16233f); color: #fff !important;
+            font: inherit; font-size: 13px; font-weight: 600;
+        }
+    }
     // Oferta «Alert me daily» bajo la ULTIMA respuesta con datos: la misma accion
     // de la ficha, en tamaño de chip para no competir con la respuesta.
     .ac-offer-alert {
