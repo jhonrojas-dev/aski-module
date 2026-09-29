@@ -869,14 +869,14 @@
                                  ofrece solo en la ULTIMA respuesta con datos y se
                                  puede descartar. Mismo texto que el boton de la
                                  ficha, asi hereda sus traducciones. -->
-                            <div t-if="m.id === ultimaConDatosId and m.id !== state.avisoOfertaDescartada"
+                            <div t-if="m.id === this.ultimaConDatosId and m.id !== this.state.avisoOfertaDescartada"
                                  class="ac-offer-alert">
                                 <button class="ac-act" t-on-click="() => this.ofrecerAviso(m)">
-                                    <i class="fa fa-bell-o"/> <span>Alert me daily</span>
+                                    <i class="oi" data-icon="notifications"/> <span>Alert me daily</span>
                                 </button>
                                 <button class="ac-icon-btn" title="Close"
                                         t-on-click="() => this.state.avisoOfertaDescartada = m.id">
-                                    <i class="fa fa-times"/>
+                                    <i class="oi" data-icon="close"/>
                                 </button>
                             </div>
                         </div>
