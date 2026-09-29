@@ -411,6 +411,8 @@ class AskiChatWidget extends Component {
             // Alta rapida desde la ultima respuesta: la pregunta ya resuelta se
             // guarda tal cual y el aviso la repite sin volver a pensar nada.
             insightNewFor: null,
+            // Oferta de «Alert me daily» descartada en esta respuesta.
+            avisoOfertaDescartada: null,
             // Alta de los otros tipos: 'watch' | 'reminder' | null. El resumen y
             // el cierre no pasan por aqui — son interruptores, no formularios.
             newKind: null,
@@ -3104,6 +3106,27 @@ class AskiChatWidget extends Component {
         } finally {
             this.state.insightBusy = null;
         }
+    }
+
+    /** Id de la ULTIMA respuesta si trajo datos de una consulta; si no, null. La
+     *  oferta de aviso cuelga solo de ella: en todas las respuestas seria ruido. */
+    get ultimaConDatosId() {
+        const ms = this.state.messages || [];
+        for (let i = ms.length - 1; i >= 0; i--) {
+            const m = ms[i];
+            if (m.role === "error") {
+                return null;
+            }
+            if (m.role === "assistant") {
+                return m.backendId && m.hasQuery && (Number(m.rows) || 0) > 0 ? m.id : null;
+            }
+        }
+        return null;
+    }
+
+    ofrecerAviso(m) {
+        this.state.avisoOfertaDescartada = m.id;
+        this.abrirAltaAviso(m);
     }
 
     // El alta nace de una respuesta que Aski YA resolvio: se guarda esa consulta
