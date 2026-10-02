@@ -796,19 +796,8 @@
                                       class="ac-chart-conv"> · <t t-esc="etiquetaConvertido"/></span>
                             </button>
                             <div class="md" t-raw="renderMd(m.text)"/>
-                            <!-- Pidieron el documento HABLANDO ("hazme una
-                                 presentacion de las ventas del mes"): se OFRECE
-                                 aqui, a un clic, en vez de obligar a buscarlo en
-                                 Detalles. No se descarga solo — una descarga que
-                                 nadie toco sorprende y el navegador la puede
-                                 bloquear. Solo con id real del backend: con el
-                                 temporal, el backend no sabria que exportar. -->
-                            <button t-if="m.docPedido and m.backendId" class="ac-doc-offer"
-                                    t-att-disabled="docPedidoBusy(m)"
-                                    t-on-click="bajarPedido(m)">
-                                <i t-attf-class="fa {{ docPedidoBusy(m) ? 'fa-circle-o-notch fa-spin' : docPedidoIcono(m) }}"/>
-                                <span t-esc="docPedidoBusy(m) ? txt.expBusy : docPedidoTxt(m)"/>
-                            </button>
+                            <!-- Exportar ya NO se ofrece bajo la respuesta (02/10/2026, como en la app y la
+                                 web): sigue en «Details». -->
                             <!-- Nombrar la HABILIDAD, en linea y no con un prompt
                                  del navegador: ese se salta el idioma de Odoo y
                                  no se cancela con Escape. -->
@@ -884,7 +873,7 @@
                             <div t-if="m.id === ultimaConDatosId and m.id !== state.avisoOfertaDescartada"
                                  class="ac-offer-alert">
                                 <button class="ac-act" t-on-click="() => this.ofrecerAviso(m)">
-                                    <i class="fa fa-bell-o"/> <span>Alert me daily</span>
+                                    <i class="fa fa-bell-o"/> <span>Create an alert</span>
                                 </button>
                                 <button class="ac-icon-btn" title="Close"
                                         t-on-click="() => this.state.avisoOfertaDescartada = m.id">
@@ -1873,7 +1862,7 @@
                                 </button>
                                 <button t-if="m.backendId" class="ac-act"
                                         t-on-click="abrirAltaAviso(m)">
-                                    <i class="fa fa-bell-o"/> <span>Alert me daily</span>
+                                    <i class="fa fa-bell-o"/> <span>Create an alert</span>
                                 </button>
                                 <button t-if="m.backendId" class="ac-act"
                                         t-on-click="openEmail(m)">

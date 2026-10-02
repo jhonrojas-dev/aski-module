@@ -3285,3 +3285,9 @@ msgstr "Activa tu plan cuando quieras."
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Start free trial"
 msgstr "Empezar prueba gratis"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Create an alert"
+msgstr "Crear una alerta"
