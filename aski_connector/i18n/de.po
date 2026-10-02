@@ -3321,3 +3321,9 @@ msgstr "Aktivieren Sie Ihren Tarif, wann immer Sie möchten."
 #: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
 msgid "Start free trial"
 msgstr "Kostenlos testen"
+
+#. module: aski_connector
+#. openerp-web
+#: code:addons/aski_connector/static/src/chat/aski_chat.xml:0
+msgid "Create an alert"
+msgstr "Benachrichtigung erstellen"
